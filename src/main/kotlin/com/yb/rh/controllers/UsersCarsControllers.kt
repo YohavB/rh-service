@@ -15,11 +15,11 @@ class UsersCarsController(
     @GetMapping("/")
     fun findAll() = usersCarsService.getAllUsersCars()
 
-    @GetMapping("/by_plate")
+    @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String) =
         usersCarsService.getUsersCarsByPlateNumber(plateNumber)
 
-    @GetMapping("/by_user")
+    @GetMapping("/by-user")
     fun findByUserId(@RequestParam(name = "userId") userId: Long) =
         usersCarsService.getCarsByUserId(userId)
 

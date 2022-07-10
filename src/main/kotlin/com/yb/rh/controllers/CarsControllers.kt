@@ -18,7 +18,7 @@ class CarsController(
     @GetMapping("/")
     fun findAll() = carsService.findAll()
 
-    @GetMapping("/by_plate")
+    @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String) =
         carsService.findByPlateNumber(plateNumber)
 

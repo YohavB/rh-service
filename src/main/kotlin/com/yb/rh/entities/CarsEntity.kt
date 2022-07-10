@@ -60,6 +60,6 @@ data class CarsDTO(
     val model: String,
     val color: Colors,
     var carLicenseExpireDate: LocalDateTime?,
-    var isBlocking: Boolean,
-    var isBlocked: Boolean
+    var isBlocking: Boolean = false,
+    var isBlocked: Boolean = false
 )
