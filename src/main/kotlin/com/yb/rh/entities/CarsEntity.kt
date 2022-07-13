@@ -9,7 +9,7 @@ import javax.persistence.*
 @Table(name = "cars")
 data class Cars(
     @Id
-    @Column(unique=true)
+    @Column(unique = true)
     var plateNumber: String,
     @Enumerated(EnumType.STRING)
     var brand: Brands,
@@ -62,4 +62,10 @@ data class CarsDTO(
     var carLicenseExpireDate: LocalDateTime?,
     var isBlocking: Boolean = false,
     var isBlocked: Boolean = false
-)
+) {
+    companion object {
+        fun returnTest(): CarsDTO {
+            return CarsDTO("Test", Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
+        }
+    }
+}

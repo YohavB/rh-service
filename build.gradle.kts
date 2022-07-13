@@ -7,6 +7,7 @@ plugins {
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
     kotlin("plugin.allopen") version "1.4.32"
+    kotlin("plugin.serialization") version "1.6.10"
 }
 
 allOpen {
@@ -32,6 +33,39 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.github.microutils", "kotlin-logging", "1.5.4")
 
+    implementation("com.michael-bull.kotlin-result", "kotlin-result", "1.1.9")
+
+    // retrofit
+    val retrofitVersion = "2.9.0"
+    implementation("com.squareup.retrofit2", "retrofit", retrofitVersion)
+    implementation("com.squareup.retrofit2", "converter-jackson", retrofitVersion)
+
+    // okhttp
+    val okhttpVersion = "4.1.1"
+    implementation("com.squareup.okhttp3", "okhttp", okhttpVersion)
+    implementation("com.squareup.okhttp3", "logging-interceptor", okhttpVersion)
+
+    //jackson
+    val jacksonVersion = "2.11.1"
+    implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
+    implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
+    implementation("com.fasterxml.jackson.core", "jackson-annotations", jacksonVersion)
+    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", jacksonVersion)
+    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
+    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-csv", jacksonVersion)
+
+    //moshi
+    implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
+
+    // GSON
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
 
@@ -41,7 +75,7 @@ dependencies {
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testImplementation("com.ninja-squad:springmockk:3.0.1")
+    testImplementation("com.ninja-squad:springmockk:3.1.1")
 
 }
 
