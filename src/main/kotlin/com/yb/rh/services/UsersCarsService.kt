@@ -16,9 +16,9 @@ class UsersCarsService(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun getAllUsersCars(): List<UsersCarsDTO> {
-        return repository.findAll().map { it.toDto() }
-    }
+    fun getAllUsersCars() =
+        repository.findAll().map { it?.toDto() ?: emptyList<UsersCarsDTO>() }
+
 
     fun getUsersCarsByPlateNumber(plateNumber: String): List<UsersCarsDTO> {
         logger.info { "Try to find UsersCars by plate : $plateNumber" }
@@ -46,21 +46,21 @@ class UsersCarsService(
     }
 
     fun updateBlockedCar(
-        blockingCarDTO: CarsDTO,
-        blockedCarDTO: CarsDTO,
+        blockingCarPlate: String,
+        blockedCarPlate: String,
         userDto: UsersDTO
     ) {
         logger.info {
-            "Try to update that Car : ${blockingCarDTO.plateNumber} is blocking Car : ${blockedCarDTO.plateNumber}," +
+            "Try to update that Car : $blockingCarPlate is blocking Car : $blockedCarPlate," +
                     " updated by user : ${userDto.userId} (${userDto.firstName} ${userDto.lastName})"
         }
 
-        val blockedCar = Cars.fromDto(blockedCarDTO)
-        val blockingCar = Cars.fromDto(blockingCarDTO)
+        val blockedCar = carsRepository.findByPlateNumber(blockedCarPlate)!!
+        val blockingCar = carsRepository.findByPlateNumber(blockingCarPlate)!!
         val user = Users.fromDto(userDto)
 
-        blockedCar.beingBlocked()
-        blockingCar.beingBlocking()
+        blockedCar.isBlocked
+        blockingCar.isBlocking
 
         carsRepository.save(blockedCar)
         carsRepository.save(blockingCar)

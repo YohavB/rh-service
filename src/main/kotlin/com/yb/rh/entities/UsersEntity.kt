@@ -8,11 +8,13 @@ data class Users(
     var firstName: String,
     var lastName: String,
     var login: String,
-    @Column(unique=true)
+    @Column(unique = true)
     var mail: String,
-    @Column(unique=true)
+    @Column(unique = true)
     var phone: String,
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     val userId: Long = 0
 ) {
     fun toDto() = UsersDTO(firstName, lastName, login, mail, phone, userId)

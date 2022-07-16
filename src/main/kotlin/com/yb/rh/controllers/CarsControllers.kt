@@ -12,17 +12,20 @@ class CarsController(
     @GetMapping("/")
     fun findAll() = carsService.findAll()
 
+
     @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String) =
         carsService.findByPlateNumber(plateNumber)
-
-    @GetMapping("/carinfo")
-    fun getCarInfo(@RequestParam(name = "plateNumber") plateNumber: String) =
-        carsService.getCarInfo(plateNumber)
 
     @PostMapping("/car")
     fun createOrUpdateCar(
         @RequestParam(name = "plateNumber", required = true) plateNumber: String,
         @RequestParam(name = "userId", required = false) userId: Long?
-    ) = carsService.createOrUpdateCar(plateNumber, userId)
+    ) =
+        carsService.createOrUpdateCar(plateNumber, userId)
+
+
+//    @GetMapping("/carinfo")
+//    fun getCarInfo(@RequestParam(name = "plateNumber") plateNumber: String) =
+//        carsService.getCarInfo(plateNumber)
 }

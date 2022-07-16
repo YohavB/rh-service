@@ -2,6 +2,7 @@ package com.yb.rh.entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import org.jetbrains.annotations.NotNull
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -9,7 +10,8 @@ import javax.persistence.*
 @Table(name = "cars")
 data class Cars(
     @Id
-    @Column(unique = true)
+    @NotNull
+    @Column(unique = true, name = "plate_number")
     var plateNumber: String,
     @Enumerated(EnumType.STRING)
     var brand: Brands,
@@ -19,8 +21,7 @@ data class Cars(
     var carLicenseExpireDate: LocalDateTime?,
     var isBlocking: Boolean,
     var isBlocked: Boolean,
-
-    ) {
+) {
 
     fun beingBlocking() {
         this.isBlocking = true

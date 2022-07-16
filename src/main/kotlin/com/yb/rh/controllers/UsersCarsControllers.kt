@@ -15,28 +15,33 @@ class UsersCarsController(
     @GetMapping("/")
     fun findAll() = usersCarsService.getAllUsersCars()
 
+
     @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String) =
         usersCarsService.getUsersCarsByPlateNumber(plateNumber)
+
 
     @GetMapping("/by-user")
     fun findByUserId(@RequestParam(name = "userId") userId: Long) =
         usersCarsService.getCarsByUserId(userId)
 
+
     @GetMapping("/blocking")
     fun findBlockingByPlateNumber(@RequestParam(name = "blockedPlateNumber") blockedPlateNumber: String) =
         usersCarsService.getBlockingCarByBlockedPlateNumber(blockedPlateNumber)
+
 
     @GetMapping("/blocked")
     fun findBlockedByPlateNumber(@RequestParam(name = "blockingPlateNumber") blockingPlateNumber: String) =
         usersCarsService.getBlockedCarByBlockingPlateNumber(blockingPlateNumber)
 
+
     @PostMapping("/update-blocking")
     fun updateBlockedCarByPlateNumber(
-        @RequestParam(name = "blockingCar") blockingCarDTO: CarsDTO,
-        @RequestParam(name = "blockedCar") blockedCarDTO: CarsDTO,
+        @RequestParam(name = "blockingCar") blockingCarPlate: String,
+        @RequestParam(name = "blockedCar") blockedCarPlate: String,
         @RequestParam(name = "user") userDto: UsersDTO
-    ) = usersCarsService.updateBlockedCar(blockingCarDTO, blockedCarDTO, userDto)
+    ) = usersCarsService.updateBlockedCar(blockingCarPlate, blockedCarPlate, userDto)
 
 
     @PostMapping("/release-blocking")

@@ -7,22 +7,22 @@ import javax.persistence.*
 @Table(name = "users_cars")
 data class UsersCars(
     @ManyToOne @NotNull
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     var userId: Users,
 
     @ManyToOne @NotNull
-    @JoinColumn(name = "user_car", insertable = false, updatable = false)
+    @JoinColumn(name = "user_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
     var userCar: Cars,
 
     @ManyToOne
-    @JoinColumn(name = "blocking_car", insertable = false, updatable = false)
+    @JoinColumn(name = "blocking_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
     var blockingCar: Cars? = null,
 
     @ManyToOne
-    @JoinColumn(name = "blocked_car", insertable = false, updatable = false)
+    @JoinColumn(name = "blocked_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
     var blockedCar: Cars? = null,
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
 ) {
     fun blockedBy(blockingCar: Cars?) {
@@ -42,18 +42,18 @@ data class UsersCars(
     }
 
 
-    fun toDto() = UsersCarsDTO(userId, userCar, blockingCar, blockedCar)
+    fun toDto() = UsersCarsDTO(userId.userId, userCar.plateNumber, blockingCar?.plateNumber, blockedCar?.plateNumber)
 
-    companion object {
-        fun fromDto(usersCarsDTO: UsersCarsDTO) = UsersCars(
-            usersCarsDTO.userId, usersCarsDTO.userCar, usersCarsDTO.blockingCar, usersCarsDTO.blockedCar
-        )
-    }
+//    companion object {
+//        fun fromDto(usersCarsDTO: UsersCarsDTO) = UsersCars(
+//            usersCarsDTO.userId, usersCarsDTO.userCar, usersCarsDTO.blockingCar, usersCarsDTO.blockedCar
+//        )
+//    }
 }
 
 data class UsersCarsDTO(
-    var userId: Users,
-    var userCar: Cars,
-    var blockingCar: Cars?,
-    var blockedCar: Cars?
+    var userId: Long,
+    var userCar: String,
+    var blockingCar: String?,
+    var blockedCar: String?
 )

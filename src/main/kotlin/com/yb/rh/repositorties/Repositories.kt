@@ -11,7 +11,7 @@ interface UsersRepository : CrudRepository<Users, Long> {
     fun findByPhone(phone: String): Users?
 }
 
-interface CarsRepository : CrudRepository<Cars, Long> {
+interface CarsRepository : CrudRepository<Cars, String> {
     fun findByPlateNumber(plateNumber: String): Cars?
 }
 
