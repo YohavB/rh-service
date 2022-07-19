@@ -1,24 +1,24 @@
 package com.yb.rh.repositorties
 
-import com.yb.rh.entities.Cars
-import com.yb.rh.entities.Users
+import com.yb.rh.entities.Car
+import com.yb.rh.entities.User
 import com.yb.rh.entities.UsersCars
 import org.springframework.data.repository.CrudRepository
 
-interface UsersRepository : CrudRepository<Users, Long> {
-    fun findByUserId(id: Long): Users?
-    fun findByMail(mail: String): Users?
-    fun findByPhone(phone: String): Users?
+interface UsersRepository : CrudRepository<User, Long> {
+    fun findByUserId(id: Long): User
+    fun findByMail(mail: String): User?
+    fun findByPhone(phone: String): User?
 }
 
-interface CarsRepository : CrudRepository<Cars, String> {
-    fun findByPlateNumber(plateNumber: String): Cars?
+interface CarsRepository : CrudRepository<Car, String> {
+    fun findByPlateNumber(plateNumber: String): Car?
 }
 
 interface UsersCarsRepository : CrudRepository<UsersCars, Long> {
-    fun findByUserId(userId: Users): List<UsersCars>?
-    fun findByUserCar(car: Cars): List<UsersCars>?
-    fun findByUserIdAndUserCar(userId: Users, car: Cars): UsersCars?
-    fun findBlockedCarsByBlockingCar(blockingCar: Cars): List<UsersCars>?
-    fun findBlockingCarsByBlockedCar(blockedCar: Cars): List<UsersCars>?
+    fun findByUser(userId: User): List<UsersCars>?
+    fun findByCar(car: Car): List<UsersCars>?
+    fun findByUserAndCar(userId: User, car: Car): UsersCars
+    fun findByBlockingCar(blockingCar: Car): List<UsersCars>?
+    fun findByBlockedCar(blockedCar: Car): List<UsersCars>?
 }

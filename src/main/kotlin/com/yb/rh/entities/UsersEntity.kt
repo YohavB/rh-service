@@ -4,7 +4,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "users")
-data class Users(
+data class User(
     var firstName: String,
     var lastName: String,
     var login: String,
@@ -21,10 +21,11 @@ data class Users(
 
     companion object {
         fun fromDto(usersDTO: UsersDTO) =
-            Users(usersDTO.firstName, usersDTO.lastName, usersDTO.login, usersDTO.mail, usersDTO.phone, usersDTO.userId)
+            User(usersDTO.firstName, usersDTO.lastName, usersDTO.login, usersDTO.mail, usersDTO.phone, usersDTO.userId)
     }
 }
 
+//todo delete login from dto
 data class UsersDTO(
     var firstName: String,
     var lastName: String,
@@ -32,4 +33,6 @@ data class UsersDTO(
     var mail: String,
     var phone: String,
     val userId: Long
-)
+) {
+    fun toEntity() = User.fromDto(this)
+}

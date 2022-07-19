@@ -25,6 +25,10 @@ class UsersCarsController(
     fun findByUserId(@RequestParam(name = "userId") userId: Long) =
         usersCarsService.getCarsByUserId(userId)
 
+    @GetMapping("/by-user-and-plate")
+    fun findByUserAndPlate(@RequestParam (name = "userId") userId: Long
+    ,@RequestParam(name = "plateNumber") plateNumber: String) = usersCarsService.getByUserAndPlate(userId,plateNumber)
+
 
     @GetMapping("/blocking")
     fun findBlockingByPlateNumber(@RequestParam(name = "blockedPlateNumber") blockedPlateNumber: String) =
@@ -36,20 +40,20 @@ class UsersCarsController(
         usersCarsService.getBlockedCarByBlockingPlateNumber(blockingPlateNumber)
 
 
-    @PostMapping("/update-blocking")
+    @PostMapping("/update-blocked")
     fun updateBlockedCarByPlateNumber(
         @RequestParam(name = "blockingCar") blockingCarPlate: String,
         @RequestParam(name = "blockedCar") blockedCarPlate: String,
-        @RequestParam(name = "user") userDto: UsersDTO
-    ) = usersCarsService.updateBlockedCar(blockingCarPlate, blockedCarPlate, userDto)
+        @RequestParam(name = "userId") userId: Long
+    ) = usersCarsService.updateBlockedCar(blockingCarPlate, blockedCarPlate, userId)
 
 
-    @PostMapping("/release-blocking")
+    @PostMapping("/release-blocked")
     fun releaseBlockedCarByPlateNumber(
-        @RequestParam blockingCarDTO: CarsDTO,
-        @RequestParam blockedCarDTO: CarsDTO,
-        @RequestParam userDto: UsersDTO
+        @RequestParam(name = "blockingCar") blockingCarPlate: String,
+        @RequestParam(name = "blockedCar") blockedCarPlate: String,
+        @RequestParam(name = "userId") userId: Long
     ) {
-        usersCarsService.releaseCar(blockingCarDTO, blockedCarDTO, userDto)
+        usersCarsService.releaseCar(blockingCarPlate, blockedCarPlate, userId)
     }
 }

@@ -2,9 +2,8 @@ package com.yb.rh
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
-import com.yb.rh.entities.Cars
-import com.yb.rh.entities.Users
-import com.yb.rh.entities.UsersCars
+import com.yb.rh.entities.Car
+import com.yb.rh.entities.User
 import com.yb.rh.repositorties.CarsRepository
 import com.yb.rh.repositorties.UsersCarsRepository
 import com.yb.rh.repositorties.UsersRepository
@@ -23,13 +22,13 @@ class RhServiceConfiguration {
     ) =
         ApplicationRunner {
             println("DB Init Starting ")
-            val userOne = Users("User1", "One", "login1", "one@gmail.com", "1111")
-            val userTwo = Users("User2", "Two", "login2", "two@gmail.com", "2222")
-            val userThree = Users("User3", "Three", "login3", "three@gmail.com", "3333")
-            val userFour = Users("User4", "Four", "login4", "four@gmail.com", "4444")
-            val userFive = Users("User5", "Five", "login5", "five@gmail.com", "5555")
+            val userOne = User("User1", "One", "login1", "one@gmail.com", "1111")
+            val userTwo = User("User2", "Two", "login2", "two@gmail.com", "2222")
+            val userThree = User("User3", "Three", "login3", "three@gmail.com", "3333")
+            val userFour = User("User4", "Four", "login4", "four@gmail.com", "4444")
+            val userFive = User("User5", "Five", "login5", "five@gmail.com", "5555")
 
-            val carOne = Cars(
+            val carOne = Car(
                 "11111111",
                 Brands.AUDI,
                 "TT",
@@ -39,7 +38,7 @@ class RhServiceConfiguration {
                 isBlocked = false
 
             )
-            val carTwo = Cars(
+            val carTwo = Car(
                 "22222222",
                 Brands.AUDI,
                 "Q7",
@@ -48,7 +47,7 @@ class RhServiceConfiguration {
                 isBlocking = false,
                 isBlocked = false
             )
-            val carThree = Cars(
+            val carThree = Car(
                 "33333333",
                 Brands.AUDI,
                 "R8",
@@ -58,7 +57,7 @@ class RhServiceConfiguration {
                 isBlocked = false
 
             )
-            val carFour = Cars(
+            val carFour = Car(
                 "44444444",
                 Brands.TESLA,
                 "S",
@@ -68,7 +67,7 @@ class RhServiceConfiguration {
                 isBlocked = false
 
             )
-            val carFive = Cars(
+            val carFive = Car(
                 "555555555",
                 Brands.TESLA,
                 "3",
@@ -78,7 +77,7 @@ class RhServiceConfiguration {
                 isBlocked = false
 
             )
-            val carSix = Cars(
+            val carSix = Car(
                 "6666666",
                 Brands.TESLA,
                 "X",
@@ -88,7 +87,7 @@ class RhServiceConfiguration {
                 isBlocked = false
             )
 
-            val carSeven = Cars(
+            val carSeven = Car(
                 "7777777",
                 Brands.TESLA,
                 "Y",

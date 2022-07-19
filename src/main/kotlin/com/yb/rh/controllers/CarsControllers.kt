@@ -12,7 +12,6 @@ class CarsController(
     @GetMapping("/")
     fun findAll() = carsService.findAll()
 
-
     @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String) =
         carsService.findByPlateNumber(plateNumber)
@@ -23,7 +22,6 @@ class CarsController(
         @RequestParam(name = "userId", required = false) userId: Long?
     ) =
         carsService.createOrUpdateCar(plateNumber, userId)
-
 
 //    @GetMapping("/carinfo")
 //    fun getCarInfo(@RequestParam(name = "plateNumber") plateNumber: String) =

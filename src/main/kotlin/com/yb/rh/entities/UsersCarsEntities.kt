@@ -8,28 +8,28 @@ import javax.persistence.*
 data class UsersCars(
     @ManyToOne @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    var userId: Users,
+    var user: User,
 
     @ManyToOne @NotNull
-    @JoinColumn(name = "user_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
-    var userCar: Cars,
+    @JoinColumn(name = "user_car", referencedColumnName = "plate_number")
+    var car: Car,
 
     @ManyToOne
-    @JoinColumn(name = "blocking_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
-    var blockingCar: Cars? = null,
+    @JoinColumn(name = "blocking_car", referencedColumnName = "plate_number")
+    var blockingCar: Car? = null,
 
     @ManyToOne
-    @JoinColumn(name = "blocked_car", referencedColumnName = "plate_number", insertable = false, updatable = false)
-    var blockedCar: Cars? = null,
+    @JoinColumn(name = "blocked_car", referencedColumnName = "plate_number")
+    var blockedCar: Car? = null,
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
 ) {
-    fun blockedBy(blockingCar: Cars?) {
+    fun blockedBy(blockingCar: Car?) {
         this.blockingCar = blockingCar
     }
 
-    fun blocking(blockedCar: Cars?) {
+    fun blocking(blockedCar: Car?) {
         this.blockedCar = blockedCar
     }
 
@@ -42,7 +42,7 @@ data class UsersCars(
     }
 
 
-    fun toDto() = UsersCarsDTO(userId.userId, userCar.plateNumber, blockingCar?.plateNumber, blockedCar?.plateNumber)
+    fun toDto() = UsersCarsDTO(user.userId, car.plateNumber, blockingCar?.plateNumber, blockedCar?.plateNumber)
 
 //    companion object {
 //        fun fromDto(usersCarsDTO: UsersCarsDTO) = UsersCars(

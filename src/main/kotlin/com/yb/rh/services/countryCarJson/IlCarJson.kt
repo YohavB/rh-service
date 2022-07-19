@@ -1,4 +1,4 @@
-package com.yb.rh.services.ilcarapi
+package com.yb.rh.services.countryCarJson
 
 import com.squareup.moshi.JsonClass
 import com.yb.rh.common.Brands

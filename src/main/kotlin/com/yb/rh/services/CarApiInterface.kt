@@ -1,16 +1,10 @@
 package com.yb.rh.services
 
 import com.yb.rh.common.Countries
-import com.yb.rh.services.ilcarapi.IlCarJson
 import org.springframework.stereotype.Service
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Query
-import java.util.*
-import java.util.Locale.IsoCountryCode
 
 @Service
-interface CarApiInterface {
+class CarApiInterface() {
 
     fun getCarInfo(plateNumber: String, country: Countries): String {
         return when (country) {

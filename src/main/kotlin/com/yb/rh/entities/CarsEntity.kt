@@ -8,7 +8,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "cars")
-data class Cars(
+data class Car(
     @Id
     @NotNull
     @Column(unique = true, name = "plate_number")
@@ -43,7 +43,7 @@ data class Cars(
     fun toDto() = CarsDTO(plateNumber, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
 
     companion object {
-        fun fromDto(carsDTO: CarsDTO) = Cars(
+        fun fromDto(carsDTO: CarsDTO) = Car(
             carsDTO.plateNumber,
             carsDTO.brand,
             carsDTO.model,
@@ -69,4 +69,6 @@ data class CarsDTO(
             return CarsDTO("Test", Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
         }
     }
+
+    fun toEntity() = Car.fromDto(this)
 }

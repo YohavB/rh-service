@@ -2,33 +2,34 @@ package com.yb.rh.services
 
 import com.google.gson.GsonBuilder
 import com.yb.rh.common.Countries
-import com.yb.rh.entities.Cars
+import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarsDTO
 import com.yb.rh.entities.UsersCars
 import com.yb.rh.repositorties.CarsRepository
 import com.yb.rh.repositorties.UsersCarsRepository
 import com.yb.rh.repositorties.UsersRepository
-import com.yb.rh.services.ilcarapi.IlCarJson
+import com.yb.rh.services.countryCarJson.CountryCarJson
 import mu.KotlinLogging
 import okhttp3.*
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.RequestParam
 
 @Service
 class CarsService(
     private val carsRepository: CarsRepository,
     private val usersRepository: UsersRepository,
     private val usersCarsRepository: UsersCarsRepository,
-    private val carApiInterface: CarApiInterface
+    private val carApiInterface: CarApiInterface,
+    private val countryCarJson: CountryCarJson
 ) {
+
     private val logger = KotlinLogging.logger {}
 
-    fun findAll(): List<Cars> = carsRepository.findAll().toList()
+    fun findAll(): List<Car> = carsRepository.findAll().toList()
 
-    fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String): CarsDTO? {
+    fun findByPlateNumber(plateNumber: String): CarsDTO {
         logger.info { "Try to find Car : $plateNumber" }
         return carsRepository.findByPlateNumber(plateNumber)?.toDto()
-            ?: getCarInfo(plateNumber).let { carsRepository.save(Cars.fromDto(it)).toDto() }
+            ?: getCarInfo(plateNumber, Countries.IL).let { carsRepository.save(Car.fromDto(it)).toDto() }
     }
 
 
@@ -38,30 +39,37 @@ class CarsService(
     ) {
         logger.info { "Try to create or update Car : $plateNumber of user : $userId " }
 
-        val carDTO = getCarInfo(plateNumber)
+        val currentCar = getCarInfo(plateNumber, Countries.IL).toEntity()
 
-        carsRepository.findByPlateNumber(plateNumber)?.let { currentCar ->
-            userId?.let { it ->
-                usersRepository.findByUserId(it)?.let { currentUser ->
-                    usersCarsRepository.save(UsersCars(currentUser, currentCar))
-                }
+        carsRepository.save(currentCar)
+
+        userId?.let { it ->
+            usersRepository.findByUserId(it)?.let { currentUser ->
+                val userCar = UsersCars(currentUser, currentCar)
+                println(usersCarsRepository.save(userCar))
             }
-
         }
     }
 
-    private fun getCarInfo(plateNumber: String): CarsDTO {
-        logger.info { "Try to get Car Info $plateNumber" }
+    private fun getCarInfo(plateNumber: String, country: Countries): CarsDTO {
+        logger.info { "Try to get Car Info $plateNumber from $country" }
 
         //todo get country
-        val url = carApiInterface.getCarInfo(plateNumber, Countries.IL)
+        val url = carApiInterface.getCarInfo(plateNumber, country)
 
         val request = Request.Builder().url(url).build()
 
         val body = OkHttpClient().newCall(request).execute().body
 
-        val carInfo = GsonBuilder().create().fromJson(body?.string(), IlCarJson::class.java)
+        val actualCountryCarJson = countryCarJson.getCountryCarJson(country)
+
+        val carInfo = GsonBuilder().create().fromJson(body?.string(), actualCountryCarJson)
 
         return carInfo.toCarDto()
+    }
+
+    fun updateBlockedAndBlockingCar(blockingCarPlate: String,
+                                    blockedCarPlate: String){
+
     }
 }
