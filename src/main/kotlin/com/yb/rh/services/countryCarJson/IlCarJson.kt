@@ -3,7 +3,7 @@ package com.yb.rh.services.countryCarJson
 import com.squareup.moshi.JsonClass
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
-import com.yb.rh.entities.CarsDTO
+import com.yb.rh.entities.CarDTO
 import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
@@ -12,8 +12,8 @@ data class IlCarJson(
     val result: Result,
     val success: Boolean
 ) {
-    fun toCarDto(): CarsDTO {
-        return CarsDTO(getPlateNumber(), getBrand(), getModel(), getColor(), getLicenseDateExpiration())
+    fun toCarDto(): CarDTO {
+        return CarDTO(getPlateNumber(), getBrand(), getModel(), getColor(), getLicenseDateExpiration())
     }
 
     private fun getPlateNumber() = this.result.getPlateNumber()

@@ -3,7 +3,7 @@ package com.yb.rh.common
 enum class Brands(private val value: Int, private val prettyName: String) {
     AIWAYS(0, "Aiways"),
 
-    // AIWAYS	(	1	,	"Aiways"	)	,
+    // FREE	(	1	,	"Free"	)	,
     ALPHA_ROMEO(2, "Alpha Romeo"),
     ASTON_MARTIN(3, "Aston Martin"),
     AUDI(4, "Audi"),
@@ -11,7 +11,7 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     BENTLEY(6, "Bentley"),
     BMW(7, "BMW"),
 
-    //MERCEDES(8, "Mercedes"),
+    //FREE(8, "Free"),
     BUICK(9, "Buick"),
     CADILLAC(10, "Cadillac"),
     CENNTRO(11, "Cenntro"),
@@ -27,7 +27,7 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     DONGFENG(21, "Dongfeng"),
     DS(22, "DS"),
 
-    // DS(23, "DS"),
+    // FREE(23, "FREE"),
     FERRARI(24, "Ferrari"),
     FIAT(25, "Fiat"),
     FORD(26, "Ford"),
@@ -53,11 +53,10 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     LEXUS(46, "Lexus"),
     LINCOLN(47, "Lincoln"),
     LTI(48, "LTI"),
-
     LYNK_AND_CO(49, "Lynk & Co"),
     MAN(50, "Man"),
 
-    // MAN	(	51	,	"Man"	)	,
+    // FREE	(	51	,	"FREE"	)	,
     MASERATI(52, "Maserati"),
     MAXUS(53, "Maxus"),
     MAZDA(54, "Mazda"),
@@ -87,14 +86,11 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     TESLA(78, "Tesla"),
     TOYOTA(79, "Toyota"),
 
-    //  TOYOTA	(	80	,	"Toyota"	)	,
+    //  FREE	(	80	,	"FREE"	)	,
     VOLKSWAGEN(81, "Volkswagen"),
     VOLVO(82, "Volvo"),
     UNKNOWN(999, "Unknown");
 
-    override fun toString(): String {
-        return prettyName
-    }
 
     companion object {
         private val mapping: MutableMap<Int, Brands> = HashMap()
@@ -108,9 +104,5 @@ enum class Brands(private val value: Int, private val prettyName: String) {
                 mapping[brands.value] = brands
             }
         }
-    }
-
-    fun toInt(): Int {
-        return value
     }
 }

@@ -103,9 +103,6 @@ enum class Colors(private val value: Int, private val prettyName: String) {
     DARK_SILVER_METALLIC(99, "Dark Silver Metallic"),
     WHITE(100, "White");
 
-    override fun toString(): String {
-        return prettyName
-    }
 
     companion object {
         private val mapping: MutableMap<Int, Colors> = HashMap()
@@ -119,10 +116,6 @@ enum class Colors(private val value: Int, private val prettyName: String) {
                 mapping[colors.value] = colors
             }
         }
-    }
-
-    fun toInt(): Int {
-        return value
     }
 }
 

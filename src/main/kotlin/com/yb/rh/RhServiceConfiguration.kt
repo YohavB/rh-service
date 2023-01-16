@@ -3,10 +3,9 @@ package com.yb.rh
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.entities.Car
-import com.yb.rh.entities.User
-import com.yb.rh.repositorties.CarsRepository
-import com.yb.rh.repositorties.UsersCarsRepository
-import com.yb.rh.repositorties.UsersRepository
+import com.yb.rh.repositories.CarsRepository
+import com.yb.rh.repositories.UsersCarsRepository
+import com.yb.rh.repositories.UsersRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,69 +21,53 @@ class RhServiceConfiguration {
     ) =
         ApplicationRunner {
             println("DB Init Starting ")
-            val userOne = User("User1", "One", "login1", "one@gmail.com", "1111")
-            val userTwo = User("User2", "Two", "login2", "two@gmail.com", "2222")
-            val userThree = User("User3", "Three", "login3", "three@gmail.com", "3333")
-            val userFour = User("User4", "Four", "login4", "four@gmail.com", "4444")
-            val userFive = User("User5", "Five", "login5", "five@gmail.com", "5555")
+//            val userOne = User("User1", "One", "login1", "one@gmail.com", "1111")
+//            val userTwo = User("User2", "Two", "login2", "two@gmail.com", "2222")
+//            val userThree = User("User3", "Three", "login3", "three@gmail.com", "3333")
+//            val userFour = User("User4", "Four", "login4", "four@gmail.com", "4444")
+//            val userFive = User("User5", "Five", "login5", "five@gmail.com", "5555")
 
             val carOne = Car(
                 "11111111",
                 Brands.AUDI,
                 "TT",
                 Colors.WHITE,
-                null,
-                isBlocking = false,
-                isBlocked = false
-
+                null
             )
             val carTwo = Car(
                 "22222222",
                 Brands.AUDI,
                 "Q7",
                 Colors.WHITE,
-                null,
-                isBlocking = false,
-                isBlocked = false
+                null
             )
             val carThree = Car(
                 "33333333",
                 Brands.AUDI,
                 "R8",
                 Colors.BLACK,
-                null,
-                isBlocking = false,
-                isBlocked = false
-
+                null
             )
             val carFour = Car(
                 "44444444",
                 Brands.TESLA,
                 "S",
                 Colors.BLACK,
-                null,
-                isBlocking = false,
-                isBlocked = false
-
+                null
             )
             val carFive = Car(
                 "555555555",
                 Brands.TESLA,
                 "3",
                 Colors.WHITE,
-                null,
-                isBlocking = false,
-                isBlocked = false
-
+                null
             )
             val carSix = Car(
                 "6666666",
                 Brands.TESLA,
                 "X",
                 Colors.BLACK,
-                null,
-                isBlocking = false,
-                isBlocked = false
+                null
             )
 
             val carSeven = Car(
@@ -92,9 +75,7 @@ class RhServiceConfiguration {
                 Brands.TESLA,
                 "Y",
                 Colors.WHITE,
-                null,
-                isBlocking = false,
-                isBlocked = false
+                null
             )
             println("users Init Done")
 
