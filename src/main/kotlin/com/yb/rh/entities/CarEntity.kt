@@ -2,6 +2,8 @@ package com.yb.rh.entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import org.jetbrains.annotations.NotNull
 import java.time.LocalDateTime
 import javax.persistence.*
@@ -18,9 +20,16 @@ data class Car(
     var model: String,
     @Enumerated(EnumType.STRING)
     var color: Colors,
-    var carLicenseExpireDate: LocalDateTime?,
-    var isBlocking: Boolean,
-    var isBlocked: Boolean,
+    var carLicenseExpireDate: LocalDateTime? = null,
+    var isBlocking: Boolean = false,
+    var isBlocked: Boolean = false,
+    @CreationTimestamp
+    @Column(name = "creation_time")
+    var creationTime: LocalDateTime? = null,
+
+    @UpdateTimestamp
+    @Column(name = "update_time")
+    var updateTime: LocalDateTime? = null,
 ) {
 
     fun beingBlocking() {
@@ -40,33 +49,33 @@ data class Car(
     }
 
 
-    fun toDto() = CarsDTO(plateNumber, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
+    fun toDto() = CarDTO(plateNumber, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
 
     companion object {
-        fun fromDto(carsDTO: CarsDTO) = Car(
-            carsDTO.plateNumber,
-            carsDTO.brand,
-            carsDTO.model,
-            carsDTO.color,
-            carsDTO.carLicenseExpireDate,
-            carsDTO.isBlocking,
-            carsDTO.isBlocked
+        fun fromDto(carDTO: CarDTO) = Car(
+            carDTO.plateNumber,
+            carDTO.brand,
+            carDTO.model,
+            carDTO.color,
+            carDTO.carLicenseExpireDate,
+            carDTO.isBlocking,
+            carDTO.isBlocked
         )
     }
 }
 
-data class CarsDTO(
+data class CarDTO(
     val plateNumber: String,
     val brand: Brands,
     val model: String,
     val color: Colors,
     var carLicenseExpireDate: LocalDateTime?,
     var isBlocking: Boolean = false,
-    var isBlocked: Boolean = false
+    var isBlocked: Boolean = false,
 ) {
     companion object {
-        fun returnTest(): CarsDTO {
-            return CarsDTO("Test", Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
+        fun returnTest(): CarDTO {
+            return CarDTO("Test", Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
         }
     }
 
