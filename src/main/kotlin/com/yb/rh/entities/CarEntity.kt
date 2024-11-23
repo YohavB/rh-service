@@ -15,14 +15,21 @@ data class Car(
     @NotNull
     @Column(unique = true, name = "plate_number")
     var plateNumber: String,
+
     @Enumerated(EnumType.STRING)
-    var brand: Brands,
+    var brand: Brands = Brands.UNKNOWN,
+
     var model: String,
+
     @Enumerated(EnumType.STRING)
-    var color: Colors,
+    var color: Colors = Colors.UNKNOWN,
+
     var carLicenseExpireDate: LocalDateTime? = null,
+
     var isBlocking: Boolean = false,
+
     var isBlocked: Boolean = false,
+
     @CreationTimestamp
     @Column(name = "creation_time")
     var creationTime: LocalDateTime? = null,

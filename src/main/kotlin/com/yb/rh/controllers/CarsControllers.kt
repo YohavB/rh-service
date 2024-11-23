@@ -1,50 +1,31 @@
 package com.yb.rh.controllers
 
-import com.github.michaelbull.result.*
 import com.yb.rh.services.CarService
 import com.yb.rh.utils.RHResponse
-import com.yb.rh.utils.SuccessResponse
-import com.yb.rh.utils.Utils
-import mu.KotlinLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/cars")
 class CarsController(
-    private val carService: CarService,
-) {
-
-    var logger = KotlinLogging.logger {}
+    private val carService: CarService
+) : BaseController() {  // Inherit from BaseController
 
     @GetMapping("/")
     fun findAll() = carService.findAll()
 
     @GetMapping("/by-plate")
     fun findByPlateNumber(@RequestParam(name = "plateNumber") plateNumber: String): ResponseEntity<out RHResponse> {
-        return carService.findByPlateNumber(plateNumber)
-            .onSuccess { logger.info { "Successfully " } }
-            .onFailure { logger.warn(it) { "Failed  " } }
-            .mapError { Utils.mapRHErrorToResponse(it) }
-            .map { ResponseEntity.ok(SuccessResponse(it)) }
-            .fold({ it }, { it })
+        val result = carService.findByPlateNumber(plateNumber)
+        return handleServiceResult(result, "Successfully found car by plate", "Failed to find car by plate")
     }
 
     @PostMapping("/car")
     fun createOrUpdateCar(
         @RequestParam(name = "plateNumber", required = true) plateNumber: String,
-        @RequestParam(name = "userId", required = false) userId: Long?,
+        @RequestParam(name = "userId", required = false) userId: Long?
     ): ResponseEntity<out RHResponse> {
-        return carService.createOrUpdateCar(plateNumber, userId)
-            .onSuccess { logger.info { "Successfully " } }
-            .onFailure { logger.warn(it) { "Failed  " } }
-            .mapError { Utils.mapRHErrorToResponse(it) }
-            .map { ResponseEntity.ok(SuccessResponse(it)) }
-            .fold({ it }, { it })
+        val result = carService.createOrUpdateCar(plateNumber, userId)
+        return handleServiceResult(result, "Successfully created or updated car", "Failed to create or update car")
     }
-
-
-//    @GetMapping("/carinfo")
-//    fun getCarInfo(@RequestParam(name = "plateNumber") plateNumber: String) =
-//        carsService.getCarInfo(plateNumber)
 }

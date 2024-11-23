@@ -35,13 +35,6 @@ class UsersService(
             .andThen { insertCarDtoListToUserDto(it) }
     }
 
-    fun findByExternalId(externalId: String): Result<UserDTO, RHException> {
-        logger.info { "Try to find user by phone: $externalId " }
-        return repository.findByExternalIdSafe(externalId)
-            .onFailure { logger.warn(it) { "Failed" } }
-            .andThen { insertCarDtoListToUserDto(it) }
-    }
-
     fun createOrUpdateUser(userDTO: UserDTO): Result<UserDTO, RHException> {
         logger.info { "Create or update user : ${userDTO.email} " }
         return repository.saveSafe(userDTO.toEntity())

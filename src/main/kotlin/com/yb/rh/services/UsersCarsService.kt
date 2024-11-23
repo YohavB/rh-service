@@ -184,11 +184,11 @@ class UsersCarsService(
     private fun blockToString(block: Boolean) = if (block) "block" else "release"
 
     private fun sendNotification(user: User, notificationsKind: NotificationsKind, car: Car? = null) {
-        logger.info { "sending $notificationsKind to user : ${user.userId}, ${user.firstName} ${user.lastName} with car : ${car?.plateNumber}" }
+        logger.info { "sending $notificationsKind to user : ${user.userId} with car : ${car?.plateNumber}" }
         when (notificationsKind) {
             NotificationsKind.NEED_TO_GO -> notificationService.sendPushNotification(
                 user.pushNotificationToken,
-                car!!.plateNumber
+                requireNotNull(car){"Car can't be null when sending NEED_TO_GO notification"}.plateNumber
             )
             NotificationsKind.BEEN_BLOCKED -> notificationService.sendPushNotification(
                 user.pushNotificationToken, null

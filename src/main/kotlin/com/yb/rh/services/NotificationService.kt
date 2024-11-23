@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -12,19 +13,29 @@ import java.util.stream.Collectors
 
 @Service
 class NotificationService {
+
+    private val logger = KotlinLogging.logger {}
+
     fun sendPushNotification(pushToken: String, blockedCarPlate: String?) {
         CoroutineScope(Dispatchers.IO).launch {
             val recipient = "ExponentPushToken[$pushToken]"
-            val title = if (blockedCarPlate != null) "Sorry but you need to move"
-            else "You've been blocked !"
-            val message = if (blockedCarPlate != null) "Car : $blockedCarPlate need to go, please move your car"
-            else "You've been blocked, remember to use the Let Me Go button."
 
-            if (!PushClient.isExponentPushToken(recipient)) throw Error("Token:$recipient is not a valid token.")
-            val expoPushMessage = ExpoPushMessage()
-            expoPushMessage.to.add(recipient)
-            expoPushMessage.title = title
-            expoPushMessage.body = message
+            if (!PushClient.isExponentPushToken(recipient)) {
+                logger.error { "Invalid push token: $recipient" }
+                return@launch
+            }
+
+            val title = blockedCarPlate?.let { "Sorry, but you need to move" } ?: "You've been blocked!"
+            val message = blockedCarPlate?.let {
+                "Car: $blockedCarPlate needs to move. Please move your car."
+            } ?: "You've been blocked. Remember to use the 'Let Me Go' button."
+
+            val expoPushMessage = ExpoPushMessage().apply {
+                to.add(recipient)
+                this.title = title
+                body = message
+            }
+
             val expoPushMessages: MutableList<ExpoPushMessage> = ArrayList()
             expoPushMessages.add(expoPushMessage)
             val client = PushClient()

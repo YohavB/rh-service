@@ -4,7 +4,10 @@ import com.squareup.moshi.JsonClass
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.entities.CarDTO
+import mu.KotlinLogging
 import java.time.LocalDateTime
+
+var logger = KotlinLogging.logger {}
 
 @JsonClass(generateAdapter = true)
 data class IlCarJson(
@@ -26,12 +29,12 @@ data class IlCarJson(
 @JsonClass(generateAdapter = true)
 data class Result(
     val records: List<Record>
-){
-     fun getPlateNumber() = this.records[0].mispar_rechev.toString()
-     fun getBrand() = this.records[0].getBrand()
-     fun getModel() = this.records[0].kinuy_mishari
-     fun getColor() = this.records[0].getColor()
-     fun getLicenseDateExpiration(): LocalDateTime = LocalDateTime.parse(this.records[0].tokef_dt)
+) {
+    fun getPlateNumber() = this.records[0].mispar_rechev.toString()
+    fun getBrand() = this.records[0].getBrand()
+    fun getModel() = this.records[0].kinuy_mishari
+    fun getColor() = this.records[0].getColor()
+    fun getLicenseDateExpiration(): LocalDateTime = LocalDateTime.parse(this.records[0].tokef_dt)
 }
 
 @JsonClass(generateAdapter = true)
@@ -141,7 +144,7 @@ data class Record(
             941 -> Brands.ROVER
             63, 675, 711, 766, 771, 928, 940, 943 -> Brands.RENAULT
             751, 961, 962, 981 -> Brands.CHEVROLET
-            else -> Brands.UNKNOWN
+            else -> Brands.UNKNOWN.also { logger.warn { "Unknown brand: ${this.tozeret_cd}, please add it the fast as possible !!" } }
         }
     }
 

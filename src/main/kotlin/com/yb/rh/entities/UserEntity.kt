@@ -10,22 +10,26 @@ import javax.persistence.*
 @Table(name = "users")
 data class User(
     var firstName: String,
+
     var lastName: String,
+
     @Column(unique = true)
     @NotNull
     var email: String,
+
     @Column(unique = true)
     @NotNull
     var pushNotificationToken: String,
+
     var urlPhoto: String?,
 
     @CreationTimestamp
     @Column(name = "creation_time")
-    var creationTime: LocalDateTime? = null,
+    var creationTime: LocalDateTime? = LocalDateTime.now(),
 
     @UpdateTimestamp
     @Column(name = "update_time")
-    var updateTime: LocalDateTime? = null,
+    var updateTime: LocalDateTime? = LocalDateTime.now(),
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

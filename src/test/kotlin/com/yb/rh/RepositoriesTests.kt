@@ -1,5 +1,7 @@
 package com.yb.rh
 
+import com.yb.rh.entities.User
+import com.yb.rh.repositories.UsersRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +17,7 @@ class RepositoriesTests @Autowired constructor(
 
     @Test
     fun `When findById then return User`() {
-        val yohav = Users(1, "Yohav", "Beno", "login","mail@gmail.com", "054318465154")
+        val yohav = User("Yohav", "Beno", "login", "mail@gmail.com", "054318465154", userId = 1)
         entityManager.persist(yohav)
         entityManager.flush()
         val user = usersRepository.findById(1)
