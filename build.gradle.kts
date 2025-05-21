@@ -8,6 +8,7 @@ plugins {
     kotlin("plugin.jpa") version "1.6.21"
     kotlin("plugin.allopen") version "1.4.32"
     kotlin("plugin.serialization") version "1.6.10"
+    id("jacoco")
 }
 
 allOpen {
@@ -72,6 +73,7 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
+    testRuntimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
@@ -80,9 +82,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("com.ninja-squad:springmockk:3.1.1")
-
+    testImplementation("net.bytebuddy:byte-buddy:1.14.12")
+    testImplementation("net.bytebuddy:byte-buddy-agent:1.14.12")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("io.mockk:mockk:1.12.0")
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
@@ -93,4 +98,24 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.9"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }

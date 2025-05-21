@@ -10,10 +10,14 @@ open class RHException(
     throwable: Throwable? = null,
 ) : RuntimeException(errorMessage, throwable)
 
+sealed class RhError(
+    message: String,
+    errorType: ErrorType = UNKNOWN,
+    throwable: Throwable? = null
+) : RHException(message, errorType, throwable)
 
 class InternalServerError(msg: String) :
     HttpException(msg, errorType = UNKNOWN, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR_500)
-
 
 open class HttpException(
     errorMessage: String,
@@ -43,19 +47,18 @@ data class WithErrorMessage(
     }
 }
 
-
 class NoResponseException(requestType: String, httpStatus: Int = HttpStatus.REQUEST_TIMEOUT_408) :
     HttpException("Call for `$requestType` didn't get a response", httpStatus = httpStatus)
 
 class NoResponseBody(call: String, httpStatus: Int = HttpStatus.OK_200) :
     HttpException("`$call` has no body. Http Status Code: $httpStatus", httpStatus = httpStatus)
 
-
-class GetDbRecordFailed(table: String) :
-        RHException("Failed to get a record from table `$table`", errorType = DB_ACCESS)
-
-class SaveDbRecordFailed(table: String) :
-    RHException("Failed to save a record to table `$table`", errorType = DB_ACCESS)
+class GetDbRecordFailed(val table: String) : RhError("Failed to get a record from table `$table`", DB_ACCESS)
+class SaveDbRecordFailed(val table: String) : RhError("Failed to save a record to table `$table`", DB_ACCESS)
+class ExternalApiError(override val message: String) : RhError(message, HTTP_CALL)
+class InvalidCarData(override val message: String) : RhError(message, INVALID_INPUT)
+class InvalidUserData(override val message: String) : RhError(message, INVALID_INPUT)
+class NotificationError(override val message: String) : RhError(message, HTTP_CALL)
 
 class EnrichmentError(propertyName: String, step: String) :
     RHException("Failed to enrich With $propertyName in $step")
@@ -102,7 +105,6 @@ class UnauthorizedPrescreen() :
 class EntityNotFound(entityClass: Class<*>, entityId: String?) :
     RHException("${entityClass.name} Entity with Id : $entityId Not Found", errorType = ENTITY_NOT_FOUND)
 
-
 data class HttpErrorBody(@JsonAlias(value = ["code", "errorCode"]) val code: String, val message: String?) {
     override fun toString(): String {
         return message ?: ""
@@ -120,7 +122,6 @@ enum class ExternalServiceErrors(val httpStatus: Int, val displayName: String) {
         val map = values().associateBy(ExternalServiceErrors::displayName)
         fun fromErrDisplayNameToHttpStatus(displayName: String) = map[displayName]?.httpStatus ?: 500
     }
-
 }
 
 enum class ClientName() {
