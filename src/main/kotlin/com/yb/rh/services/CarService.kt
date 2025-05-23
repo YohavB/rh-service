@@ -21,21 +21,20 @@ class CarService(
     private val carsRepository: CarsRepository,
     private val usersRepository: UsersRepository,
     private val usersCarsRepository: UsersCarsRepository,
-    private val carApiInterface: CarApiInterface,
-    private val countryCarJson: CountryCarJson,
+    private val carApiInterface: CarApiInterface
 ) {
 
     private val logger = KotlinLogging.logger {}
 
     fun findAll(): List<Car> = carsRepository.findAll().toList()
 
-    fun findByPlateNumber(plateNumber: String): Result<CarDTO, RHException> {
+    fun findByPlateNumber(plateNumber: String, country: Countries): Result<CarDTO, RHException> {
         logger.info { "Try to find Car : $plateNumber" }
         return carsRepository.findByPlateNumberSafe(plateNumber)
             .map { it.toDto() }
             .onFailure { e ->
                 logger.warn(e) { "Failed" }
-                getCarInfo(plateNumber, Countries.IL)
+                getCarInfo(plateNumber, country)
                     .onFailure { logger.warn(it) { "Failed" } }
                     .andThen { carDTO ->
                         carsRepository.saveSafe(Car.fromDto(carDTO))
@@ -46,9 +45,14 @@ class CarService(
     }
 
 
-    fun createOrUpdateCar(plateNumber: String, userId: Long?, carStatus: CarStatus? = null): Result<Car, RHException> {
+    fun createOrUpdateCar(
+        plateNumber: String,
+        country: Countries,
+        userId: Long?,
+        carStatus: CarStatus? = null
+    ): Result<Car, RHException> {
         logger.info { "Try to create or update Car : $plateNumber of user : $userId " }
-        return getCarInfo(plateNumber, Countries.IL)         //todo get country
+        return getCarInfo(plateNumber, country)
             .onFailure { logger.warn(it) { "Failed" } }
             .map { carDTO -> carDTO.toEntity() }
             .onSuccess { car ->
@@ -72,18 +76,7 @@ class CarService(
     private fun getCarInfo(plateNumber: String, country: Countries): Result<CarDTO, RHException> {
         logger.info { "Try to get Car Info $plateNumber from $country" }
 
-        //todo create client/gateway for car api by country
-        val url = carApiInterface.getCarInfo(plateNumber, country)
-
-        val request = Request.Builder().url(url).build()
-
-        val body = OkHttpClient().newCall(request).execute().body
-
-        val actualCountryCarJson = countryCarJson.getCountryCarJson(country)
-
-        val carInfo = GsonBuilder().create().fromJson(body?.string(), actualCountryCarJson)
-
-        return Ok(carInfo.toCarDto())
+        return Ok(carApiInterface.getCarInfo(plateNumber, country))
     }
 
     fun findAndUpdateCar(
@@ -101,7 +94,12 @@ class CarService(
                     .onSuccess { logger.info { "Successfully saved Car : $carPlate after updating his status" } }
             }
             .onFailure {
-                createOrUpdateCar(carPlate, if (userStatus.name == carStatus.name) userId else null, carStatus)
+                createOrUpdateCar(
+                    carPlate,
+                    Countries.IL,
+                    if (userStatus.name == carStatus.name) userId else null,
+                    carStatus
+                )
                     .onFailure { logger.warn(it) { "Failed to create Car : $carPlate after updating his status" } }
                     .onSuccess { logger.info { "Successfully create Car : $carPlate after updating his status" } }
             }

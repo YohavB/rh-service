@@ -1,13 +1,34 @@
 package com.yb.rh.services.countryCarJson
 
+import com.google.gson.GsonBuilder
 import com.squareup.moshi.JsonClass
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.CarDTO
 import mu.KotlinLogging
+import okhttp3.ResponseBody
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 var logger = KotlinLogging.logger {}
+
+class IlCarJsonHandler(override val country: Countries = Countries.IL) : ICarJsonHandler {
+    override fun getCarDTO(rawResponse: ResponseBody): CarDTO {
+        val carInfo = GsonBuilder().create().fromJson(rawResponse.string(), IlCarJson::class.java)
+
+        return CarDTO(
+            carInfo.getPlateNumber(),
+            country,
+            carInfo.getBrand(),
+            carInfo.getModel(),
+            carInfo.getColor(),
+            carInfo.getLicenseDateExpiration()
+        )
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class IlCarJson(
@@ -15,15 +36,11 @@ data class IlCarJson(
     val result: Result,
     val success: Boolean
 ) {
-    fun toCarDto(): CarDTO {
-        return CarDTO(getPlateNumber(), getBrand(), getModel(), getColor(), getLicenseDateExpiration())
-    }
-
-    private fun getPlateNumber() = this.result.getPlateNumber()
-    private fun getBrand() = this.result.getBrand()
-    private fun getModel() = this.result.getModel()
-    private fun getColor() = this.result.getColor()
-    private fun getLicenseDateExpiration() = this.result.getLicenseDateExpiration()
+    fun getPlateNumber() = this.result.getPlateNumber()
+    fun getBrand() = this.result.getBrand()
+    fun getModel() = this.result.getModel()
+    fun getColor() = this.result.getColor()
+    fun getLicenseDateExpiration() = this.result.getLicenseDateExpiration()
 }
 
 @JsonClass(generateAdapter = true)
@@ -34,7 +51,23 @@ data class Result(
     fun getBrand() = this.records[0].getBrand()
     fun getModel() = this.records[0].kinuy_mishari
     fun getColor() = this.records[0].getColor()
-    fun getLicenseDateExpiration(): LocalDateTime = LocalDateTime.parse(this.records[0].tokef_dt)
+    fun getLicenseDateExpiration(): LocalDateTime {
+        val dateStr = this.records[0].tokef_dt
+        
+        return try {
+            // Try to parse as LocalDateTime
+            LocalDateTime.parse(dateStr)
+        } catch (e: DateTimeParseException) {
+            try {
+                // If that fails, try to parse as LocalDate and convert to LocalDateTime
+                LocalDate.parse(dateStr).atStartOfDay()
+            } catch (e: DateTimeParseException) {
+                // If both fail, use a custom formatter
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                LocalDate.parse(dateStr, formatter).atStartOfDay()
+            }
+        }
+    }
 }
 
 @JsonClass(generateAdapter = true)

@@ -2,6 +2,7 @@ package entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UserDTO
@@ -83,6 +84,7 @@ class UserTest {
         val carsList = listOf(
             CarDTO(
                 plateNumber = "ABC123",
+                country = Countries.IL,
                 brand = Brands.TESLA,
                 model = "Model 3",
                 color = Colors.BLACK,

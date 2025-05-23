@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.yb.rh.common.Countries
 import com.yb.rh.services.countryCarJson.CountryCarJson
 import com.yb.rh.services.countryCarJson.IlCarJson
+import com.yb.rh.services.countryCarJson.IlCarJsonHandler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
@@ -20,10 +22,10 @@ class CountryCarJsonSimpleTest {
         val countryCarJson = CountryCarJson()
         
         // When
-        val result = countryCarJson.getCountryCarJson(Countries.IL)
+        val result = countryCarJson.getCountryCarJsonHandler(Countries.IL)
         
         // Then
-        assertEquals(IlCarJson::class.java, result)
+        assertTrue(result is IlCarJsonHandler)
     }
     
     @Test

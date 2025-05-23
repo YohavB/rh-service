@@ -1,6 +1,7 @@
 package controllers.simple
 
 import com.github.michaelbull.result.Ok
+import com.yb.rh.common.Countries
 import com.yb.rh.controllers.CarsController
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.services.CarService
@@ -44,13 +45,13 @@ class CarControllerBasicTest {
         val testCarDTO = mockk<CarDTO>()
         val plateNumber = "TEST123"
         
-        every { carService.findByPlateNumber(plateNumber) } returns Ok(testCarDTO)
+        every { carService.findByPlateNumber(plateNumber, Countries.IL) } returns Ok(testCarDTO)
         
         // When
-        val response = carController.findByPlateNumber(plateNumber)
+        val response = carController.findByPlateNumber(plateNumber, Countries.IL)
         
         // Then
         assertEquals(HttpStatus.OK, response.statusCode)
-        verify { carService.findByPlateNumber(plateNumber) }
+        verify { carService.findByPlateNumber(plateNumber, Countries.IL) }
     }
 } 

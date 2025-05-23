@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.yb.rh.common.Brands
 import com.yb.rh.common.CarStatus
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.common.UserStatus
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
@@ -46,6 +47,7 @@ class CarServiceTest {
 
     private val testCarDTO = CarDTO(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,
@@ -92,50 +94,50 @@ class CarServiceTest {
     @Test
     fun `test find by plate number success from database`() {
         // Set up specific mocks for this test
-        every { carService.findByPlateNumber(testCar.plateNumber) } returns Ok(testCarDTO)
+        every { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) } returns Ok(testCarDTO)
 
         // Call the method to test
-        val result = carService.findByPlateNumber(testCar.plateNumber)
+        val result = carService.findByPlateNumber(testCar.plateNumber, Countries.IL)
 
         // Verify the result is Ok and contains the testCar
         assertTrue(result is Ok)
         assertEquals(testCar.plateNumber, result.value.plateNumber)
 
         // Verify interactions
-        verify(exactly = 1) { carService.findByPlateNumber(testCar.plateNumber) }
+        verify(exactly = 1) { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) }
     }
 
     @Test
     fun `test find by plate number not found`() {
         // Set up mocks for not found
-        every { carService.findByPlateNumber(testCar.plateNumber) } returns
+        every { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) } returns
                 Err(EntityNotFound(Car::class.java, testCar.plateNumber))
 
         // Call the method
-        val result = carService.findByPlateNumber(testCar.plateNumber)
+        val result = carService.findByPlateNumber(testCar.plateNumber, Countries.IL)
 
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
 
         // Verify API was called
-        verify { carService.findByPlateNumber(testCar.plateNumber) }
+        verify { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) }
     }
 
     @Test
     fun `test create or update car success`() {
         // Set up mocks for successful car creation
-        every { carService.createOrUpdateCar(testCar.plateNumber, 1L, null) } returns Ok(testCar)
+        every { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) } returns Ok(testCar)
 
         // Call the method
-        val result = carService.createOrUpdateCar(testCar.plateNumber, 1L)
+        val result = carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L)
 
         // Verify the result
         assertTrue(result is Ok)
         assertEquals(testCar, result.value)
 
         // Verify the method was called
-        verify(exactly = 1) { carService.createOrUpdateCar(testCar.plateNumber, 1L, null) }
+        verify(exactly = 1) { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) }
     }
 
     @Test

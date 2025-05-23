@@ -2,8 +2,8 @@ package services.countryCarJson
 
 import com.yb.rh.common.Countries
 import com.yb.rh.services.countryCarJson.CountryCarJson
-import com.yb.rh.services.countryCarJson.IlCarJson
-import org.junit.jupiter.api.Assertions.assertEquals
+import com.yb.rh.services.countryCarJson.IlCarJsonHandler
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class CountryCarJsonBasicTest {
@@ -14,9 +14,9 @@ class CountryCarJsonBasicTest {
         val countryCarJson = CountryCarJson()
         
         // Call the method with IL country
-        val result = countryCarJson.getCountryCarJson(Countries.IL)
+        val result = countryCarJson.getCountryCarJsonHandler(Countries.IL)
         
-        // Verify the result is the IlCarJson class
-        assertEquals(IlCarJson::class.java, result)
+        // Verify the result is an instance of IlCarJsonHandler class
+        assertTrue(result is IlCarJsonHandler)
     }
 } 

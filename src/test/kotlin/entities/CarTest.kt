@@ -2,6 +2,7 @@ package entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
 import org.junit.jupiter.api.Assertions.*
@@ -106,6 +107,7 @@ class CarTest {
         
         val dto = CarDTO(
             plateNumber = plateNumber,
+            country = Countries.IL,
             brand = brand,
             model = model,
             color = color,
@@ -145,6 +147,7 @@ class CarTest {
         // Given
         val dto = CarDTO(
             plateNumber = "ABC123",
+            country = Countries.IL,
             brand = Brands.TESLA,
             model = "Model 3",
             color = Colors.BLACK,

@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UserDTO
@@ -47,14 +48,14 @@ class BoundaryConditionsTest {
 
         // Set up mock to return error for validation failure
         val errorResult: Result<Car, RHException> = Err(InvalidCarData("Plate number too long"))
-        every { carService.createOrUpdateCar(car.plateNumber, 1L) } returns errorResult
+        every { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) } returns errorResult
 
-        val result = carService.createOrUpdateCar(car.plateNumber, 1L)
+        val result = carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L)
         
         assertTrue(result is Err)
         assertTrue((result as Err).error is InvalidCarData)
         
-        verify(exactly = 1) { carService.createOrUpdateCar(car.plateNumber, 1L) }
+        verify(exactly = 1) { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) }
     }
 
     @Test
@@ -93,14 +94,14 @@ class BoundaryConditionsTest {
 
         // Set up mock to return error for validation failure
         val errorResult: Result<Car, RHException> = Err(InvalidCarData("License expiry date cannot be in the past"))
-        every { carService.createOrUpdateCar(car.plateNumber, 1L) } returns errorResult
+        every { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) } returns errorResult
 
-        val result = carService.createOrUpdateCar(car.plateNumber, 1L)
+        val result = carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L)
         
         assertTrue(result is Err)
         assertTrue((result as Err).error is InvalidCarData)
         
-        verify(exactly = 1) { carService.createOrUpdateCar(car.plateNumber, 1L) }
+        verify(exactly = 1) { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) }
     }
 
     @Test

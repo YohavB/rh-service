@@ -5,6 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.controllers.CarsController
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
@@ -42,6 +43,7 @@ class CarControllerTest {
 
     private val testCarDTO = CarDTO(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,
@@ -70,7 +72,7 @@ class CarControllerTest {
             .andExpect(jsonPath("$[0].plateNumber").value("123456"))
             .andExpect(jsonPath("$[0].brand").value("TESLA"))
             .andExpect(jsonPath("$[0].model").value("Model 3"))
-        
+
         // Verify service was called
         verify(exactly = 1) { carService.findAll() }
     }
@@ -79,32 +81,34 @@ class CarControllerTest {
     fun `test find by plate number`() {
         // Set up mock
         val resultOk: Result<CarDTO, RHException> = Ok(testCarDTO)
-        every { carService.findByPlateNumber("123456") } returns resultOk
+        every { carService.findByPlateNumber("123456", Countries.IL) } returns resultOk
 
         // Perform request
         mockMvc.perform(get("/api/cars/by-plate")
-            .param("plateNumber", "123456"))
+            .param("plateNumber", "123456")
+            .param("country", Countries.IL.name))
             .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.plateNumber").value("123456"))
             .andExpect(jsonPath("$.brand").value("TESLA"))
             .andExpect(jsonPath("$.model").value("Model 3"))
-        
+
         // Verify service was called
-        verify(exactly = 1) { carService.findByPlateNumber("123456") }
+        verify(exactly = 1) { carService.findByPlateNumber("123456", Countries.IL) }
     }
 
     @Test
     fun `test create or update car`() {
         // Set up mock
         val resultOk: Result<Car, RHException> = Ok(testCar)
-        every { carService.createOrUpdateCar("123456", 1L) } returns resultOk
+        every { carService.createOrUpdateCar("123456", Countries.IL, 1) } returns resultOk
 
         // Perform request
         mockMvc.perform(
             post("/api/cars/car")
                 .param("plateNumber", "123456")
+                .param("country", Countries.IL.name)
                 .param("userId", "1")
                 .contentType(MediaType.APPLICATION_JSON))
             .andDo(MockMvcResultHandlers.print())
@@ -113,8 +117,8 @@ class CarControllerTest {
             .andExpect(jsonPath("$.plateNumber").value("123456"))
             .andExpect(jsonPath("$.brand").value("TESLA"))
             .andExpect(jsonPath("$.model").value("Model 3"))
-        
+
         // Verify service was called
-        verify(exactly = 1) { carService.createOrUpdateCar("123456", 1L) }
+        verify(exactly = 1) { carService.createOrUpdateCar("123456", Countries.IL,1) }
     }
 } 

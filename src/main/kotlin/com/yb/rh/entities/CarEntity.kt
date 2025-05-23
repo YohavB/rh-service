@@ -2,6 +2,7 @@ package com.yb.rh.entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.jetbrains.annotations.NotNull
@@ -14,15 +15,19 @@ data class Car(
     @Id
     @NotNull
     @Column(unique = true, name = "plate_number")
-    var plateNumber: String,
+    val plateNumber: String,
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    val country: Countries = Countries.UNKNOWN,
 
     @Enumerated(EnumType.STRING)
-    var brand: Brands = Brands.UNKNOWN,
+    val brand: Brands = Brands.UNKNOWN,
 
-    var model: String,
+    val model: String,
 
     @Enumerated(EnumType.STRING)
-    var color: Colors = Colors.UNKNOWN,
+    val color: Colors = Colors.UNKNOWN,
 
     var carLicenseExpireDate: LocalDateTime? = null,
 
@@ -32,7 +37,7 @@ data class Car(
 
     @CreationTimestamp
     @Column(name = "creation_time")
-    var creationTime: LocalDateTime? = null,
+    val creationTime: LocalDateTime? = LocalDateTime.now(),
 
     @UpdateTimestamp
     @Column(name = "update_time")
@@ -56,11 +61,12 @@ data class Car(
     }
 
 
-    fun toDto() = CarDTO(plateNumber, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
+    fun toDto() = CarDTO(plateNumber, country, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
 
     companion object {
         fun fromDto(carDTO: CarDTO) = Car(
             carDTO.plateNumber,
+            carDTO.country,
             carDTO.brand,
             carDTO.model,
             carDTO.color,
@@ -73,6 +79,7 @@ data class Car(
 
 data class CarDTO(
     val plateNumber: String,
+    val country: Countries,
     val brand: Brands,
     val model: String,
     val color: Colors,
@@ -82,7 +89,7 @@ data class CarDTO(
 ) {
     companion object {
         fun returnTest(): CarDTO {
-            return CarDTO("Test", Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
+            return CarDTO("Test", Countries.UNKNOWN, Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
         }
     }
 

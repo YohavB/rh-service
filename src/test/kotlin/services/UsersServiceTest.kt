@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
@@ -56,6 +57,7 @@ class UsersServiceTest {
     
     private val testCarDTO = CarDTO(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,

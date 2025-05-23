@@ -42,7 +42,7 @@ class TestConfig {
 
     @Bean
     @Primary
-    fun carService() = CarService(carsRepository(), usersRepository(), usersCarsRepository(), carApiInterface(), countryCarJson())
+    fun carService() = CarService(carsRepository(), usersRepository(), usersCarsRepository(), carApiInterface())
 
     @Bean
     @Primary

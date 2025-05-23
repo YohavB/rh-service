@@ -2,6 +2,7 @@ package com.yb.rh
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.repositories.CarsRepository
 import com.yb.rh.repositories.UsersCarsRepository
@@ -29,6 +30,7 @@ class RhServiceConfiguration {
 
             val carOne = Car(
                 "11111111",
+                Countries.IL,
                 Brands.AUDI,
                 "TT",
                 Colors.WHITE,
@@ -36,6 +38,7 @@ class RhServiceConfiguration {
             )
             val carTwo = Car(
                 "22222222",
+                Countries.IL,
                 Brands.AUDI,
                 "Q7",
                 Colors.WHITE,
@@ -43,6 +46,7 @@ class RhServiceConfiguration {
             )
             val carThree = Car(
                 "33333333",
+                Countries.IL,
                 Brands.AUDI,
                 "R8",
                 Colors.BLACK,
@@ -50,6 +54,7 @@ class RhServiceConfiguration {
             )
             val carFour = Car(
                 "44444444",
+                Countries.IL,
                 Brands.TESLA,
                 "S",
                 Colors.BLACK,
@@ -57,6 +62,7 @@ class RhServiceConfiguration {
             )
             val carFive = Car(
                 "555555555",
+                Countries.IL,
                 Brands.TESLA,
                 "3",
                 Colors.WHITE,
@@ -64,6 +70,7 @@ class RhServiceConfiguration {
             )
             val carSix = Car(
                 "6666666",
+                Countries.IL,
                 Brands.TESLA,
                 "X",
                 Colors.BLACK,
@@ -72,6 +79,7 @@ class RhServiceConfiguration {
 
             val carSeven = Car(
                 "7777777",
+                Countries.IL,
                 Brands.TESLA,
                 "Y",
                 Colors.WHITE,

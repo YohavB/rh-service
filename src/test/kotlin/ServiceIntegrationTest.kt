@@ -1,6 +1,7 @@
 import com.github.michaelbull.result.Ok
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.common.UserStatus
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.User
@@ -62,7 +63,7 @@ class ServiceIntegrationTest {
         )
 
         // Mock service responses
-        every { carService.createOrUpdateCar(blockingCar.plateNumber, user.userId) } returns Ok(blockingCar)
+        every { carService.createOrUpdateCar(blockingCar.plateNumber, any(),user.userId) } returns Ok(blockingCar)
         every { usersCarsService.updateBlockedCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
@@ -78,7 +79,7 @@ class ServiceIntegrationTest {
         ) } returns Ok(Unit)
 
         // Test the complete flow
-        val createCarResult = carService.createOrUpdateCar(blockingCar.plateNumber, user.userId)
+        val createCarResult = carService.createOrUpdateCar(blockingCar.plateNumber, Countries.IL,user.userId)
         assertNotNull(createCarResult)
         assertEquals(Ok(blockingCar), createCarResult)
 
@@ -105,7 +106,7 @@ class ServiceIntegrationTest {
         assertEquals(Ok(Unit), releaseResult)
 
         // Verify service calls
-        verify(exactly = 1) { carService.createOrUpdateCar(blockingCar.plateNumber, user.userId) }
+        verify(exactly = 1) { carService.createOrUpdateCar(blockingCar.plateNumber, Countries.IL,user.userId) }
         verify(exactly = 1) { usersCarsService.updateBlockedCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,

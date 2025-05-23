@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class CountryCarJson() {
-
-    //Todo return different class
-    fun getCountryCarJson(country: Countries) =
+    fun getCountryCarJsonHandler(country: Countries): ICarJsonHandler =
         when (country) {
-            Countries.IL -> IlCarJson::class.java
+            Countries.IL -> IlCarJsonHandler()
+            else -> throw IllegalArgumentException("Car Api is not implemented for $country")
         }
-
 }
