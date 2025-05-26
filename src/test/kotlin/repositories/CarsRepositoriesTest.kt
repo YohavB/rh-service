@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.error.EntityNotFound
 import com.yb.rh.error.GetDbRecordFailed
@@ -27,6 +28,7 @@ class CarsRepositoriesTest {
     
     private val testCar = Car(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,

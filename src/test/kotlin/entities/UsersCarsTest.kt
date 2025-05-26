@@ -2,6 +2,7 @@ package entities
 
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UsersCars
@@ -22,6 +23,7 @@ class UsersCarsTest {
     
     private val testCar = Car(
         plateNumber = "ABC123",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,
@@ -30,6 +32,7 @@ class UsersCarsTest {
     
     private val blockingCar = Car(
         plateNumber = "BLOCKING123",
+        country = Countries.IL,
         brand = Brands.BMW,
         model = "X5",
         color = Colors.WHITE,
@@ -38,6 +41,7 @@ class UsersCarsTest {
     
     private val blockedCar = Car(
         plateNumber = "BLOCKED123",
+        country = Countries.IL,
         brand = Brands.AUDI,
         model = "A4",
         color = Colors.RED,

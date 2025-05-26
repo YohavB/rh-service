@@ -6,6 +6,7 @@ import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
+import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UserDTO
 import com.yb.rh.error.InvalidCarData
@@ -40,6 +41,7 @@ class BoundaryConditionsTest {
     fun `test car with maximum length plate number`() {
         val car = Car(
             plateNumber = "1".repeat(20), // Assuming max length is less than this
+            country = Countries.IL,
             brand = Brands.TESLA,
             model = "Model 3",
             color = Colors.BLACK,
@@ -47,7 +49,7 @@ class BoundaryConditionsTest {
         )
 
         // Set up mock to return error for validation failure
-        val errorResult: Result<Car, RHException> = Err(InvalidCarData("Plate number too long"))
+        val errorResult: Result<CarDTO, RHException> = Err(InvalidCarData("Plate number too long"))
         every { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) } returns errorResult
 
         val result = carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L)
@@ -86,6 +88,7 @@ class BoundaryConditionsTest {
     fun `test car with past license expiry date`() {
         val car = Car(
             plateNumber = "123456",
+            country = Countries.IL,
             brand = Brands.TESLA,
             model = "Model 3",
             color = Colors.BLACK,
@@ -93,7 +96,7 @@ class BoundaryConditionsTest {
         )
 
         // Set up mock to return error for validation failure
-        val errorResult: Result<Car, RHException> = Err(InvalidCarData("License expiry date cannot be in the past"))
+        val errorResult: Result<CarDTO, RHException> = Err(InvalidCarData("License expiry date cannot be in the past"))
         every { carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L) } returns errorResult
 
         val result = carService.createOrUpdateCar(car.plateNumber, Countries.IL, 1L)

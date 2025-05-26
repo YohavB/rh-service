@@ -19,7 +19,7 @@ data class Car(
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    val country: Countries = Countries.UNKNOWN,
+    val country: Countries,
 
     @Enumerated(EnumType.STRING)
     val brand: Brands = Brands.UNKNOWN,

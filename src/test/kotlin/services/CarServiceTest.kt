@@ -39,6 +39,7 @@ class CarServiceTest {
 
     private val testCar = Car(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,
@@ -127,14 +128,14 @@ class CarServiceTest {
     @Test
     fun `test create or update car success`() {
         // Set up mocks for successful car creation
-        every { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) } returns Ok(testCar)
+        every { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) } returns Ok(testCarDTO)
 
         // Call the method
         val result = carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L)
 
         // Verify the result
         assertTrue(result is Ok)
-        assertEquals(testCar, result.value)
+        assertEquals(testCarDTO, result.value)
 
         // Verify the method was called
         verify(exactly = 1) { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) }

@@ -49,6 +49,7 @@ class UsersServiceTest {
     
     private val testCar = Car(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,

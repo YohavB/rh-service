@@ -15,6 +15,7 @@ class CarTest {
     fun `Car entity should have correct properties`() {
         // Given
         val plateNumber = "ABC123"
+        val country = Countries.IL
         val brand = Brands.TESLA
         val model = "Model 3"
         val color = Colors.BLACK
@@ -23,6 +24,7 @@ class CarTest {
         // When
         val car = Car(
             plateNumber = plateNumber,
+            country = country,
             brand = brand,
             model = model,
             color = color,
@@ -44,6 +46,7 @@ class CarTest {
         // Given
         val car = Car(
             plateNumber = "ABC123",
+            country = Countries.IL,
             brand = Brands.TESLA,
             model = "Model 3",
             color = Colors.BLACK
@@ -68,6 +71,7 @@ class CarTest {
     fun `Car toDto should convert entity to DTO`() {
         // Given
         val plateNumber = "ABC123"
+        val country = Countries.IL
         val brand = Brands.TESLA
         val model = "Model 3"
         val color = Colors.BLACK
@@ -75,6 +79,7 @@ class CarTest {
         
         val car = Car(
             plateNumber = plateNumber,
+            country = country,
             brand = brand,
             model = model,
             color = color,

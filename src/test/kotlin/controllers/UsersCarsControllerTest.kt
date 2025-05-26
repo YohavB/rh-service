@@ -3,6 +3,7 @@ package controllers
 import com.github.michaelbull.result.Ok
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
 import com.yb.rh.common.UserStatus
 import com.yb.rh.controllers.UsersCarsController
 import com.yb.rh.entities.Car
@@ -33,6 +34,7 @@ class UsersCarsControllerTest {
 
     private val testCar = Car(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,

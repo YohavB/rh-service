@@ -4,6 +4,7 @@ import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
 import com.yb.rh.common.UserStatus
 import com.yb.rh.entities.Car
+import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
 import com.yb.rh.services.CarService
 import com.yb.rh.services.NotificationService
@@ -38,16 +39,18 @@ class ServiceIntegrationTest {
     @Test
     fun `test complete car blocking flow`() {
         // Setup test data
-        val blockingCar = Car(
+        val blockingCar = CarDTO(
             plateNumber = "123456",
+            country = Countries.IL,
             brand = Brands.TESLA,
             model = "Model 3",
             color = Colors.BLACK,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1)
         )
 
-        val blockedCar = Car(
+        val blockedCar = CarDTO(
             plateNumber = "654321",
+            country = Countries.IL,
             brand = Brands.BMW,
             model = "X5",
             color = Colors.WHITE,

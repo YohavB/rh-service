@@ -50,7 +50,7 @@ class CarService(
         country: Countries,
         userId: Long?,
         carStatus: CarStatus? = null
-    ): Result<Car, RHException> {
+    ): Result<CarDTO, RHException> {
         logger.info { "Try to create or update Car : $plateNumber of user : $userId " }
         return getCarInfo(plateNumber, country)
             .onFailure { logger.warn(it) { "Failed" } }
@@ -70,7 +70,7 @@ class CarService(
                         }
                         .onFailure { logger.warn(it) { "Failed" } }
                 }
-            }
+            }.map { it.toDto() }
     }
 
     private fun getCarInfo(plateNumber: String, country: Countries): Result<CarDTO, RHException> {

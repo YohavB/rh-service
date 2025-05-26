@@ -35,6 +35,7 @@ class CarControllerTest {
 
     private val testCar = Car(
         plateNumber = "123456",
+        country = Countries.IL,
         brand = Brands.TESLA,
         model = "Model 3",
         color = Colors.BLACK,
@@ -101,7 +102,7 @@ class CarControllerTest {
     @Test
     fun `test create or update car`() {
         // Set up mock
-        val resultOk: Result<Car, RHException> = Ok(testCar)
+        val resultOk: Result<CarDTO, RHException> = Ok(testCarDTO)
         every { carService.createOrUpdateCar("123456", Countries.IL, 1) } returns resultOk
 
         // Perform request
