@@ -1,12 +1,12 @@
 package services.simple
 
 import com.yb.rh.entities.UsersCars
-import com.yb.rh.repositories.CarsRepository
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
+import com.yb.rh.repositories.CarRepository
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
 import com.yb.rh.services.CarService
 import com.yb.rh.services.NotificationService
-import com.yb.rh.services.UsersCarsService
+import com.yb.rh.services.UserCarService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -21,30 +21,30 @@ class UsersCarsServiceBasicTest {
     @Test
     fun `getAllUsersCars should return all users-cars relationships from repository`() {
         // Given
-        val usersCarsRepository = mockk<UsersCarsRepository>()
-        val carsRepository = mockk<CarsRepository>()
+        val userCarRepository = mockk<UserCarRepository>()
+        val carRepository = mockk<CarRepository>()
         val carService = mockk<CarService>()
-        val usersRepository = mockk<UsersRepository>()
+        val userRepository = mockk<UserRepository>()
         val notificationService = mockk<NotificationService>()
         
         val testUsersCars = mockk<UsersCars>()
         val usersCarsList = listOf(testUsersCars)
         
-        every { usersCarsRepository.findAll() } returns usersCarsList
+        every { userCarRepository.findAll() } returns usersCarsList
         
-        val usersCarsService = UsersCarsService(
-            usersCarsRepository,
-            carsRepository,
+        val userCarService = UserCarService(
+            userCarRepository,
+            carRepository,
             carService,
-            usersRepository,
+            userRepository,
             notificationService
         )
         
         // When
-        val result = usersCarsService.getAllUsersCars()
+        val result = userCarService.getAllUsersCars()
         
         // Then
         assertEquals(usersCarsList, result)
-        verify { usersCarsRepository.findAll() }
+        verify { userCarRepository.findAll() }
     }
 } 

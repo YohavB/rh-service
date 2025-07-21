@@ -1,9 +1,9 @@
 package services.simple
 
 import com.yb.rh.entities.User
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
-import com.yb.rh.services.UsersService
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
+import com.yb.rh.services.UserService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,21 +18,21 @@ class UsersServiceBasicTest {
     @Test
     fun `findAll should return all users from repository`() {
         // Given
-        val usersRepository = mockk<UsersRepository>()
-        val usersCarsRepository = mockk<UsersCarsRepository>()
+        val userRepository = mockk<UserRepository>()
+        val userCarRepository = mockk<UserCarRepository>()
         
         val testUser = mockk<User>()
         val usersList = listOf(testUser)
         
-        every { usersRepository.findAll() } returns usersList
+        every { userRepository.findAll() } returns usersList
         
-        val usersService = UsersService(usersRepository, usersCarsRepository)
+        val userService = UserService(userRepository, userCarRepository)
         
         // When
-        val result = usersService.findAll()
+        val result = userService.findAll()
         
         // Then
         assertEquals(usersList, result)
-        verify { usersRepository.findAll() }
+        verify { userRepository.findAll() }
     }
 } 

@@ -3,6 +3,7 @@ package com.yb.rh.entities
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
+import com.yb.rh.dtos.CarDTO
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.jetbrains.annotations.NotNull
@@ -12,7 +13,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "cars")
 data class Car(
-    @Id
     @NotNull
     @Column(unique = true, name = "plate_number")
     val plateNumber: String,
@@ -31,10 +31,6 @@ data class Car(
 
     var carLicenseExpireDate: LocalDateTime? = null,
 
-    var isBlocking: Boolean = false,
-
-    var isBlocked: Boolean = false,
-
     @CreationTimestamp
     @Column(name = "creation_time")
     val creationTime: LocalDateTime? = LocalDateTime.now(),
@@ -42,26 +38,12 @@ data class Car(
     @UpdateTimestamp
     @Column(name = "update_time")
     var updateTime: LocalDateTime? = null,
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0L
 ) {
-
-    fun beingBlocking() {
-        this.isBlocking = true
-    }
-
-    fun beingBlocked() {
-        this.isBlocked = true
-    }
-
-    fun unblocking() {
-        this.isBlocking = false
-    }
-
-    fun unblocked() {
-        this.isBlocked = false
-    }
-
-
-    fun toDto() = CarDTO(plateNumber, country, brand, model, color, carLicenseExpireDate, isBlocking, isBlocked)
+    fun toDto() = CarDTO(id, plateNumber, country, brand, model, color, carLicenseExpireDate)
 
     companion object {
         fun fromDto(carDTO: CarDTO) = Car(
@@ -70,28 +52,7 @@ data class Car(
             carDTO.brand,
             carDTO.model,
             carDTO.color,
-            carDTO.carLicenseExpireDate,
-            carDTO.isBlocking,
-            carDTO.isBlocked
+            carDTO.carLicenseExpireDate
         )
     }
-}
-
-data class CarDTO(
-    val plateNumber: String,
-    val country: Countries,
-    val brand: Brands,
-    val model: String,
-    val color: Colors,
-    var carLicenseExpireDate: LocalDateTime?,
-    var isBlocking: Boolean = false,
-    var isBlocked: Boolean = false,
-) {
-    companion object {
-        fun returnTest(): CarDTO {
-            return CarDTO("Test", Countries.UNKNOWN, Brands.UNKNOWN, "Test", Colors.UNKNOWN, LocalDateTime.now())
-        }
-    }
-
-    fun toEntity() = Car.fromDto(this)
 }

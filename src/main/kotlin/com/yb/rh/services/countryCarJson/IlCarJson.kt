@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
-import com.yb.rh.entities.CarDTO
+import com.yb.rh.dtos.CarDTO
 import mu.KotlinLogging
 import okhttp3.ResponseBody
 import java.time.LocalDate

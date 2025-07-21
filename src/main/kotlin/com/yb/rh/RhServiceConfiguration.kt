@@ -4,9 +4,9 @@ import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
 import com.yb.rh.entities.Car
-import com.yb.rh.repositories.CarsRepository
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
+import com.yb.rh.repositories.CarRepository
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,9 +16,9 @@ class RhServiceConfiguration {
 
     @Bean
     fun databaseInitializer(
-        usersRepository: UsersRepository,
-        carsRepository: CarsRepository,
-        usersCarsRepository: UsersCarsRepository,
+        userRepository: UserRepository,
+        carRepository: CarRepository,
+        userCarRepository: UserCarRepository,
     ) =
         ApplicationRunner {
             println("DB Init Starting ")
@@ -92,9 +92,9 @@ class RhServiceConfiguration {
 //            usersRepository.save(userThree)
             println("cars Init Done")
 
-            carsRepository.save(carOne)
-            carsRepository.save(carTwo)
-            carsRepository.save(carThree)
+            carRepository.save(carOne)
+            carRepository.save(carTwo)
+            carRepository.save(carThree)
             println("users cars Init Done")
 
 //            usersCarsRepository.save((UsersCars(userOne, carOne, carTwo, null)))

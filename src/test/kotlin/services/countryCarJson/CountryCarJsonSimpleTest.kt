@@ -2,7 +2,7 @@ package services.countryCarJson
 
 import com.google.gson.Gson
 import com.yb.rh.common.Countries
-import com.yb.rh.services.countryCarJson.CountryCarJson
+import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
 import com.yb.rh.services.countryCarJson.IlCarJson
 import com.yb.rh.services.countryCarJson.IlCarJsonHandler
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,10 +19,10 @@ class CountryCarJsonSimpleTest {
     @Test
     fun `getCountryCarJson returns correct class for IL country`() {
         // Given
-        val countryCarJson = CountryCarJson()
+        val countryCarJsonFactory = CountryCarJsonFactory()
         
         // When
-        val result = countryCarJson.getCountryCarJsonHandler(Countries.IL)
+        val result = countryCarJsonFactory.getCountryCarJsonHandler(Countries.IL)
         
         // Then
         assertTrue(result is IlCarJsonHandler)

@@ -1,24 +1,22 @@
 package services
 
 import com.yb.rh.common.Countries
-import com.yb.rh.services.CarApiInterface
-import com.yb.rh.services.countryCarJson.CountryCarJson
+import com.yb.rh.services.CarApi
+import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.mockk.mockk
-import io.mockk.every
 
 class CarApiInterfaceTest {
 
-    private lateinit var carApiInterface: CarApiInterface
+    private lateinit var carApi: CarApi
 
-    private lateinit var countryCarJson: CountryCarJson
+    private lateinit var countryCarJsonFactory: CountryCarJsonFactory
 
     @BeforeEach
     fun setup() {
-        countryCarJson = CountryCarJson()
-        carApiInterface = CarApiInterface(countryCarJson)
+        countryCarJsonFactory = CountryCarJsonFactory()
+        carApi = CarApi(countryCarJsonFactory)
     }
 
     @Test
@@ -28,7 +26,7 @@ class CarApiInterfaceTest {
         val country = Countries.IL
 
         // When
-        val result = carApiInterface.getCarInfo(plateNumber, country)
+        val result = carApi.getCarInfo(plateNumber, country)
 
         // Then
         assertTrue(result.plateNumber == plateNumber, "Plate number should match the input")

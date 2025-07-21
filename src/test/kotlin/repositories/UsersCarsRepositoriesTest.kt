@@ -11,7 +11,7 @@ import com.yb.rh.entities.UsersCars
 import com.yb.rh.error.EntityNotFound
 import com.yb.rh.error.GetDbRecordFailed
 import com.yb.rh.error.SaveDbRecordFailed
-import com.yb.rh.repositories.UsersCarsRepository
+import com.yb.rh.repositories.UserCarRepository
 import com.yb.rh.repositories.findByBlockedCarSafe
 import com.yb.rh.repositories.findByBlockingCarSafe
 import com.yb.rh.repositories.findByCarSafe
@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 
 class UsersCarsRepositoriesTest {
     
-    private lateinit var usersCarsRepository: UsersCarsRepository
+    private lateinit var userCarRepository: UserCarRepository
     
     private val testUser = User(
         firstName = "Test",
@@ -58,81 +58,81 @@ class UsersCarsRepositoriesTest {
     @BeforeEach
     fun setup() {
         clearAllMocks()
-        usersCarsRepository = mockk(relaxed = true)
+        userCarRepository = mockk(relaxed = true)
     }
     
     @Test
     fun `test saveSafe success`() {
         // Setup mock
-        every { usersCarsRepository.save(testUsersCars) } returns testUsersCars
+        every { userCarRepository.save(testUsersCars) } returns testUsersCars
         
         // Execute the function
-        val result = usersCarsRepository.saveSafe(testUsersCars)
+        val result = userCarRepository.saveSafe(testUsersCars)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(testUsersCars, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.save(testUsersCars) }
+        verify(exactly = 1) { userCarRepository.save(testUsersCars) }
     }
     
     @Test
     fun `test saveSafe failure`() {
         // Setup mock for failure
-        every { usersCarsRepository.save(any()) } throws RuntimeException("Database error")
+        every { userCarRepository.save(any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.saveSafe(testUsersCars)
+        val result = userCarRepository.saveSafe(testUsersCars)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is SaveDbRecordFailed)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.save(any()) }
+        verify(exactly = 1) { userCarRepository.save(any()) }
     }
     
     @Test
     fun `test findByUserSafe success`() {
         // Setup mock
         val userCarsList = listOf(testUsersCars)
-        every { usersCarsRepository.findByUser(testUser) } returns userCarsList
+        every { userCarRepository.findAllByUser(testUser) } returns userCarsList
         
         // Execute the function
-        val result = usersCarsRepository.findByUserSafe(testUser)
+        val result = userCarRepository.findByUserSafe(testUser)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(userCarsList, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUser(testUser) }
+        verify(exactly = 1) { userCarRepository.findAllByUser(testUser) }
     }
     
     @Test
     fun `test findByUserSafe not found`() {
         // Setup mock for not found
-        every { usersCarsRepository.findByUser(testUser) } returns null
+        every { userCarRepository.findAllByUser(testUser) } returns null
         
         // Execute the function
-        val result = usersCarsRepository.findByUserSafe(testUser)
+        val result = userCarRepository.findByUserSafe(testUser)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUser(testUser) }
+        verify(exactly = 1) { userCarRepository.findAllByUser(testUser) }
     }
     
     @Test
     fun `test findByUserSafe repository error`() {
         // Setup mock for database error
-        every { usersCarsRepository.findByUser(any()) } throws RuntimeException("Database error")
+        every { userCarRepository.findAllByUser(any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.findByUserSafe(testUser)
+        val result = userCarRepository.findByUserSafe(testUser)
         
         // Verify result
         assertTrue(result is Err)
@@ -140,49 +140,49 @@ class UsersCarsRepositoriesTest {
         assertEquals("Failed to get a record from table `users_cars`", result.error.message)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUser(any()) }
+        verify(exactly = 1) { userCarRepository.findAllByUser(any()) }
     }
     
     @Test
     fun `test findByCarSafe success`() {
         // Setup mock
         val userCarsList = listOf(testUsersCars)
-        every { usersCarsRepository.findByCar(testCar) } returns userCarsList
+        every { userCarRepository.findAllByCar(testCar) } returns userCarsList
         
         // Execute the function
-        val result = usersCarsRepository.findByCarSafe(testCar)
+        val result = userCarRepository.findByCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(userCarsList, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findAllByCar(testCar) }
     }
     
     @Test
     fun `test findByCarSafe not found`() {
         // Setup mock for not found
-        every { usersCarsRepository.findByCar(testCar) } returns null
+        every { userCarRepository.findAllByCar(testCar) } returns null
         
         // Execute the function
-        val result = usersCarsRepository.findByCarSafe(testCar)
+        val result = userCarRepository.findByCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findAllByCar(testCar) }
     }
     
     @Test
     fun `test findByCarSafe repository error`() {
         // Setup mock for database error
-        every { usersCarsRepository.findByCar(any()) } throws RuntimeException("Database error")
+        every { userCarRepository.findAllByCar(any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.findByCarSafe(testCar)
+        val result = userCarRepository.findByCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
@@ -190,48 +190,48 @@ class UsersCarsRepositoriesTest {
         assertEquals("Failed to get a record from table `users_cars`", result.error.message)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByCar(any()) }
+        verify(exactly = 1) { userCarRepository.findAllByCar(any()) }
     }
     
     @Test
     fun `test findByUserAndCarSafe success`() {
         // Setup mock
-        every { usersCarsRepository.findByUserAndCar(testUser, testCar) } returns testUsersCars
+        every { userCarRepository.findByUserAndCar(testUser, testCar) } returns testUsersCars
         
         // Execute the function
-        val result = usersCarsRepository.findByUserAndCarSafe(testUser, testCar)
+        val result = userCarRepository.findByUserAndCarSafe(testUser, testCar)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(testUsersCars, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUserAndCar(testUser, testCar) }
+        verify(exactly = 1) { userCarRepository.findByUserAndCar(testUser, testCar) }
     }
     
     @Test
     fun `test findByUserAndCarSafe not found`() {
         // Setup mock for not found - UserAndCar should return null on not found
-        every { usersCarsRepository.findByUserAndCar(testUser, testCar) } throws RuntimeException("Entity not found")
+        every { userCarRepository.findByUserAndCar(testUser, testCar) } throws RuntimeException("Entity not found")
         
         // Execute the function
-        val result = usersCarsRepository.findByUserAndCarSafe(testUser, testCar)
+        val result = userCarRepository.findByUserAndCarSafe(testUser, testCar)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is GetDbRecordFailed)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUserAndCar(testUser, testCar) }
+        verify(exactly = 1) { userCarRepository.findByUserAndCar(testUser, testCar) }
     }
     
     @Test
     fun `test findByUserAndCarSafe repository error`() {
         // Setup mock for database error
-        every { usersCarsRepository.findByUserAndCar(any(), any()) } throws RuntimeException("Database error")
+        every { userCarRepository.findByUserAndCar(any(), any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.findByUserAndCarSafe(testUser, testCar)
+        val result = userCarRepository.findByUserAndCarSafe(testUser, testCar)
         
         // Verify result
         assertTrue(result is Err)
@@ -239,49 +239,49 @@ class UsersCarsRepositoriesTest {
         assertEquals("Failed to get a record from table `users_cars`", result.error.message)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByUserAndCar(any(), any()) }
+        verify(exactly = 1) { userCarRepository.findByUserAndCar(any(), any()) }
     }
     
     @Test
     fun `test findByBlockingCarSafe success`() {
         // Setup mock
         val userCarsList = listOf(testUsersCars)
-        every { usersCarsRepository.findByBlockingCar(testCar) } returns userCarsList
+        every { userCarRepository.findByBlockingCar(testCar) } returns userCarsList
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockingCarSafe(testCar)
+        val result = userCarRepository.findByBlockingCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(userCarsList, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockingCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findByBlockingCar(testCar) }
     }
     
     @Test
     fun `test findByBlockingCarSafe not found`() {
         // Setup mock for not found
-        every { usersCarsRepository.findByBlockingCar(testCar) } returns null
+        every { userCarRepository.findByBlockingCar(testCar) } returns null
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockingCarSafe(testCar)
+        val result = userCarRepository.findByBlockingCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockingCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findByBlockingCar(testCar) }
     }
     
     @Test
     fun `test findByBlockingCarSafe repository error`() {
         // Setup mock for database error
-        every { usersCarsRepository.findByBlockingCar(any()) } throws RuntimeException("Database error")
+        every { userCarRepository.findByBlockingCar(any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockingCarSafe(testCar)
+        val result = userCarRepository.findByBlockingCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
@@ -289,49 +289,49 @@ class UsersCarsRepositoriesTest {
         assertEquals("Failed to get a record from table `users_cars`", result.error.message)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockingCar(any()) }
+        verify(exactly = 1) { userCarRepository.findByBlockingCar(any()) }
     }
     
     @Test
     fun `test findByBlockedCarSafe success`() {
         // Setup mock
         val userCarsList = listOf(testUsersCars)
-        every { usersCarsRepository.findByBlockedCar(testCar) } returns userCarsList
+        every { userCarRepository.findByBlockedCar(testCar) } returns userCarsList
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockedCarSafe(testCar)
+        val result = userCarRepository.findByBlockedCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Ok)
         assertEquals(userCarsList, result.value)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockedCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findByBlockedCar(testCar) }
     }
     
     @Test
     fun `test findByBlockedCarSafe not found`() {
         // Setup mock for not found
-        every { usersCarsRepository.findByBlockedCar(testCar) } returns null
+        every { userCarRepository.findByBlockedCar(testCar) } returns null
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockedCarSafe(testCar)
+        val result = userCarRepository.findByBlockedCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockedCar(testCar) }
+        verify(exactly = 1) { userCarRepository.findByBlockedCar(testCar) }
     }
     
     @Test
     fun `test findByBlockedCarSafe repository error`() {
         // Setup mock for database error
-        every { usersCarsRepository.findByBlockedCar(any()) } throws RuntimeException("Database error")
+        every { userCarRepository.findByBlockedCar(any()) } throws RuntimeException("Database error")
         
         // Execute the function
-        val result = usersCarsRepository.findByBlockedCarSafe(testCar)
+        val result = userCarRepository.findByBlockedCarSafe(testCar)
         
         // Verify result
         assertTrue(result is Err)
@@ -339,6 +339,6 @@ class UsersCarsRepositoriesTest {
         assertEquals("Failed to get a record from table `users_cars`", result.error.message)
         
         // Verify the repository method was called
-        verify(exactly = 1) { usersCarsRepository.findByBlockedCar(any()) }
+        verify(exactly = 1) { userCarRepository.findByBlockedCar(any()) }
     }
 } 

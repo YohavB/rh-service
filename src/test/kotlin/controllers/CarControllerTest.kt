@@ -6,7 +6,7 @@ import com.github.michaelbull.result.Result
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
-import com.yb.rh.controllers.CarsController
+import com.yb.rh.controllers.CarController
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.error.RHException
@@ -30,7 +30,7 @@ class CarControllerTest {
 
     private lateinit var mockMvc: MockMvc
     private lateinit var carService: CarService
-    private lateinit var carsController: CarsController
+    private lateinit var carController: CarController
     private lateinit var objectMapper: ObjectMapper
 
     private val testCar = Car(
@@ -56,8 +56,8 @@ class CarControllerTest {
         clearAllMocks()
         carService = mockk(relaxed = true)
         objectMapper = ObjectMapper()
-        carsController = CarsController(carService)
-        mockMvc = MockMvcBuilders.standaloneSetup(carsController).build()
+        carController = CarController(carService)
+        mockMvc = MockMvcBuilders.standaloneSetup(carController).build()
     }
 
     @Test
@@ -82,7 +82,7 @@ class CarControllerTest {
     fun `test find by plate number`() {
         // Set up mock
         val resultOk: Result<CarDTO, RHException> = Ok(testCarDTO)
-        every { carService.findByPlateNumber("123456", Countries.IL) } returns resultOk
+        every { carService.getCarOrCreateRequest("123456", Countries.IL) } returns resultOk
 
         // Perform request
         mockMvc.perform(get("/api/cars/by-plate")
@@ -96,7 +96,7 @@ class CarControllerTest {
             .andExpect(jsonPath("$.model").value("Model 3"))
 
         // Verify service was called
-        verify(exactly = 1) { carService.findByPlateNumber("123456", Countries.IL) }
+        verify(exactly = 1) { carService.getCarOrCreateRequest("123456", Countries.IL) }
     }
 
     @Test

@@ -5,7 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.yb.rh.controllers.UsersController
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UserDTO
-import com.yb.rh.services.UsersService
+import com.yb.rh.services.UserService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 class UsersControllerTest {
 
     private lateinit var mockMvc: MockMvc
-    private lateinit var usersService: UsersService
+    private lateinit var userService: UserService
     private lateinit var usersController: UsersController
     private lateinit var objectMapper: ObjectMapper
 
@@ -49,16 +49,16 @@ class UsersControllerTest {
     @BeforeEach
     fun setup() {
         clearAllMocks()
-        usersService = mockk(relaxed = true)
+        userService = mockk(relaxed = true)
         objectMapper = ObjectMapper()
-        usersController = UsersController(usersService)
+        usersController = UsersController(userService)
         mockMvc = MockMvcBuilders.standaloneSetup(usersController).build()
     }
 
     @Test
     fun `test find all users`() {
         // Set up mock
-        every { usersService.findAll() } returns listOf(testUser)
+        every { userService.findAll() } returns listOf(testUser)
 
         // Perform request
         mockMvc.perform(get("/api/users/"))
@@ -69,13 +69,13 @@ class UsersControllerTest {
             .andExpect(jsonPath("$[0].lastName").value("User"))
             
         // Verify service was called
-        verify(exactly = 1) { usersService.findAll() }
+        verify(exactly = 1) { userService.findAll() }
     }
 
     @Test
     fun `test find by id`() {
         // Set up mock
-        every { usersService.findByUserId(1L) } returns Ok(testUserDTO)
+        every { userService.findByUserId(1L) } returns Ok(testUserDTO)
 
         // Perform request
         mockMvc.perform(get("/api/users/by-id")
@@ -87,13 +87,13 @@ class UsersControllerTest {
             .andExpect(jsonPath("$.lastName").value("User"))
             
         // Verify service was called
-        verify(exactly = 1) { usersService.findByUserId(1L) }
+        verify(exactly = 1) { userService.findByUserId(1L) }
     }
 
     @Test
     fun `test find by email`() {
         // Set up mock
-        every { usersService.findByEmail("test@test.com") } returns Ok(testUserDTO)
+        every { userService.findByEmail("test@test.com") } returns Ok(testUserDTO)
 
         // Perform request
         mockMvc.perform(get("/api/users/by-email")
@@ -105,13 +105,13 @@ class UsersControllerTest {
             .andExpect(jsonPath("$.lastName").value("User"))
             
         // Verify service was called
-        verify(exactly = 1) { usersService.findByEmail("test@test.com") }
+        verify(exactly = 1) { userService.findByEmail("test@test.com") }
     }
 
     @Test
     fun `test create or update user`() {
         // Set up mock
-        every { usersService.createOrUpdateUser(testUserDTO) } returns Ok(testUserDTO)
+        every { userService.createOrUpdateUser(testUserDTO) } returns Ok(testUserDTO)
 
         // Perform request
         mockMvc.perform(
@@ -126,6 +126,6 @@ class UsersControllerTest {
             .andExpect(jsonPath("$.lastName").value("User"))
             
         // Verify service was called
-        verify(exactly = 1) { usersService.createOrUpdateUser(testUserDTO) }
+        verify(exactly = 1) { userService.createOrUpdateUser(testUserDTO) }
     }
 } 

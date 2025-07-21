@@ -1,25 +1,38 @@
 package com.yb.rh.services
 
 import com.yb.rh.common.Countries
-import com.yb.rh.entities.CarDTO
-import com.yb.rh.services.countryCarJson.CountryCarJson
+import com.yb.rh.dtos.CarDTO
+import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
+import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.springframework.stereotype.Service
 
 @Service
-class CarApiInterface(private val countryCarJson: CountryCarJson) {
+class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
+
+    private val logger = KotlinLogging.logger {}
+
 
     fun getCarInfo(plateNumber: String, country: Countries): CarDTO {
+        logger.info { "Try to get Car Info $plateNumber from $country" }
+
+        return try {
         val url = getCarByCountry(plateNumber, country)
 
         val request = Request.Builder().url(url).build()
 
         val body = OkHttpClient().newCall(request).execute().body!!
 
-        val actualCountryCarJsonHandler = countryCarJson.getCountryCarJsonHandler(country)
+            val countryCarJsonHandler = countryCarJsonFactory.getCountryCarJsonHandler(country)
 
-        return actualCountryCarJsonHandler.getCarDTO(body)
+            countryCarJsonHandler.getCarDTO(body)
+        } catch (e: Exception) {
+            throw IllegalArgumentException(
+                "Failed to fetch car info for plate number: $plateNumber in country: $country",
+                e
+            )
+        }
     }
 
     private fun getCarByCountry(plateNumber: String, country: Countries): String {

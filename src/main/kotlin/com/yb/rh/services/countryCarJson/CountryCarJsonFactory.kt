@@ -4,7 +4,7 @@ import com.yb.rh.common.Countries
 import org.springframework.stereotype.Service
 
 @Service
-class CountryCarJson() {
+class CountryCarJsonFactory() {
     fun getCountryCarJsonHandler(country: Countries): ICarJsonHandler =
         when (country) {
             Countries.IL -> IlCarJsonHandler()

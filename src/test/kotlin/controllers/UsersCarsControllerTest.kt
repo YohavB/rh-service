@@ -10,7 +10,7 @@ import com.yb.rh.entities.Car
 import com.yb.rh.entities.User
 import com.yb.rh.entities.UsersCars
 import com.yb.rh.entities.UsersCarsDTO
-import com.yb.rh.services.UsersCarsService
+import com.yb.rh.services.UserCarService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 class UsersCarsControllerTest {
 
     private lateinit var mockMvc: MockMvc
-    private lateinit var usersCarsService: UsersCarsService
+    private lateinit var userCarService: UserCarService
     private lateinit var usersCarsController: UsersCarsController
 
     private val testCar = Car(
@@ -57,8 +57,8 @@ class UsersCarsControllerTest {
     @BeforeEach
     fun setup() {
         clearAllMocks()
-        usersCarsService = mockk(relaxed = true)
-        usersCarsController = UsersCarsController(usersCarsService)
+        userCarService = mockk(relaxed = true)
+        usersCarsController = UsersCarsController(userCarService)
         mockMvc = MockMvcBuilders.standaloneSetup(usersCarsController).build()
     }
 
@@ -66,7 +66,7 @@ class UsersCarsControllerTest {
     fun `test find all users cars`() {
         // Set up mock
         val usersCars = mutableListOf(testUsersCars)
-        every { usersCarsService.getAllUsersCars() } returns usersCars
+        every { userCarService.getAllUsersCars() } returns usersCars
 
         // Perform request
         mockMvc.perform(get("/api/users-cars/"))
@@ -76,7 +76,7 @@ class UsersCarsControllerTest {
             .andExpect(jsonPath("$[0].car.plateNumber").value("123456"))
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.getAllUsersCars() }
+        verify(exactly = 1) { userCarService.getAllUsersCars() }
     }
 
     @Test
@@ -89,7 +89,7 @@ class UsersCarsControllerTest {
             blockedCar = null
         )
 
-        every { usersCarsService.getUsersCarsByPlateNumber("123456") } returns Ok(listOf(usersCarsDTO))
+        every { userCarService.getUsersCarsByPlateNumber("123456") } returns Ok(listOf(usersCarsDTO))
 
         // Perform request
         mockMvc.perform(get("/api/users-cars/by-plate")
@@ -100,7 +100,7 @@ class UsersCarsControllerTest {
             .andExpect(jsonPath("$.entity[0].userCar").value("123456"))
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.getUsersCarsByPlateNumber("123456") }
+        verify(exactly = 1) { userCarService.getUsersCarsByPlateNumber("123456") }
     }
 
     @Test
@@ -113,7 +113,7 @@ class UsersCarsControllerTest {
             blockedCar = null
         )
 
-        every { usersCarsService.getUsersCarsByUserId(1L) } returns Ok(listOf(usersCarsDTO))
+        every { userCarService.getUsersCarsByUserId(1L) } returns Ok(listOf(usersCarsDTO))
 
         // Perform request
         mockMvc.perform(get("/api/users-cars/by-user")
@@ -124,7 +124,7 @@ class UsersCarsControllerTest {
             .andExpect(jsonPath("$.entity[0].userCar").value("123456"))
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.getUsersCarsByUserId(1L) }
+        verify(exactly = 1) { userCarService.getUsersCarsByUserId(1L) }
     }
 
     @Test
@@ -137,7 +137,7 @@ class UsersCarsControllerTest {
             blockedCar = null
         )
 
-        every { usersCarsService.getUsersCarsByUserAndPlate(1L, "123456") } returns Ok(usersCarsDTO)
+        every { userCarService.getUsersCarsByUserAndPlate(1L, "123456") } returns Ok(usersCarsDTO)
 
         // Perform request
         mockMvc.perform(get("/api/users-cars/by-user-and-plate")
@@ -149,13 +149,13 @@ class UsersCarsControllerTest {
             .andExpect(jsonPath("$.userCar").value("123456"))
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.getUsersCarsByUserAndPlate(1L, "123456") }
+        verify(exactly = 1) { userCarService.getUsersCarsByUserAndPlate(1L, "123456") }
     }
 
     @Test
     fun `test update blocked car`() {
         // Set up mock
-        every { usersCarsService.updateBlockedCar("654321", "123456", 1L, UserStatus.BLOCKING) } returns Ok(Unit)
+        every { userCarService.updateBlockedCar("654321", "123456", 1L, UserStatus.BLOCKING) } returns Ok(Unit)
 
         // Perform request
         mockMvc.perform(post("/api/users-cars/update-blocked")
@@ -167,13 +167,13 @@ class UsersCarsControllerTest {
             .andExpect(status().isOk)
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.updateBlockedCar("654321", "123456", 1L, UserStatus.BLOCKING) }
+        verify(exactly = 1) { userCarService.updateBlockedCar("654321", "123456", 1L, UserStatus.BLOCKING) }
     }
 
     @Test
     fun `test release car`() {
         // Set up mock
-        every { usersCarsService.releaseCar("654321", "123456", 1L, UserStatus.BLOCKING) } returns Ok(Unit)
+        every { userCarService.releaseCar("654321", "123456", 1L, UserStatus.BLOCKING) } returns Ok(Unit)
 
         // Perform request
         mockMvc.perform(post("/api/users-cars/release-blocked")
@@ -185,13 +185,13 @@ class UsersCarsControllerTest {
             .andExpect(status().isOk)
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.releaseCar("654321", "123456", 1L, UserStatus.BLOCKING) }
+        verify(exactly = 1) { userCarService.releaseCar("654321", "123456", 1L, UserStatus.BLOCKING) }
     }
 
     @Test
     fun `test send free me`() {
         // Set up mock
-        every { usersCarsService.sendFreeMe("123456") } returns Ok(Unit)
+        every { userCarService.sendFreeMe("123456") } returns Ok(Unit)
 
         // Perform request
         mockMvc.perform(post("/api/users-cars/send-need-to-go-notification")
@@ -200,6 +200,6 @@ class UsersCarsControllerTest {
             .andExpect(status().isOk)
             
         // Verify service was called
-        verify(exactly = 1) { usersCarsService.sendFreeMe("123456") }
+        verify(exactly = 1) { userCarService.sendFreeMe("123456") }
     }
 } 

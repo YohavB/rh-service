@@ -1,5 +1,7 @@
 package com.yb.rh.entities
 
+import com.yb.rh.dtos.UserCreationDTO
+import com.yb.rh.dtos.UserDTO
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.jetbrains.annotations.NotNull
@@ -21,7 +23,9 @@ data class User(
     @NotNull
     var pushNotificationToken: String,
 
-    var urlPhoto: String?,
+    var urlPhoto: String? = null,
+
+    var isActive: Boolean = true,
 
     @CreationTimestamp
     @Column(name = "creation_time")
@@ -34,13 +38,13 @@ data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    val userId: Long = 0,
+    val userId: Long = 0L,
 ) {
-    fun toDto(usersCars: List<CarDTO>? = null) =
-        UserDTO(userId, firstName, lastName, email, pushNotificationToken, urlPhoto, usersCars)
+    fun toDto() =
+        UserDTO(userId, firstName, lastName, email, urlPhoto)
 
     companion object {
-        fun fromDto(userDTO: UserDTO) =
+        fun fromDto(userDTO: UserCreationDTO) =
             User(
                 userDTO.firstName,
                 userDTO.lastName,
@@ -49,16 +53,4 @@ data class User(
                 userDTO.urlPhoto
             )
     }
-}
-
-data class UserDTO(
-    val id: Long,
-    var firstName: String,
-    var lastName: String,
-    var email: String,
-    var pushNotificationToken: String,
-    var urlPhoto: String?,
-    val userCars: List<CarDTO>? = null,
-) {
-    fun toEntity() = User.fromDto(this)
 }

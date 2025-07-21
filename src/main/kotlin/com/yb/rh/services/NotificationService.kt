@@ -1,5 +1,7 @@
 package com.yb.rh.services
 
+import com.yb.rh.common.NotificationsKind
+import com.yb.rh.entities.User
 import io.github.jav.exposerversdk.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,24 +18,19 @@ class NotificationService {
 
     private val logger = KotlinLogging.logger {}
 
-    fun sendPushNotification(pushToken: String, blockedCarPlate: String?) {
+    fun sendPushNotification(user: User, notificationsKind: NotificationsKind) {
         CoroutineScope(Dispatchers.IO).launch {
-            val recipient = "ExponentPushToken[$pushToken]"
+            val recipient = "ExponentPushToken[${user.pushNotificationToken}]"
 
             if (!PushClient.isExponentPushToken(recipient)) {
                 logger.error { "Invalid push token: $recipient" }
                 return@launch
             }
 
-            val title = blockedCarPlate?.let { "Sorry, but you need to move" } ?: "You've been blocked!"
-            val message = blockedCarPlate?.let {
-                "Car: $blockedCarPlate needs to move. Please move your car."
-            } ?: "You've been blocked. Remember to use the 'Let Me Go' button."
-
             val expoPushMessage = ExpoPushMessage().apply {
                 to.add(recipient)
-                this.title = title
-                body = message
+                title = notificationsKind.notificationTitle
+                body = notificationsKind.notificationMessage
             }
 
             val expoPushMessages: MutableList<ExpoPushMessage> = ArrayList()

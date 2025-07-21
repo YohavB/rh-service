@@ -1,12 +1,10 @@
 import com.yb.rh.RhServiceApplication
 import com.yb.rh.RhServiceConfiguration
-import com.yb.rh.repositories.CarsRepository
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
+import com.yb.rh.repositories.CarRepository
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.springframework.boot.ApplicationRunner
 import kotlin.test.assertNotNull
 
 /**
@@ -31,18 +29,18 @@ class ApplicationTest {
     @Test
     fun `RhServiceConfiguration creates a database initializer`() {
         // Create mocks
-        val usersRepository = mockk<UsersRepository>(relaxed = true)
-        val carsRepository = mockk<CarsRepository>(relaxed = true)
-        val usersCarsRepository = mockk<UsersCarsRepository>(relaxed = true)
+        val userRepository = mockk<UserRepository>(relaxed = true)
+        val carRepository = mockk<CarRepository>(relaxed = true)
+        val userCarRepository = mockk<UserCarRepository>(relaxed = true)
         
         // Create configuration
         val configuration = RhServiceConfiguration()
         
         // Get the database initializer
         val initializer = configuration.databaseInitializer(
-            usersRepository, 
-            carsRepository, 
-            usersCarsRepository
+            userRepository,
+            carRepository,
+            userCarRepository
         )
         
         // Verify it's an ApplicationRunner

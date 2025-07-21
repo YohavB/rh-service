@@ -13,7 +13,7 @@ import com.yb.rh.error.InvalidCarData
 import com.yb.rh.error.InvalidUserData
 import com.yb.rh.error.RHException
 import com.yb.rh.services.CarService
-import com.yb.rh.services.UsersService
+import com.yb.rh.services.UserService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -28,13 +28,13 @@ import kotlin.test.assertTrue
 class BoundaryConditionsTest {
 
     private lateinit var carService: CarService
-    private lateinit var usersService: UsersService
+    private lateinit var userService: UserService
 
     @BeforeEach
     fun setup() {
         clearAllMocks()
         carService = mockk(relaxed = true)
-        usersService = mockk(relaxed = true)
+        userService = mockk(relaxed = true)
     }
 
     @Test
@@ -74,14 +74,14 @@ class BoundaryConditionsTest {
 
         // Set up mock to return error for validation failure
         val errorResult: Result<UserDTO, RHException> = Err(InvalidUserData("Invalid email format"))
-        every { usersService.createOrUpdateUser(userDto) } returns errorResult
+        every { userService.createOrUpdateUser(userDto) } returns errorResult
 
-        val result = usersService.createOrUpdateUser(userDto)
+        val result = userService.createOrUpdateUser(userDto)
         
         assertTrue(result is Err)
         assertTrue((result as Err).error is InvalidUserData)
         
-        verify(exactly = 1) { usersService.createOrUpdateUser(userDto) }
+        verify(exactly = 1) { userService.createOrUpdateUser(userDto) }
     }
 
     @Test
@@ -121,13 +121,13 @@ class BoundaryConditionsTest {
 
         // Set up mock to return error for validation failure
         val errorResult: Result<UserDTO, RHException> = Err(InvalidUserData("Required fields cannot be empty"))
-        every { usersService.createOrUpdateUser(userDto) } returns errorResult
+        every { userService.createOrUpdateUser(userDto) } returns errorResult
 
-        val result = usersService.createOrUpdateUser(userDto)
+        val result = userService.createOrUpdateUser(userDto)
         
         assertTrue(result is Err)
         assertTrue((result as Err).error is InvalidUserData)
         
-        verify(exactly = 1) { usersService.createOrUpdateUser(userDto) }
+        verify(exactly = 1) { userService.createOrUpdateUser(userDto) }
     }
 } 

@@ -32,3 +32,17 @@ fun String.toSlug() = lowercase()
     .joinToString("-")
     .replace("-+".toRegex(), "-")
     .trimEnd('-')
+
+fun String.maskPII(): String =
+    when {
+        length > 3 -> replaceRange(1, length - 1, "*")
+        else -> "*"
+    }
+
+fun String.maskEmail(): String =
+    when (val endOfName = indexOf('@')) {
+        -1, 0 -> "***"
+        1 -> substring(0, 1).plus("***")
+        2 -> substring(0, 2).plus("***")
+        else -> "***" + substring(endOfName - 3, endOfName).plus("***")
+    }

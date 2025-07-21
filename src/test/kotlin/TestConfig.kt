@@ -1,8 +1,8 @@
-import com.yb.rh.repositories.CarsRepository
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
+import com.yb.rh.repositories.CarRepository
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
 import com.yb.rh.services.*
-import com.yb.rh.services.countryCarJson.CountryCarJson
+import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
 import io.mockk.mockk
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.TestConfiguration
@@ -18,23 +18,23 @@ import org.springframework.test.context.TestPropertySource
 class TestConfig {
     @Bean
     @Primary
-    fun carsRepository() = mockk<CarsRepository>(relaxed = true)
+    fun carsRepository() = mockk<CarRepository>(relaxed = true)
 
     @Bean
     @Primary
-    fun usersRepository() = mockk<UsersRepository>(relaxed = true)
+    fun usersRepository() = mockk<UserRepository>(relaxed = true)
 
     @Bean
     @Primary
-    fun usersCarsRepository() = mockk<UsersCarsRepository>(relaxed = true)
+    fun usersCarsRepository() = mockk<UserCarRepository>(relaxed = true)
 
     @Bean
     @Primary
-    fun carApiInterface() = mockk<CarApiInterface>(relaxed = true)
+    fun carApiInterface() = mockk<CarApi>(relaxed = true)
 
     @Bean
     @Primary
-    fun countryCarJson() = mockk<CountryCarJson>(relaxed = true)
+    fun countryCarJson() = mockk<CountryCarJsonFactory>(relaxed = true)
 
     @Bean
     @Primary
@@ -46,9 +46,9 @@ class TestConfig {
 
     @Bean
     @Primary
-    fun usersService() = UsersService(usersRepository(), usersCarsRepository())
+    fun usersService() = UserService(usersRepository(), usersCarsRepository())
 
     @Bean
     @Primary
-    fun usersCarsService() = UsersCarsService(usersCarsRepository(), carsRepository(), carService(), usersRepository(), notificationService())
+    fun usersCarsService() = UserCarService(usersCarsRepository(), carsRepository(), carService(), usersRepository(), notificationService())
 } 

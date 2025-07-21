@@ -11,12 +11,12 @@ import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
 import com.yb.rh.error.EntityNotFound
-import com.yb.rh.repositories.CarsRepository
-import com.yb.rh.repositories.UsersCarsRepository
-import com.yb.rh.repositories.UsersRepository
-import com.yb.rh.services.CarApiInterface
+import com.yb.rh.repositories.CarRepository
+import com.yb.rh.repositories.UserCarRepository
+import com.yb.rh.repositories.UserRepository
+import com.yb.rh.services.CarApi
 import com.yb.rh.services.CarService
-import com.yb.rh.services.countryCarJson.CountryCarJson
+import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -31,11 +31,11 @@ import kotlin.test.assertTrue
 class CarServiceTest {
 
     private lateinit var carService: CarService
-    private lateinit var carsRepository: CarsRepository
-    private lateinit var usersRepository: UsersRepository
-    private lateinit var usersCarsRepository: UsersCarsRepository
-    private lateinit var carApiInterface: CarApiInterface
-    private lateinit var countryCarJson: CountryCarJson
+    private lateinit var carRepository: CarRepository
+    private lateinit var userRepository: UserRepository
+    private lateinit var userCarRepository: UserCarRepository
+    private lateinit var carApi: CarApi
+    private lateinit var countryCarJsonFactory: CountryCarJsonFactory
 
     private val testCar = Car(
         plateNumber = "123456",
@@ -66,11 +66,11 @@ class CarServiceTest {
 
     @BeforeEach
     fun setup() {
-        carsRepository = mockk(relaxed = true)
-        usersRepository = mockk(relaxed = true)
-        usersCarsRepository = mockk(relaxed = true)
-        carApiInterface = mockk(relaxed = true)
-        countryCarJson = mockk(relaxed = true)
+        carRepository = mockk(relaxed = true)
+        userRepository = mockk(relaxed = true)
+        userCarRepository = mockk(relaxed = true)
+        carApi = mockk(relaxed = true)
+        countryCarJsonFactory = mockk(relaxed = true)
 
         // Create the actual service with mocked dependencies
         carService = mockk(relaxed = true)
@@ -95,34 +95,34 @@ class CarServiceTest {
     @Test
     fun `test find by plate number success from database`() {
         // Set up specific mocks for this test
-        every { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) } returns Ok(testCarDTO)
+        every { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) } returns Ok(testCarDTO)
 
         // Call the method to test
-        val result = carService.findByPlateNumber(testCar.plateNumber, Countries.IL)
+        val result = carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL)
 
         // Verify the result is Ok and contains the testCar
         assertTrue(result is Ok)
         assertEquals(testCar.plateNumber, result.value.plateNumber)
 
         // Verify interactions
-        verify(exactly = 1) { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) }
+        verify(exactly = 1) { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) }
     }
 
     @Test
     fun `test find by plate number not found`() {
         // Set up mocks for not found
-        every { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) } returns
+        every { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) } returns
                 Err(EntityNotFound(Car::class.java, testCar.plateNumber))
 
         // Call the method
-        val result = carService.findByPlateNumber(testCar.plateNumber, Countries.IL)
+        val result = carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL)
 
         // Verify result
         assertTrue(result is Err)
         assertTrue(result.error is EntityNotFound)
 
         // Verify API was called
-        verify { carService.findByPlateNumber(testCar.plateNumber, Countries.IL) }
+        verify { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) }
     }
 
     @Test

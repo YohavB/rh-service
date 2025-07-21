@@ -3,13 +3,12 @@ import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
 import com.yb.rh.common.UserStatus
-import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarDTO
 import com.yb.rh.entities.User
 import com.yb.rh.services.CarService
 import com.yb.rh.services.NotificationService
-import com.yb.rh.services.UsersCarsService
-import com.yb.rh.services.UsersService
+import com.yb.rh.services.UserCarService
+import com.yb.rh.services.UserService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -23,17 +22,17 @@ import kotlin.test.assertNotNull
 class ServiceIntegrationTest {
 
     private lateinit var carService: CarService
-    private lateinit var usersService: UsersService
-    private lateinit var usersCarsService: UsersCarsService
+    private lateinit var userService: UserService
+    private lateinit var userCarService: UserCarService
     private lateinit var notificationService: NotificationService
 
     @BeforeEach
     fun setup() {
         clearAllMocks()
         carService = mockk(relaxed = true)
-        usersService = mockk(relaxed = true)
+        userService = mockk(relaxed = true)
         notificationService = mockk(relaxed = true)
-        usersCarsService = mockk(relaxed = true)
+        userCarService = mockk(relaxed = true)
     }
 
     @Test
@@ -67,14 +66,14 @@ class ServiceIntegrationTest {
 
         // Mock service responses
         every { carService.createOrUpdateCar(blockingCar.plateNumber, any(),user.userId) } returns Ok(blockingCar)
-        every { usersCarsService.updateBlockedCar(
+        every { userCarService.updateBlockedCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
             UserStatus.BLOCKING
         ) } returns Ok(Unit)
-        every { usersCarsService.sendFreeMe(blockedCar.plateNumber) } returns Ok(Unit)
-        every { usersCarsService.releaseCar(
+        every { userCarService.sendFreeMe(blockedCar.plateNumber) } returns Ok(Unit)
+        every { userCarService.releaseCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
@@ -86,7 +85,7 @@ class ServiceIntegrationTest {
         assertNotNull(createCarResult)
         assertEquals(Ok(blockingCar), createCarResult)
 
-        val blockResult = usersCarsService.updateBlockedCar(
+        val blockResult = userCarService.updateBlockedCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
@@ -95,11 +94,11 @@ class ServiceIntegrationTest {
         assertNotNull(blockResult)
         assertEquals(Ok(Unit), blockResult)
 
-        val freeMeResult = usersCarsService.sendFreeMe(blockedCar.plateNumber)
+        val freeMeResult = userCarService.sendFreeMe(blockedCar.plateNumber)
         assertNotNull(freeMeResult)
         assertEquals(Ok(Unit), freeMeResult)
 
-        val releaseResult = usersCarsService.releaseCar(
+        val releaseResult = userCarService.releaseCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
@@ -110,14 +109,14 @@ class ServiceIntegrationTest {
 
         // Verify service calls
         verify(exactly = 1) { carService.createOrUpdateCar(blockingCar.plateNumber, Countries.IL,user.userId) }
-        verify(exactly = 1) { usersCarsService.updateBlockedCar(
+        verify(exactly = 1) { userCarService.updateBlockedCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
             UserStatus.BLOCKING
         ) }
-        verify(exactly = 1) { usersCarsService.sendFreeMe(blockedCar.plateNumber) }
-        verify(exactly = 1) { usersCarsService.releaseCar(
+        verify(exactly = 1) { userCarService.sendFreeMe(blockedCar.plateNumber) }
+        verify(exactly = 1) { userCarService.releaseCar(
             blockingCar.plateNumber,
             blockedCar.plateNumber,
             user.userId,
