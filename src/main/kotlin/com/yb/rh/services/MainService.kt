@@ -143,7 +143,7 @@ class MainService(
             carUsersDTO.users.forEach { userCar ->
                 logger.info { "User ${userCar.id} has car ${blockingCar.id} which is blocking ${blockedCar.id}, sending notification" }
                 val blockingUser = userService.getUserById(userCar.id)
-                notificationService.sendNotification(blockingUser, NotificationsKind.NEED_TO_GO, blockingCar)
+                notificationService.sendPushNotification(blockingUser, NotificationsKind.NEED_TO_GO)
             }
 
             sendNeedToGoNotification(blockingCar)

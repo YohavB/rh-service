@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
  * Controller handling user-related operations in the Rush Hour service
  */
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/user")
 class UsersController(private val userService: UserService) : BaseController() {
 
     @PostMapping

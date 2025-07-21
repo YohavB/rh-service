@@ -9,6 +9,7 @@ plugins {
     kotlin("plugin.allopen") version "1.4.32"
     kotlin("plugin.serialization") version "1.6.10"
     id("jacoco")
+    id("org.flywaydb.flyway") version "8.5.13"
 }
 
 allOpen {
@@ -36,6 +37,9 @@ dependencies {
     implementation("io.github.microutils", "kotlin-logging", "1.5.4")
 
     implementation("com.michael-bull.kotlin-result", "kotlin-result", "1.1.9")
+
+    // Flyway for database migrations
+    implementation("org.flywaydb:flyway-core")
 
     // retrofit
     val retrofitVersion = "2.9.0"
@@ -118,4 +122,13 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+}
+
+// Flyway configuration
+flyway {
+    url = "jdbc:h2:file:./data/myDB"
+    user = "root"
+    password = "password"
+    locations = arrayOf("classpath:db/migration")
+    baselineOnMigrate = true
 }

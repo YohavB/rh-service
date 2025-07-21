@@ -8,12 +8,12 @@ import javax.persistence.*
 data class CarsRelations(
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "blocking_car", referencedColumnName = "plate_number")
+    @JoinColumn(name = "blocking_car_id", referencedColumnName = "id")
     var blockingCar: Car,
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "blocked_car", referencedColumnName = "plate_number")
+    @JoinColumn(name = "blocked_car_id", referencedColumnName = "id")
     var blockedCar: Car,
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

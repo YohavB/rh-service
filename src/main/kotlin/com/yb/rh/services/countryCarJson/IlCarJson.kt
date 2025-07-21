@@ -20,12 +20,13 @@ class IlCarJsonHandler(override val country: Countries = Countries.IL) : ICarJso
         val carInfo = GsonBuilder().create().fromJson(rawResponse.string(), IlCarJson::class.java)
 
         return CarDTO(
-            carInfo.getPlateNumber(),
-            country,
-            carInfo.getBrand(),
-            carInfo.getModel(),
-            carInfo.getColor(),
-            carInfo.getLicenseDateExpiration()
+            id = 0L, // ID will be assigned by the database
+            plateNumber = carInfo.getPlateNumber(),
+            country = country,
+            brand = carInfo.getBrand(),
+            model = carInfo.getModel(),
+            color = carInfo.getColor(),
+            carLicenseExpireDate = carInfo.getLicenseDateExpiration()
         )
     }
 }

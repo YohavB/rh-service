@@ -14,7 +14,7 @@ data class UserCar(
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "user_car", referencedColumnName = "plate_number")
+    @JoinColumn(name = "car_id", referencedColumnName = "id")
     var car: Car,
 
     @Id
