@@ -4,6 +4,7 @@ import com.yb.rh.dtos.UserCreationDTO
 import com.yb.rh.dtos.UserDTO
 import com.yb.rh.services.UserService
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 /**
  * Controller handling user-related operations in the Rush Hour service
@@ -14,7 +15,7 @@ class UsersController(private val userService: UserService) : BaseController() {
 
     @PostMapping
     fun createUser(
-        @RequestBody userCreationDTO: UserCreationDTO
+        @Valid @RequestBody userCreationDTO: UserCreationDTO
     ): UserDTO = userService.createUser(userCreationDTO)
 
     @GetMapping
@@ -29,7 +30,7 @@ class UsersController(private val userService: UserService) : BaseController() {
 
     @PutMapping
     fun updateUser(
-        @RequestBody userDTO: UserDTO
+        @Valid @RequestBody userDTO: UserDTO
     ): UserDTO = userService.updateUser(userDTO)
 
     @PutMapping("/deactivate")

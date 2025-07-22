@@ -1,131 +1,126 @@
-package controllers
+package com.yb.rh.controllers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.michaelbull.result.Ok
-import com.yb.rh.controllers.UsersController
-import com.yb.rh.entities.User
-import com.yb.rh.entities.UserDTO
+import com.yb.rh.TestObjectBuilder
 import com.yb.rh.services.UserService
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
-class UsersControllerTest {
-
-    private lateinit var mockMvc: MockMvc
+class UserControllerTest {
     private lateinit var userService: UserService
-    private lateinit var usersController: UsersController
-    private lateinit var objectMapper: ObjectMapper
-
-    private val testUser = User(
-        firstName = "Test",
-        lastName = "User",
-        email = "test@test.com",
-        pushNotificationToken = "test-token",
-        urlPhoto = null
-    )
-
-    private val testUserDTO = UserDTO(
-        id = 1L,
-        firstName = "Test",
-        lastName = "User",
-        email = "test@test.com",
-        pushNotificationToken = "test-token",
-        urlPhoto = null,
-        userCars = null
-    )
+    private lateinit var userController: UsersController
 
     @BeforeEach
-    fun setup() {
-        clearAllMocks()
-        userService = mockk(relaxed = true)
-        objectMapper = ObjectMapper()
-        usersController = UsersController(userService)
-        mockMvc = MockMvcBuilders.standaloneSetup(usersController).build()
+    fun setUp() {
+        userService = mockk()
+        userController = UsersController(userService)
     }
 
     @Test
-    fun `test find all users`() {
-        // Set up mock
-        every { userService.findAll() } returns listOf(testUser)
+    fun `test createUser success`() {
+        // Given
+        val userCreationDTO = TestObjectBuilder.getUserCreationDTO()
+        val userDTO = TestObjectBuilder.getUserDTO()
+        
+        every { userService.createUser(userCreationDTO) } returns userDTO
 
-        // Perform request
-        mockMvc.perform(get("/api/users/"))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$[0].email").value("test@test.com"))
-            .andExpect(jsonPath("$[0].firstName").value("Test"))
-            .andExpect(jsonPath("$[0].lastName").value("User"))
-            
-        // Verify service was called
-        verify(exactly = 1) { userService.findAll() }
+        // When
+        val result = userController.createUser(userCreationDTO)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userDTO.id, result.id)
+        assertEquals(userDTO.firstName, result.firstName)
+        assertEquals(userDTO.lastName, result.lastName)
+        assertEquals(userDTO.email, result.email)
+        verify { userService.createUser(userCreationDTO) }
     }
 
     @Test
-    fun `test find by id`() {
-        // Set up mock
-        every { userService.findByUserId(1L) } returns Ok(testUserDTO)
+    fun `test getUserById success`() {
+        // Given
+        val userId = 1L
+        val userDTO = TestObjectBuilder.getUserDTO()
+        
+        every { userService.getUserDTOByUserId(userId) } returns userDTO
 
-        // Perform request
-        mockMvc.perform(get("/api/users/by-id")
-            .param("id", "1"))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.email").value("test@test.com"))
-            .andExpect(jsonPath("$.firstName").value("Test"))
-            .andExpect(jsonPath("$.lastName").value("User"))
-            
-        // Verify service was called
-        verify(exactly = 1) { userService.findByUserId(1L) }
+        // When
+        val result = userController.getUserById(userId)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userDTO.id, result.id)
+        verify { userService.getUserDTOByUserId(userId) }
     }
 
     @Test
-    fun `test find by email`() {
-        // Set up mock
-        every { userService.findByEmail("test@test.com") } returns Ok(testUserDTO)
+    fun `test getUserByEmail success`() {
+        // Given
+        val email = "test@example.com"
+        val userDTO = TestObjectBuilder.getUserDTO()
+        
+        every { userService.findUserDTOByEmail(email) } returns userDTO
 
-        // Perform request
-        mockMvc.perform(get("/api/users/by-email")
-            .param("mail", "test@test.com"))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.email").value("test@test.com"))
-            .andExpect(jsonPath("$.firstName").value("Test"))
-            .andExpect(jsonPath("$.lastName").value("User"))
-            
-        // Verify service was called
-        verify(exactly = 1) { userService.findByEmail("test@test.com") }
+        // When
+        val result = userController.getUserByEmail(email)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userDTO.id, result.id)
+        assertEquals(userDTO.email, result.email)
+        verify { userService.findUserDTOByEmail(email) }
     }
 
     @Test
-    fun `test create or update user`() {
-        // Set up mock
-        every { userService.createOrUpdateUser(testUserDTO) } returns Ok(testUserDTO)
-
-        // Perform request
-        mockMvc.perform(
-            post("/api/users/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testUserDTO))
+    fun `test updateUser success`() {
+        // Given
+        val userDTO = TestObjectBuilder.getUserDTO()
+        val updatedUserDTO = TestObjectBuilder.getUserDTO(
+            firstName = "Updated",
+            lastName = "Name"
         )
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.email").value("test@test.com"))
-            .andExpect(jsonPath("$.firstName").value("Test"))
-            .andExpect(jsonPath("$.lastName").value("User"))
-            
-        // Verify service was called
-        verify(exactly = 1) { userService.createOrUpdateUser(testUserDTO) }
+        
+        every { userService.updateUser(userDTO) } returns updatedUserDTO
+
+        // When
+        val result = userController.updateUser(userDTO)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(updatedUserDTO.firstName, result.firstName)
+        assertEquals(updatedUserDTO.lastName, result.lastName)
+        verify { userService.updateUser(userDTO) }
+    }
+
+    @Test
+    fun `test deactivateUser success`() {
+        // Given
+        val userId = 1L
+        
+        every { userService.deActivateUser(userId) } returns Unit
+
+        // When
+        userController.deactivateUser(userId)
+
+        // Then
+        verify { userService.deActivateUser(userId) }
+    }
+
+    @Test
+    fun `test activateUser success`() {
+        // Given
+        val userId = 1L
+        
+        every { userService.activateUser(userId) } returns Unit
+
+        // When
+        userController.activateUser(userId)
+
+        // Then
+        verify { userService.activateUser(userId) }
     }
 } 

@@ -1,80 +1,131 @@
-package error
+package com.yb.rh.error
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
-import com.yb.rh.error.ErrorHandlerAdvice
-import com.yb.rh.error.ErrorResponse
+import com.yb.rh.utils.ErrorResponse
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.core.MethodParameter
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingRequestHeaderException
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class ErrorHandlerAdviceTest {
+    private lateinit var errorHandlerAdvice: ErrorHandlerAdvice
 
-    private val errorHandlerAdvice = ErrorHandlerAdvice()
+    @BeforeEach
+    fun setUp() {
+        errorHandlerAdvice = ErrorHandlerAdvice()
+    }
 
     @Test
-    fun `test handleMethodArgumentNotValid returns appropriate error responses`() {
-        // Mock dependencies
+    fun `test handleMethodArgumentNotValid with field errors`() {
+        // Given
+        val fieldError = FieldError("object", "field", "rejectedValue", false, null, null, "default message")
         val bindingResult = mockk<BindingResult>()
-        val fieldError = FieldError(
-            "testObject", "testField", "testValue", 
-            false, null, null, "must not be null"
-        )
-        val fieldErrors = listOf(fieldError)
+        every { bindingResult.fieldErrors } returns listOf(fieldError)
         
-        val exception = mockk<MethodArgumentNotValidException>()
-        every { exception.bindingResult } returns bindingResult
-        every { bindingResult.fieldErrors } returns fieldErrors
-        
-        // Execute the method
-        val errorResponses = errorHandlerAdvice.handleMethodArgumentNotValid(exception)
-        
-        // Verify result
-        assertEquals(1, errorResponses?.size)
-        val errorResponse = errorResponses?.get(0)
-        assertEquals("Value testValue for `testField` must not be null", errorResponse?.cause)
+        val methodParameter = mockk<MethodParameter>()
+        val exception = MethodArgumentNotValidException(methodParameter, bindingResult)
+
+        // When
+        val response = errorHandlerAdvice.handleMethodArgumentNotValid(exception)
+
+        // Then
+        assertNotNull(response)
+        assertEquals(1, response?.size)
+        val errorResponse = response?.first()
+        assertNotNull(errorResponse)
+        assertEquals("Value rejectedValue for `field` default message", errorResponse.cause)
     }
-    
+
     @Test
-    fun `test handleMissingParameter returns appropriate error response`() {
-        // Mock the exception directly without using the inner Parameter class
+    fun `test handleMissingParameter`() {
+        // Given
+        val parameter = mockk<kotlin.reflect.KParameter>()
+        every { parameter.name } returns "testParam"
+        
         val exception = mockk<MissingKotlinParameterException>()
-        
-        // Just mock the behavior we need
-        every { exception.parameter.name } returns "testParam"
-        
-        // Execute the method
-        val errorResponse = errorHandlerAdvice.handleMissingParameter(exception)
-        
-        // Verify result
-        assertEquals("parameter `testParam` is missing from request body", errorResponse.cause)
+        every { exception.parameter } returns parameter
+
+        // When
+        val response = errorHandlerAdvice.handleMissingParameter(exception)
+
+        // Then
+        assertNotNull(response)
+        assertEquals("parameter `testParam` is missing from request body", response.cause)
     }
-    
+
     @Test
-    fun `test handleMissingRequestHeader returns appropriate error response`() {
-        // Mock the exception
+    fun `test handleMissingRequestHeader`() {
+        // Given
+        val headerName = "Authorization"
         val exception = mockk<MissingRequestHeaderException>()
-        every { exception.headerName } returns "X-Test-Header"
-        
-        // Execute the method
-        val errorResponse = errorHandlerAdvice.handleMissingRequestHeader(exception)
-        
-        // Verify result
-        assertEquals("parameter `X-Test-Header` is missing from request header", errorResponse.cause)
+        every { exception.headerName } returns headerName
+
+        // When
+        val response = errorHandlerAdvice.handleMissingRequestHeader(exception)
+
+        // Then
+        assertNotNull(response)
+        assertEquals("parameter `Authorization` is missing from request header", response.cause)
     }
-    
+
     @Test
-    fun `test ErrorResponse factory method`() {
-        // Test with a message
-        val errorWithMessage = ErrorResponse.Factory.withErrorMessage("test error")
-        assertEquals("test error", errorWithMessage.cause)
-        
-        // Test with null message
-        val errorWithNullMessage = ErrorResponse.Factory.withErrorMessage(null)
-        assertEquals("no error message provided", errorWithNullMessage.cause)
+    fun `test ErrorResponse constructor`() {
+        // Given
+        val cause = "Test error message"
+        val errorCode = 404
+
+        // When
+        val errorResponse = ErrorResponse(cause, errorCode)
+
+        // Then
+        assertNotNull(errorResponse)
+        assertEquals(cause, errorResponse.cause)
+        assertEquals(errorCode, errorResponse.errorCode)
+    }
+
+    @Test
+    fun `test ErrorResponse constructor without error code`() {
+        // Given
+        val cause = "Test error message"
+
+        // When
+        val errorResponse = ErrorResponse(cause)
+
+        // Then
+        assertNotNull(errorResponse)
+        assertEquals(cause, errorResponse.cause)
+        assertEquals(null, errorResponse.errorCode)
+    }
+
+    @Test
+    fun `test ErrorResponse Factory withErrorMessage with message`() {
+        // Given
+        val message = "Test error message"
+
+        // When
+        val errorResponse = ErrorResponse.withErrorMessage(message)
+
+        // Then
+        assertNotNull(errorResponse)
+        assertEquals(message, errorResponse.cause)
+        assertEquals(null, errorResponse.errorCode)
+    }
+
+    @Test
+    fun `test ErrorResponse Factory withErrorMessage with null`() {
+        // When
+        val errorResponse = ErrorResponse.withErrorMessage(null)
+
+        // Then
+        assertNotNull(errorResponse)
+        assertEquals("no error message provided", errorResponse.cause)
+        assertEquals(null, errorResponse.errorCode)
     }
 } 

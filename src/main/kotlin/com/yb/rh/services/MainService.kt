@@ -5,6 +5,7 @@ import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MainService(
@@ -18,6 +19,7 @@ class MainService(
 
     /* Users - Cars Management */
 
+    @Transactional
     fun createUserCar(userCarRequestDTO: UserCarRequestDTO): UserCarsDTO {
         logger.info { "Creating UserCar with User ID: ${userCarRequestDTO.userId} and Car ID: ${userCarRequestDTO.carId}" }
 
@@ -30,6 +32,7 @@ class MainService(
             }
     }
 
+    @Transactional
     fun deleteUserCar(userCarRequestDTO: UserCarRequestDTO): UserCarsDTO {
         logger.info { "Deleting UserCar with User ID: ${userCarRequestDTO.userId} and Car ID: ${userCarRequestDTO.carId}" }
 
@@ -55,18 +58,39 @@ class MainService(
 
     /* Cars Relations Management */
 
+    @Transactional
     fun createCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): CarRelationsDTO {
         logger.info { "Creating Cars Relation between Blocking Car: ${carsRelationRequestDTO.blockingCarId} and Blocked Car: ${carsRelationRequestDTO.blockedCarId}" }
 
         val blockingCar = carService.getCarById(carsRelationRequestDTO.blockingCarId)
         val blockedCar = carService.getCarById(carsRelationRequestDTO.blockedCarId)
 
+        // Validate that cars are different
+        if (blockingCar.id == blockedCar.id) {
+            throw IllegalArgumentException("A car cannot block itself")
+        }
+
+        // Check for circular blocking
+        if (carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar)) {
+            throw IllegalArgumentException("Creating this blocking relationship would create a circular dependency")
+        }
+
         carsRelationsService.createCarsRelation(blockingCar, blockedCar)
 
         logger.info { "Successfully created Cars Relation between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
 
-        //sending blocked notification to blocked cars if user situation is IS_BLOCKING
-        //sending blocking notification to blocking cars if user situation is IS_BLOCKED
+        // Send appropriate notifications based on the user situation
+        when (carsRelationRequestDTO.userCarSituation) {
+            UserCarSituation.IS_BLOCKING -> {
+                // User's car is blocking another car - notify blocked car's owners
+                sendBlockedNotification(blockedCar)
+            }
+
+            UserCarSituation.IS_BLOCKED -> {
+                // User's car is being blocked - notify blocking car's owners
+                sendBlockingNotification(blockingCar)
+            }
+        }
 
         val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
 
@@ -82,37 +106,45 @@ class MainService(
             .also { logger.info { "Found Car Relations for Car ID: $carId - $it" } }
     }
 
+    @Transactional
     fun deleteCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): CarRelationsDTO {
         logger.info { "Deleting Cars Relation between Blocking Car: ${carsRelationRequestDTO.blockingCarId} and Blocked Car: ${carsRelationRequestDTO.blockedCarId}" }
 
         val blockingCar = carService.getCarById(carsRelationRequestDTO.blockingCarId)
         val blockedCar = carService.getCarById(carsRelationRequestDTO.blockedCarId)
 
-        //sending free to go notification to blocked cars if user situation is IS_BLOCKING
-
         carsRelationsService.deleteSpecificCarsRelation(blockingCar, blockedCar)
 
         logger.info { "Successfully deleted Cars Relation between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
+
+        // Send "free to go" notification to blocked car's owners
+        sendFreeToGoNotification(blockedCar)
 
         val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
 
         return carsRelationsService.findCarRelationsDTO(userCar)
     }
 
+    @Transactional
     fun deleteAllCarRelationsByCarId(carId: Long) {
         logger.info { "Deleting all Cars Relations for Car ID: $carId" }
 
         val car = carService.getCarById(carId)
 
-        //sending free to go notification to all blocked cars
+        // Get all cars that were being blocked by this car before deletion
+        val blockedCars = carsRelationsService.findCarRelations(car).isBlocking
 
         carsRelationsService.deleteAllCarsRelations(car)
 
         logger.info { "Successfully deleted all Cars Relations for Car ID: $carId" }
 
+        // Send "free to go" notifications to all previously blocked cars
+        blockedCars.forEach { blockedCar ->
+            sendFreeToGoNotification(blockedCar)
+        }
     }
 
-    private fun getActualUserCar(userCarSituation: UserCarSituation, blockingCar: Car, blockedCar: Car): Car {
+    internal fun getActualUserCar(userCarSituation: UserCarSituation, blockingCar: Car, blockedCar: Car): Car {
         return when (userCarSituation) {
             UserCarSituation.IS_BLOCKED -> blockedCar
             UserCarSituation.IS_BLOCKING -> blockingCar
@@ -121,13 +153,35 @@ class MainService(
 
     /* Notifications Management */
 
-    fun sendNeedToGoNotification(blockedCarId: Long) {
+    fun sendNeedToGoNotification(blockedCarId: Long): String {
         val blockedCar = carService.getCarById(blockedCarId)
-        sendNeedToGoNotification(blockedCar)
+        val carRelations = carsRelationsService.findCarRelations(blockedCar)
+
+        if (carRelations.isBlockedBy.isEmpty()) {
+            logger.info { "Car $blockedCarId is not blocked by any other car, no notifications needed" }
+            return "No notifications needed - car is not blocked"
+        }
+
+        // Check if the blocked car has an owner
+        val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
+        if (blockedCarUsers.users.isEmpty()) {
+            logger.info { "Car $blockedCarId has no owner, no notifications needed" }
+            return "No notifications needed - car has no owner"
+        }
+
+        sendNeedToGoNotification(blockedCar, mutableSetOf())
+        return "Notification sent successfully"
     }
 
-    private fun sendNeedToGoNotification(blockedCar: Car) {
-        logger.info { "Blocked Car ID: ${blockedCar.id} need to go! Sending notification to all blocking car" }
+    internal fun sendNeedToGoNotification(blockedCar: Car, visitedCars: MutableSet<Long>) {
+        logger.info { "Blocked Car ID: ${blockedCar.id} needs to go! Sending notification to all blocking cars" }
+
+        // Prevent infinite recursion by tracking visited cars
+        if (visitedCars.contains(blockedCar.id)) {
+            logger.warn { "Circular blocking detected for car ${blockedCar.id}, stopping notification chain" }
+            return
+        }
+        visitedCars.add(blockedCar.id)
 
         val carRelations = carsRelationsService.findCarRelations(blockedCar)
 
@@ -137,7 +191,6 @@ class MainService(
         }
 
         carRelations.isBlockedBy.forEach { blockingCar ->
-
             val carUsersDTO = userCarService.getCarUsersByCar(blockingCar)
 
             carUsersDTO.users.forEach { userCar ->
@@ -146,7 +199,38 @@ class MainService(
                 notificationService.sendPushNotification(blockingUser, NotificationsKind.NEED_TO_GO)
             }
 
-            sendNeedToGoNotification(blockingCar)
+            // Continue the chain but with visited tracking
+            sendNeedToGoNotification(blockingCar, visitedCars)
+        }
+    }
+
+    internal fun sendBlockedNotification(blockedCar: Car) {
+        logger.info { "Sending blocked notification to owners of car ${blockedCar.id}" }
+
+        val carUsersDTO = userCarService.getCarUsersByCar(blockedCar)
+        carUsersDTO.users.forEach { userCar ->
+            val user = userService.getUserById(userCar.id)
+            notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKED)
+        }
+    }
+
+    internal fun sendBlockingNotification(blockingCar: Car) {
+        logger.info { "Sending blocking notification to owners of car ${blockingCar.id}" }
+
+        val carUsersDTO = userCarService.getCarUsersByCar(blockingCar)
+        carUsersDTO.users.forEach { userCar ->
+            val user = userService.getUserById(userCar.id)
+            notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKING)
+        }
+    }
+
+    internal fun sendFreeToGoNotification(freedCar: Car) {
+        logger.info { "Sending free to go notification to owners of car ${freedCar.id}" }
+
+        val carUsersDTO = userCarService.getCarUsersByCar(freedCar)
+        carUsersDTO.users.forEach { userCar ->
+            val user = userService.getUserById(userCar.id)
+            notificationService.sendPushNotification(user, NotificationsKind.FREE_TO_GO)
         }
     }
 }

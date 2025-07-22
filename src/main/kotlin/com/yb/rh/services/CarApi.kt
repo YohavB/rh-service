@@ -35,7 +35,7 @@ class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
         }
     }
 
-    private fun getCarByCountry(plateNumber: String, country: Countries): String {
+    internal fun getCarByCountry(plateNumber: String, country: Countries): String {
         return when (country) {
             Countries.IL -> getIsraelCar(plateNumber)
             else -> throw IllegalArgumentException("Car Api is not implemented for $country")
@@ -43,7 +43,7 @@ class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
     }
 
     // Israeli Car Api
-    private fun getIsraelCar(plateNumber: String) =
+    internal fun getIsraelCar(plateNumber: String) =
         "https://data.gov.il/api/3/action/datastore_search?resource_id=053cea08-09bc-40ec-8f7a-156f0677aff3&q=$plateNumber"
 
 }

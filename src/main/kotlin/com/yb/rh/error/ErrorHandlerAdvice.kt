@@ -41,4 +41,10 @@ class ErrorHandlerAdvice {
     @ResponseBody
     fun handleMissingRequestHeader(ex: MissingRequestHeaderException): ErrorResponse =
         ErrorResponse("parameter `${ex.headerName}` is missing from request header")
+
+    @ExceptionHandler(RHException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    fun handleRHException(ex: RHException): ErrorResponse =
+        ErrorResponse(ex.message ?: "Unknown error occurred")
 }

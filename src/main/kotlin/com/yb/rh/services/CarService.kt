@@ -4,9 +4,12 @@ import com.yb.rh.common.Countries
 import com.yb.rh.dtos.CarDTO
 import com.yb.rh.dtos.FindCarRequestDTO
 import com.yb.rh.entities.Car
+import com.yb.rh.error.RHException
 import com.yb.rh.repositories.CarRepository
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import javax.validation.constraints.NotBlank
 
 @Service
 class CarService(
@@ -17,6 +20,8 @@ class CarService(
 
     fun getCarOrCreateRequest(requestDTO: FindCarRequestDTO): CarDTO {
         logger.info { "Try to find Car : ${requestDTO.plateNumber}" }
+
+        validatePlateNumber(requestDTO.plateNumber)
 
         return carRepository.findByPlateNumber(requestDTO.plateNumber)
             ?.let {
@@ -31,6 +36,8 @@ class CarService(
     fun getCarOrCreate(plateNumber: String, country: Countries): Car {
         logger.info { "Fetching Car with plate number: $plateNumber" }
 
+        validatePlateNumber(plateNumber)
+
         return carRepository.findByPlateNumber(plateNumber)
             ?: createCar(plateNumber, country)
                 .also { logger.info { "Created new Car with plate number: ${it.plateNumber}" } }
@@ -39,13 +46,29 @@ class CarService(
     fun getCarById(carId: Long): Car {
         logger.info { "Getting Car by ID: $carId" }
         return carRepository.findCarById(carId)
-            ?: throw IllegalArgumentException("Car with ID $carId not found")
+            ?: throw RHException("Car with ID $carId not found")
     }
 
-    private fun createCar(plateNumber: String, country: Countries): Car {
+    @Transactional
+    internal fun createCar(plateNumber: String, country: Countries): Car {
         logger.info { "Creating new $country Car with plate number: $plateNumber" }
 
-        return carApi.getCarInfo(plateNumber, country)
-            .let { carDTO -> carRepository.save(Car.fromDto(carDTO)) }
+        return try {
+            carApi.getCarInfo(plateNumber, country)
+                .let { carDTO -> carRepository.save(Car.fromDto(carDTO)) }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to create car with plate number: $plateNumber" }
+            throw RHException("Failed to create car with plate number: $plateNumber. ${e.message}")
+        }
+    }
+
+    internal fun validatePlateNumber(@NotBlank plateNumber: String) {
+        if (plateNumber.isBlank()) {
+            throw RHException("Plate number cannot be blank")
+        }
+        
+        if (plateNumber.length > 50) {
+            throw RHException("Plate number cannot exceed 50 characters")
+        }
     }
 }

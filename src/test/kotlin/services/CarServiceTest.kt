@@ -1,181 +1,209 @@
-package services
+package com.yb.rh.services
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.yb.rh.common.Brands
-import com.yb.rh.common.CarStatus
-import com.yb.rh.common.Colors
+import com.yb.rh.TestObjectBuilder
 import com.yb.rh.common.Countries
-import com.yb.rh.common.UserStatus
-import com.yb.rh.entities.Car
-import com.yb.rh.entities.CarDTO
-import com.yb.rh.entities.User
-import com.yb.rh.error.EntityNotFound
 import com.yb.rh.repositories.CarRepository
-import com.yb.rh.repositories.UserCarRepository
-import com.yb.rh.repositories.UserRepository
-import com.yb.rh.services.CarApi
-import com.yb.rh.services.CarService
-import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.test.context.ActiveProfiles
-import java.time.LocalDateTime
-import kotlin.test.assertTrue
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
-@ActiveProfiles("test")
 class CarServiceTest {
-
-    private lateinit var carService: CarService
     private lateinit var carRepository: CarRepository
-    private lateinit var userRepository: UserRepository
-    private lateinit var userCarRepository: UserCarRepository
     private lateinit var carApi: CarApi
-    private lateinit var countryCarJsonFactory: CountryCarJsonFactory
-
-    private val testCar = Car(
-        plateNumber = "123456",
-        country = Countries.IL,
-        brand = Brands.TESLA,
-        model = "Model 3",
-        color = Colors.BLACK,
-        carLicenseExpireDate = LocalDateTime.now().plusYears(1)
-    )
-
-    private val testCarDTO = CarDTO(
-        plateNumber = "123456",
-        country = Countries.IL,
-        brand = Brands.TESLA,
-        model = "Model 3",
-        color = Colors.BLACK,
-        carLicenseExpireDate = LocalDateTime.now().plusYears(1)
-    )
-
-    private val testUser = User(
-        firstName = "Test",
-        lastName = "User",
-        email = "test@test.com",
-        pushNotificationToken = "test-token",
-        urlPhoto = null,
-        userId = 1L
-    )
+    private lateinit var carService: CarService
 
     @BeforeEach
-    fun setup() {
-        carRepository = mockk(relaxed = true)
-        userRepository = mockk(relaxed = true)
-        userCarRepository = mockk(relaxed = true)
-        carApi = mockk(relaxed = true)
-        countryCarJsonFactory = mockk(relaxed = true)
-
-        // Create the actual service with mocked dependencies
-        carService = mockk(relaxed = true)
+    fun setUp() {
+        carRepository = mockk()
+        carApi = mockk()
+        carService = CarService(carRepository, carApi)
     }
 
     @Test
-    fun `test find all cars`() {
-        // Set up specific mocks for this test
-        val carsList = listOf(testCar)
-        every { carService.findAll() } returns carsList
+    fun `test getCarOrCreateRequest existing car`() {
+        val findCarRequestDTO = TestObjectBuilder.getFindCarRequestDTO()
+        val existingCar = mockk<com.yb.rh.entities.Car>()
+        val carDTO = TestObjectBuilder.getCarDTO()
 
-        // Call the method to test
-        val result = carService.findAll()
+        every { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) } returns existingCar
+        every { existingCar.toDto() } returns carDTO
 
-        // Verify results
-        assertEquals(carsList, result)
+        val result = carService.getCarOrCreateRequest(findCarRequestDTO)
 
-        // Verify interactions
-        verify(exactly = 1) { carService.findAll() }
+        assertNotNull(result)
+        assertEquals(carDTO.id, result.id)
+        assertEquals(carDTO.plateNumber, result.plateNumber)
+        verify { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) }
     }
 
     @Test
-    fun `test find by plate number success from database`() {
-        // Set up specific mocks for this test
-        every { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) } returns Ok(testCarDTO)
+    fun `test getCarOrCreateRequest new car`() {
+        val findCarRequestDTO = TestObjectBuilder.getFindCarRequestDTO()
+        val carDTO = TestObjectBuilder.getCarDTO()
+        val newCar = mockk<com.yb.rh.entities.Car>()
 
-        // Call the method to test
-        val result = carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL)
+        every { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) } returns null
+        every { carApi.getCarInfo(findCarRequestDTO.plateNumber, findCarRequestDTO.country) } returns carDTO
+        every { carRepository.save(any()) } returns newCar
+        every { newCar.toDto() } returns carDTO
 
-        // Verify the result is Ok and contains the testCar
-        assertTrue(result is Ok)
-        assertEquals(testCar.plateNumber, result.value.plateNumber)
+        val result = carService.getCarOrCreateRequest(findCarRequestDTO)
 
-        // Verify interactions
-        verify(exactly = 1) { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) }
+        assertNotNull(result)
+        assertEquals(carDTO.id, result.id)
+        verify { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) }
+        verify { carApi.getCarInfo(findCarRequestDTO.plateNumber, findCarRequestDTO.country) }
     }
 
     @Test
-    fun `test find by plate number not found`() {
-        // Set up mocks for not found
-        every { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) } returns
-                Err(EntityNotFound(Car::class.java, testCar.plateNumber))
+    fun `test getCarById success`() {
+        val carId = 1L
+        val car = mockk<com.yb.rh.entities.Car>()
 
-        // Call the method
-        val result = carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL)
+        every { carRepository.findCarById(carId) } returns car
 
-        // Verify result
-        assertTrue(result is Err)
-        assertTrue(result.error is EntityNotFound)
+        val result = carService.getCarById(carId)
 
-        // Verify API was called
-        verify { carService.getCarOrCreateRequest(testCar.plateNumber, Countries.IL) }
+        assertNotNull(result)
+        assertEquals(car, result)
+        verify { carRepository.findCarById(carId) }
     }
 
     @Test
-    fun `test create or update car success`() {
-        // Set up mocks for successful car creation
-        every { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) } returns Ok(testCarDTO)
+    fun `test getCarById not found`() {
+        val carId = 1L
 
-        // Call the method
-        val result = carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L)
+        every { carRepository.findCarById(carId) } returns null
 
-        // Verify the result
-        assertTrue(result is Ok)
-        assertEquals(testCarDTO, result.value)
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.getCarById(carId)
+        }
+        verify { carRepository.findCarById(carId) }
+    }
 
-        // Verify the method was called
-        verify(exactly = 1) { carService.createOrUpdateCar(testCar.plateNumber, Countries.IL, 1L, null) }
+
+
+    @Test
+    fun `test getCarOrCreate existing car`() {
+        val plateNumber = "ABC123"
+        val country = Countries.IL
+        val existingCar = mockk<com.yb.rh.entities.Car>()
+
+        every { carRepository.findByPlateNumber(plateNumber) } returns existingCar
+
+        val result = carService.getCarOrCreate(plateNumber, country)
+
+        assertNotNull(result)
+        assertEquals(existingCar, result)
+        verify { carRepository.findByPlateNumber(plateNumber) }
     }
 
     @Test
-    fun `test find and update car success`() {
-        // Set up mocks for success
-        every {
-            carService.findAndUpdateCar(
-                testCar.plateNumber,
-                1L,
-                UserStatus.BLOCKING,
-                true,
-                CarStatus.BLOCKING
-            )
-        } returns Ok(testCar)
+    fun `test getCarOrCreate new car`() {
+        val plateNumber = "ABC123"
+        val country = Countries.IL
+        val carDTO = TestObjectBuilder.getCarDTO()
+        val newCar = mockk<com.yb.rh.entities.Car>()
 
-        // Call the method
-        val result = carService.findAndUpdateCar(
-            testCar.plateNumber,
-            1L,
-            UserStatus.BLOCKING,
-            true,
-            CarStatus.BLOCKING
-        )
+        every { carRepository.findByPlateNumber(plateNumber) } returns null
+        every { carApi.getCarInfo(plateNumber, country) } returns carDTO
+        every { carRepository.save(any()) } returns newCar
 
-        // Verify result
-        assertTrue(result is Ok)
-        assertEquals(testCar, result.value)
+        val result = carService.getCarOrCreate(plateNumber, country)
 
-        // Verify method was called
-        verify(exactly = 1) {
-            carService.findAndUpdateCar(
-                testCar.plateNumber,
-                1L,
-                UserStatus.BLOCKING,
-                true,
-                CarStatus.BLOCKING
-            )
+        assertNotNull(result)
+        assertEquals(newCar, result)
+        verify { carRepository.findByPlateNumber(plateNumber) }
+        verify { carApi.getCarInfo(plateNumber, country) }
+    }
+
+    @Test
+    fun `test getCarOrCreate with different country`() {
+        val plateNumber = "XYZ789"
+        val country = Countries.IL
+        val carDTO = TestObjectBuilder.getCarDTO(plateNumber = plateNumber)
+        val newCar = mockk<com.yb.rh.entities.Car>()
+
+        every { carRepository.findByPlateNumber(plateNumber) } returns null
+        every { carApi.getCarInfo(plateNumber, country) } returns carDTO
+        every { carRepository.save(any()) } returns newCar
+
+        val result = carService.getCarOrCreate(plateNumber, country)
+
+        assertNotNull(result)
+        assertEquals(newCar, result)
+        verify { carRepository.findByPlateNumber(plateNumber) }
+        verify { carApi.getCarInfo(plateNumber, country) }
+    }
+
+    @Test
+    fun `test getCarOrCreateRequest with blank plate number`() {
+        val findCarRequestDTO = TestObjectBuilder.getFindCarRequestDTO(plateNumber = "")
+
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.getCarOrCreateRequest(findCarRequestDTO)
         }
     }
-}
+
+    @Test
+    fun `test getCarOrCreateRequest with very long plate number`() {
+        val longPlateNumber = "A".repeat(51)
+        val findCarRequestDTO = TestObjectBuilder.getFindCarRequestDTO(plateNumber = longPlateNumber)
+
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.getCarOrCreateRequest(findCarRequestDTO)
+        }
+    }
+
+
+
+    @Test
+    fun `test validatePlateNumber with valid plate number`() {
+        val validPlateNumber = "ABC123"
+
+        carService.validatePlateNumber(validPlateNumber)
+
+        // Should not throw any exception
+    }
+
+    @Test
+    fun `test validatePlateNumber with blank plate number`() {
+        val blankPlateNumber = "   "
+
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.validatePlateNumber(blankPlateNumber)
+        }
+    }
+
+    @Test
+    fun `test validatePlateNumber with empty plate number`() {
+        val emptyPlateNumber = ""
+
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.validatePlateNumber(emptyPlateNumber)
+        }
+    }
+
+    @Test
+    fun `test validatePlateNumber with too long plate number`() {
+        val longPlateNumber = "A".repeat(51)
+
+        assertThrows<com.yb.rh.error.RHException> {
+            carService.validatePlateNumber(longPlateNumber)
+        }
+    }
+
+    @Test
+    fun `test validatePlateNumber with maximum length plate number`() {
+        val maxLengthPlateNumber = "A".repeat(50)
+
+        carService.validatePlateNumber(maxLengthPlateNumber)
+
+        // Should not throw any exception
+    }
+} 

@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mustache")
     implementation("org.springframework.boot", "spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -91,6 +92,16 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.12.0")
+    
+    // TestContainers for integration testing
+    testImplementation("org.testcontainers:testcontainers:1.17.6")
+    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
+    testImplementation("org.postgresql:postgresql:42.5.4")
+    
+    // Mockito for integration test mocks
+    testImplementation("org.mockito:mockito-core:4.8.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -104,6 +115,36 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// Configure unit tests to exclude integration tests
+tasks.test {
+    exclude("**/integration/**")
+    exclude("**/IntegrationTestBase*")
+    exclude("**/*IntegrationTest*")
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+// Create a separate task for integration tests
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs integration tests."
+    group = "verification"
+    
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    
+    // Only include integration tests
+    include("**/integration/**")
+    include("**/IntegrationTestBase*")
+    include("**/*IntegrationTest*")
+    
+    useJUnitPlatform()
+    
+    // Set test profile for integration tests
+    systemProperty("spring.profiles.active", "test")
+    
+    // Ensure integration tests run after unit tests
+    // dependsOn(tasks.test)
+}
+
 jacoco {
     toolVersion = "0.8.9"
 }
@@ -114,10 +155,6 @@ tasks.jacocoTestReport {
         csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
-}
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {

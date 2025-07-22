@@ -132,3 +132,17 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: /Users/yohav.ben
 	at org.h2.mvstore.FileStore.open(FileStore.java:163)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:444)
 	... 28 more
+2025-07-22 02:34:36 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CARS" already exists; SQL statement:
+-- Create cars table
+CREATE TABLE cars (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    plate_number VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    brand VARCHAR(100) DEFAULT 'UNKNOWN',
+    model VARCHAR(255) NOT NULL,
+    color VARCHAR(100) DEFAULT 'UNKNOWN',
+    car_license_expire_date TIMESTAMP NULL,
+    creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT unique_plate_number UN [42101-214]

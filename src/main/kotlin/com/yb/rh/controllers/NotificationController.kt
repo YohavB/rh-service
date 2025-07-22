@@ -1,6 +1,7 @@
 package com.yb.rh.controllers
 
 import com.yb.rh.services.MainService
+import com.yb.rh.utils.SuccessResponse
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -17,11 +18,14 @@ class NotificationController(
 
     /**
      * Sends a notification to the blocking car's owner that the blocked car needs to leave
-     * @param blockedCarID
+     * @param blockedCarId
      * @return Success/failure response of the notification operation
      */
     @PostMapping("/send-need-to-go")
     fun sendNeedToGoNotification(
         @RequestParam(name = "blockedCarId") blockedCarId: Long
-    ) = mainService.sendNeedToGoNotification(blockedCarId)
+    ): SuccessResponse<String> {
+        val result = mainService.sendNeedToGoNotification(blockedCarId)
+        return SuccessResponse(result)
+    }
 }

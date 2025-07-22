@@ -52,7 +52,9 @@ data class Car(
             carDTO.brand,
             carDTO.model,
             carDTO.color,
-            carDTO.carLicenseExpireDate
+            carDTO.carLicenseExpireDate,
+            LocalDateTime.now(),
+            LocalDateTime.now()
         )
     }
 }

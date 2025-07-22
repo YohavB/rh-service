@@ -4,6 +4,7 @@ import com.yb.rh.dtos.UserCarRequestDTO
 import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.services.MainService
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 /**
  * Controller handling relationships between users and cars
@@ -16,7 +17,7 @@ class UserCarController(
 
     @PostMapping
     fun createUserCar(
-        @RequestBody userCar: UserCarRequestDTO,
+        @Valid @RequestBody userCar: UserCarRequestDTO,
     ): UserCarsDTO = mainService.createUserCar(userCar)
 
     @GetMapping("/by-user-id")
@@ -26,6 +27,6 @@ class UserCarController(
 
     @DeleteMapping
     fun deleteUserCar(
-        @RequestBody userCar: UserCarRequestDTO,
+        @Valid @RequestBody userCar: UserCarRequestDTO,
     ): UserCarsDTO = mainService.deleteUserCar(userCar)
 }

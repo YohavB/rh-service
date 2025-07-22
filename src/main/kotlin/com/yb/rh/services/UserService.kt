@@ -50,14 +50,14 @@ class UserService(
 
         return userRepository.findByUserId(userDTO.id)
             ?.let { user ->
-                user.copy(
+                val updatedUser = user.copy(
                     firstName = userDTO.firstName,
                     lastName = userDTO.lastName,
                     email = userDTO.email,
                     urlPhoto = userDTO.urlPhoto
                 )
 
-                userRepository.save(user).toDto()
+                userRepository.save(updatedUser).toDto()
             } ?: throw RHException("User not found with id: ${userDTO.id}")
     }
 
