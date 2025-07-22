@@ -20,7 +20,14 @@ class UserCarService(
     fun createUserCar(user: User, car: Car): UserCarsDTO {
         logger.info { "Create UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
 
-        userCarRepository.save(UserCar(user, car))
+        val existingUserCar = userCarRepository.findByUserAndCar(user, car)
+
+        if (existingUserCar != null) {
+            logger.warn { "UserCar relationship already exists for User ID : ${user.userId} and Car ID : ${car.id}" }
+        }else{
+            logger.info { "Creating new UserCar relationship for User ID : ${user.userId} and Car ID : ${car.id}" }
+            userCarRepository.save(UserCar(user, car))
+        }
 
         logger.info { "Successfully created UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
 

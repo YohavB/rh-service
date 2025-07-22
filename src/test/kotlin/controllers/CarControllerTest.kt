@@ -2,6 +2,7 @@ package com.yb.rh.controllers
 
 import com.yb.rh.TestObjectBuilder
 import com.yb.rh.services.CarService
+import com.yb.rh.services.MainService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -12,11 +13,13 @@ import kotlin.test.assertNotNull
 
 class CarControllerTest {
     private lateinit var carService: CarService
+    private lateinit var mainService: MainService
     private lateinit var carController: CarController
 
     @BeforeEach
     fun setUp() {
         carService = mockk()
+        mainService = mockk()
         carController = CarController(carService)
     }
 

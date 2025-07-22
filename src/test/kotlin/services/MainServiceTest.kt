@@ -288,10 +288,11 @@ class MainServiceTest {
         every { carService.getCarById(blockedCarId) } returns blockedCar
         every { carsRelationsService.findCarRelations(blockedCar) } returns carRelations
 
-        // When
-        mainService.sendNeedToGoNotification(blockedCarId)
-
-        // Then
+        // When & Then
+        assertThrows<com.yb.rh.error.RHException> {
+            mainService.sendNeedToGoNotification(blockedCarId)
+        }
+        
         verify { 
             carService.getCarById(blockedCarId)
             carsRelationsService.findCarRelations(blockedCar)
@@ -321,8 +322,10 @@ class MainServiceTest {
         every { carsRelationsService.findCarRelations(any()) } returns carRelations
         every { userCarService.getCarUsersByCar(any()) } returns emptyCarUsersDTO
 
-        // When
-        mainService.sendNeedToGoNotification(blockedCarId)
+        // When & Then
+        assertThrows<com.yb.rh.error.RHException> {
+            mainService.sendNeedToGoNotification(blockedCarId)
+        }
 
         // Then
         verify { 

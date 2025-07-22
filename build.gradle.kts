@@ -145,6 +145,61 @@ val integrationTest by tasks.registering(Test::class) {
     // dependsOn(tasks.test)
 }
 
+// Create a task to run all tests (unit + integration)
+val allTests by tasks.registering(Test::class) {
+    description = "Runs all tests (unit tests + integration tests)."
+    group = "verification"
+    
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    
+    // Include all tests (no exclusions)
+    useJUnitPlatform()
+    
+    // Set test profile
+    systemProperty("spring.profiles.active", "test")
+    
+    // Run unit tests first, then integration tests
+    dependsOn(tasks.test)
+    dependsOn(tasks.named("integrationTest"))
+    
+    // This task will run both test suites
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+// Task to show test count information
+val testCount by tasks.registering {
+    description = "Shows the total number of tests in the project."
+    group = "verification"
+    
+    doLast {
+        val unitTestCount = fileTree("src/test/kotlin").matching {
+            include("**/*Test.kt")
+            exclude("**/integration/**")
+        }.files.sumOf { file ->
+            file.readLines().count { it.contains("@Test") }
+        }
+        
+        val integrationTestCount = fileTree("src/test/kotlin/integration").matching {
+            include("**/*Test.kt")
+        }.files.sumOf { file ->
+            file.readLines().count { it.contains("@Test") }
+        }
+        
+        val totalTests = unitTestCount + integrationTestCount
+        
+        println("🧪 Test Count Summary:")
+        println("   Unit Tests: $unitTestCount methods")
+        println("   Integration Tests: $integrationTestCount methods")
+        println("   Total Tests: $totalTests methods")
+        println("")
+        println("📋 Available Test Commands:")
+        println("   ./gradlew test          - Run unit tests only")
+        println("   ./gradlew integrationTest - Run integration tests only")
+        println("   ./gradlew allTests      - Run all tests (recommended)")
+    }
+}
+
 jacoco {
     toolVersion = "0.8.9"
 }

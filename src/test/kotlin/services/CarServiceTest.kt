@@ -15,12 +15,18 @@ import kotlin.test.assertNotNull
 class CarServiceTest {
     private lateinit var carRepository: CarRepository
     private lateinit var carApi: CarApi
+    private lateinit var carsRelationsService: CarsRelationsService
+    private lateinit var userCarService: UserCarService
+    private lateinit var userService: UserService
     private lateinit var carService: CarService
 
     @BeforeEach
     fun setUp() {
         carRepository = mockk()
         carApi = mockk()
+        carsRelationsService = mockk()
+        userCarService = mockk()
+        userService = mockk()
         carService = CarService(carRepository, carApi)
     }
 

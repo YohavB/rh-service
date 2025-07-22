@@ -28,6 +28,8 @@ class UserCarServiceTest {
         val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
         
         every { user.userId } returns 1L
+        every { car.id } returns 1L
+        every { userCarRepository.findByUserAndCar(user, car) } returns null
         every { userCarRepository.save(any()) } returns userCar
         every { userCarRepository.findAllByUser(user) } returns listOf(userCar)
         every { userCar.toDto() } returns TestObjectBuilder.getUserCarDTO()
@@ -38,6 +40,7 @@ class UserCarServiceTest {
         assertNotNull(result)
         assertEquals(userCarsDTO.user.id, result.user.id)
         verify { 
+            userCarRepository.findByUserAndCar(user, car)
             userCarRepository.save(any())
             userCarRepository.findAllByUser(user)
         }

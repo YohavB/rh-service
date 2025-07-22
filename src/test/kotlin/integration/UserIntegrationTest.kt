@@ -122,7 +122,7 @@ class UserIntegrationTest : IntegrationTestBase() {
         val createdUser = objectMapper.readValue(createResponse, UserDTO::class.java)
 
         // Then deactivate the user
-        performPut("/api/v1/user/deactivate?id=${createdUser.id}")
+        performPut("/api/v1/user/deactivate/${createdUser.id}")
 
         // Verify user is deactivated in database
         val dbUser = getRowFromTable("users", createdUser.id)
@@ -144,10 +144,10 @@ class UserIntegrationTest : IntegrationTestBase() {
         val createdUser = objectMapper.readValue(createResponse, UserDTO::class.java)
 
         // Deactivate the user first
-        performPut("/api/v1/user/deactivate?id=${createdUser.id}")
+        performPut("/api/v1/user/deactivate/${createdUser.id}")
 
         // Then activate the user
-        performPut("/api/v1/user/activate?id=${createdUser.id}")
+        performPut("/api/v1/user/activate/${createdUser.id}")
 
         // Verify user is activated in database
         val dbUser = getRowFromTable("users", createdUser.id)

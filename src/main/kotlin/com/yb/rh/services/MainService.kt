@@ -3,6 +3,7 @@ package com.yb.rh.services
 import com.yb.rh.common.NotificationsKind
 import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
+import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -159,14 +160,14 @@ class MainService(
 
         if (carRelations.isBlockedBy.isEmpty()) {
             logger.info { "Car $blockedCarId is not blocked by any other car, no notifications needed" }
-            return "No notifications needed - car is not blocked"
+            throw RHException("Car is not blocked by any other car")
         }
 
         // Check if the blocked car has an owner
         val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
         if (blockedCarUsers.users.isEmpty()) {
             logger.info { "Car $blockedCarId has no owner, no notifications needed" }
-            return "No notifications needed - car has no owner"
+            throw RHException("Car has no owner")
         }
 
         sendNeedToGoNotification(blockedCar, mutableSetOf())

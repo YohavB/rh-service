@@ -33,13 +33,13 @@ class UsersController(private val userService: UserService) : BaseController() {
         @Valid @RequestBody userDTO: UserDTO
     ): UserDTO = userService.updateUser(userDTO)
 
-    @PutMapping("/deactivate")
-    fun deactivateUser(
-        @RequestParam(name = "id") id: Long
-    ) = userService.deActivateUser(id)
+    @PutMapping("/deactivate/{userId}")
+    fun deactivateUserByPath(
+        @PathVariable userId: Long
+    ) = userService.deActivateUser(userId)
 
-    @PutMapping("/activate")
-    fun activateUser(
-        @RequestParam(name = "id") id: Long
-    ) = userService.activateUser(id)
+    @PutMapping("/activate/{userId}")
+    fun activateUserByPath(
+        @PathVariable userId: Long
+    ) = userService.activateUser(userId)
 }

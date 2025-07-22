@@ -142,13 +142,16 @@ abstract class IntegrationTestBase {
         // Mock the CarApi to return cars with the requested plate number
         Mockito.`when`(carApi.getCarInfo("CAR123", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "CAR123"))
         Mockito.`when`(carApi.getCarInfo("CAR001", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "CAR001"))
-        Mockito.`when`(carApi.getCarInfo("REMOVE123", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "REMOVE123"))
-        Mockito.`when`(carApi.getCarInfo("TEST123", Countries.IL)).thenReturn(car4DTO.copy(plateNumber = "TEST123"))
-        Mockito.`when`(carApi.getCarInfo("BLOCK123", Countries.IL)).thenReturn(car5DTO.copy(plateNumber = "BLOCK123"))
-        Mockito.`when`(carApi.getCarInfo("BLOCKED123", Countries.IL)).thenReturn(car6DTO.copy(plateNumber = "BLOCKED123"))
-        Mockito.`when`(carApi.getCarInfo("FREE123", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "FREE123"))
-        Mockito.`when`(carApi.getCarInfo("NOOWNER123", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "NOOWNER123"))
-        Mockito.`when`(carApi.getCarInfo("BLOCKING3", Countries.IL)).thenReturn(car4DTO.copy(plateNumber = "BLOCKING3"))
+        Mockito.`when`(carApi.getCarInfo("CAR002", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "CAR002"))
+        Mockito.`when`(carApi.getCarInfo("SHARED123", Countries.IL)).thenReturn(car4DTO.copy(plateNumber = "SHARED123"))
+        Mockito.`when`(carApi.getCarInfo("REMOVE123", Countries.IL)).thenReturn(car5DTO.copy(plateNumber = "REMOVE123"))
+        Mockito.`when`(carApi.getCarInfo("DUPLICATE123", Countries.IL)).thenReturn(car6DTO.copy(plateNumber = "DUPLICATE123"))
+        Mockito.`when`(carApi.getCarInfo("TEST123", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "TEST123"))
+        Mockito.`when`(carApi.getCarInfo("BLOCK123", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "BLOCK123"))
+        Mockito.`when`(carApi.getCarInfo("BLOCKED123", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "BLOCKED123"))
+        Mockito.`when`(carApi.getCarInfo("FREE123", Countries.IL)).thenReturn(car4DTO.copy(plateNumber = "FREE123"))
+        Mockito.`when`(carApi.getCarInfo("NOOWNER123", Countries.IL)).thenReturn(car5DTO.copy(plateNumber = "NOOWNER123"))
+        Mockito.`when`(carApi.getCarInfo("BLOCKING3", Countries.IL)).thenReturn(car6DTO.copy(plateNumber = "BLOCKING3"))
         Mockito.`when`(carApi.getCarInfo("ABC123", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "ABC123"))
         Mockito.`when`(carApi.getCarInfo("XYZ789", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "XYZ789"))
         Mockito.`when`(carApi.getCarInfo("GET123", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "GET123"))
@@ -170,6 +173,19 @@ abstract class IntegrationTestBase {
         Mockito.`when`(carApi.getCarInfo("DUPL001", Countries.IL)).thenReturn(car5DTO.copy(plateNumber = "DUPL001"))
         Mockito.`when`(carApi.getCarInfo("DUPL002", Countries.IL)).thenReturn(car6DTO.copy(plateNumber = "DUPL002"))
         Mockito.`when`(carApi.getCarInfo("SELF001", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "SELF001"))
+        
+        // EndToEndIntegrationTest mocks
+        Mockito.`when`(carApi.getCarInfo("E2E001", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "E2E001"))
+        Mockito.`when`(carApi.getCarInfo("E2E002", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "E2E002"))
+        Mockito.`when`(carApi.getCarInfo("E2E003", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "E2E003"))
+        Mockito.`when`(carApi.getCarInfo("DEACTIVATE123", Countries.IL)).thenReturn(car4DTO.copy(plateNumber = "DEACTIVATE123"))
+        Mockito.`when`(carApi.getCarInfo("CLEANUP001", Countries.IL)).thenReturn(car5DTO.copy(plateNumber = "CLEANUP001"))
+        Mockito.`when`(carApi.getCarInfo("CLEANUP002", Countries.IL)).thenReturn(car6DTO.copy(plateNumber = "CLEANUP002"))
+        
+        // Chain scenario mocks
+        for (i in 1..5) {
+            Mockito.`when`(carApi.getCarInfo("CHAIN00$i", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "CHAIN00$i"))
+        }
     }
 
     protected fun getBaseUrl(): String = "http://localhost:$port"
@@ -236,6 +252,18 @@ abstract class IntegrationTestBase {
         return mockMvc.perform(
             MockMvcRequestBuilders.delete(url)
                 .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(MockMvcResultMatchers.status().isOk)
+        .andReturn()
+        .response
+        .contentAsString
+    }
+
+    protected fun performDelete(url: String, body: Any): String {
+        return mockMvc.perform(
+            MockMvcRequestBuilders.delete(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body))
         )
         .andExpect(MockMvcResultMatchers.status().isOk)
         .andReturn()

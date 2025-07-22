@@ -1,5 +1,6 @@
 package com.yb.rh.controllers
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.yb.rh.TestObjectBuilder
 import com.yb.rh.dtos.UserCarSituation
 import com.yb.rh.services.MainService
@@ -13,11 +14,13 @@ import kotlin.test.assertNotNull
 
 class CarRelationsControllerTest {
     private lateinit var mainService: MainService
+    private lateinit var objectMapper: ObjectMapper
     private lateinit var carRelationsController: CarRelationsController
 
     @BeforeEach
     fun setUp() {
         mainService = mockk()
+        objectMapper = ObjectMapper()
         carRelationsController = CarRelationsController(mainService)
     }
 

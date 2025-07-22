@@ -3,7 +3,7 @@ package com.yb.rh.integration
 import com.yb.rh.dtos.UserCreationDTO
 import com.yb.rh.dtos.FindCarRequestDTO
 import com.yb.rh.dtos.UserCarRequestDTO
-import com.yb.rh.dtos.UserCarDTO
+import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.dtos.CarDTO
 import com.yb.rh.dtos.UserDTO
 import com.yb.rh.common.Countries
@@ -39,10 +39,10 @@ class UserCarIntegrationTest : IntegrationTestBase() {
             carId = car.id
         )
         val userCarResponse = performPost("/api/v1/user-car", userCarRequest)
-        val userCar = objectMapper.readValue(userCarResponse, UserCarDTO::class.java)
+        val userCars = objectMapper.readValue(userCarResponse, UserCarsDTO::class.java)
 
-        assertEquals(user.id, userCar.user.id)
-        assertEquals(car.id, userCar.car.id)
+        assertEquals(user.id, userCars.user.id)
+        assertTrue(userCars.cars.any { it.id == car.id })
 
         // Verify database state
         assertEquals(1, countRowsInTable("users_cars"))
@@ -89,13 +89,13 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         performPost("/api/v1/user-car", userCar1Request)
         performPost("/api/v1/user-car", userCar2Request)
 
-        // Get user cars
-        val getUserCarsResponse = performGet("/api/v1/user-car/user/${user.id}")
-        val userCars = objectMapper.readValue(getUserCarsResponse, object : TypeReference<List<UserCarDTO>>() {})
+        // Get user cars using the correct endpoint
+        val getUserCarsResponse = performGet("/api/v1/user-car/by-user-id?userId=${user.id}")
+        val userCars = objectMapper.readValue(getUserCarsResponse, UserCarsDTO::class.java)
 
-        assertEquals(2, userCars.size)
-        assertTrue(userCars.any { it.car.id == car1.id })
-        assertTrue(userCars.any { it.car.id == car2.id })
+        assertEquals(2, userCars.cars.size)
+        assertTrue(userCars.cars.any { it.id == car1.id })
+        assertTrue(userCars.cars.any { it.id == car2.id })
 
         // Verify database state
         assertEquals(2, countRowsInTable("users_cars"))
@@ -141,13 +141,15 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         performPost("/api/v1/user-car", userCar1Request)
         performPost("/api/v1/user-car", userCar2Request)
 
-        // Get car users
-        val getCarUsersResponse = performGet("/api/v1/user-car/car/${car.id}")
-        val carUsers = objectMapper.readValue(getCarUsersResponse, object : TypeReference<List<UserCarDTO>>() {})
+        // Get car users - this endpoint doesn't exist, so we'll test the user cars endpoint instead
+        val getUser1CarsResponse = performGet("/api/v1/user-car/by-user-id?userId=${user1.id}")
+        val user1Cars = objectMapper.readValue(getUser1CarsResponse, UserCarsDTO::class.java)
+        
+        val getUser2CarsResponse = performGet("/api/v1/user-car/by-user-id?userId=${user2.id}")
+        val user2Cars = objectMapper.readValue(getUser2CarsResponse, UserCarsDTO::class.java)
 
-        assertEquals(2, carUsers.size)
-        assertTrue(carUsers.any { it.user.id == user1.id })
-        assertTrue(carUsers.any { it.user.id == user2.id })
+        assertTrue(user1Cars.cars.any { it.id == car.id })
+        assertTrue(user2Cars.cars.any { it.id == car.id })
 
         // Verify database state
         assertEquals(2, countRowsInTable("users_cars"))
@@ -179,14 +181,19 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         )
         performPost("/api/v1/user-car", userCarRequest)
 
-        // Verify car is added
+        // Verify car was added
         assertEquals(1, countRowsInTable("users_cars"))
 
         // Remove car from user
-        performDelete("/api/v1/user-car/user/${user.id}/car/${car.id}")
+        performDelete("/api/v1/user-car", userCarRequest)
 
-        // Verify car is removed
+        // Verify car was removed
         assertEquals(0, countRowsInTable("users_cars"))
+
+        // Verify user has no cars
+        val getUserCarsResponse = performGet("/api/v1/user-car/by-user-id?userId=${user.id}")
+        val userCars = objectMapper.readValue(getUserCarsResponse, UserCarsDTO::class.java)
+        assertEquals(0, userCars.cars.size)
     }
 
     @Test
@@ -215,13 +222,11 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         )
         performPost("/api/v1/user-car", userCarRequest)
 
-        // Try to add same car again
-        try {
-            performPost("/api/v1/user-car", userCarRequest)
-            // If no exception is thrown, that's also acceptable as the system might handle duplicates gracefully
-        } catch (e: Exception) {
-            // Expected to fail due to unique constraint
-        }
+        // Verify car was added
+        assertEquals(1, countRowsInTable("users_cars"))
+
+        // Try to add the same car again - this should succeed but not create duplicate
+        performPost("/api/v1/user-car", userCarRequest)
 
         // Verify only one relationship exists
         assertEquals(1, countRowsInTable("users_cars"))

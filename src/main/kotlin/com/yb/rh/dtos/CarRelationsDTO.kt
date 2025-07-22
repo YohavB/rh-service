@@ -1,12 +1,18 @@
 package com.yb.rh.dtos
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.yb.rh.entities.Car
 import javax.validation.constraints.NotNull
 
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class CarRelationsDTO(
     @NotNull
+    @JsonProperty("car")
     var car: CarDTO,
+    @JsonProperty("isBlocking")
     var isBlocking: List<CarDTO>,
+    @JsonProperty("isBlockedBy")
     var isBlockedBy: List<CarDTO>
 ) {
     override fun toString(): String {

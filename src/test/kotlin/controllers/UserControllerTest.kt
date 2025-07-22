@@ -97,28 +97,28 @@ class UserControllerTest {
     }
 
     @Test
-    fun `test deactivateUser success`() {
+    fun `test deactivateUserByPath success`() {
         // Given
         val userId = 1L
         
         every { userService.deActivateUser(userId) } returns Unit
 
         // When
-        userController.deactivateUser(userId)
+        userController.deactivateUserByPath(userId)
 
         // Then
         verify { userService.deActivateUser(userId) }
     }
 
     @Test
-    fun `test activateUser success`() {
+    fun `test activateUserByPath success`() {
         // Given
         val userId = 1L
         
         every { userService.activateUser(userId) } returns Unit
 
         // When
-        userController.activateUser(userId)
+        userController.activateUserByPath(userId)
 
         // Then
         verify { userService.activateUser(userId) }
