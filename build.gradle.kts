@@ -77,7 +77,11 @@ dependencies {
     implementation ("io.github.jav:expo-server-sdk:1.1.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("com.h2database:h2")
+    
+    // MySQL for production
+    runtimeOnly("mysql:mysql-connector-java:8.0.33")
+    
+    // H2 for tests only
     testRuntimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -216,11 +220,11 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test)
 }
 
-// Flyway configuration
+// Flyway configuration for MySQL (Local Docker Container)
 flyway {
-    url = "jdbc:h2:file:./data/myDB"
-    user = "root"
-    password = "password"
+    url = "jdbc:mysql://localhost:3306/rh?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    user = "admin"
+    password = "root"
     locations = arrayOf("classpath:db/migration")
     baselineOnMigrate = true
 }
