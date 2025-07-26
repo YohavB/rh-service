@@ -32,7 +32,7 @@ object Utils {
                 .body(ErrorResponse.withErrorMessage(rHException.message))
             RESOURCE_NOT_EXISTS, ENTITY_NOT_FOUND -> ResponseEntity.status(NOT_FOUND)
                 .body(ErrorResponse.withErrorMessage(rHException.message))
-            FEATURE_DISABLED, BAD_CREDENTIAL -> ResponseEntity.status(FORBIDDEN)
+            FEATURE_DISABLED, BAD_CREDENTIAL, CAR_HAS_NO_OWNER -> ResponseEntity.status(FORBIDDEN)
                 .body(ErrorResponse.withErrorMessage(rHException.message))
             HTTP_CALL,
             UPDATE_EMAIL_TRACKING_STATUS_FAILED,

@@ -4,6 +4,7 @@ import com.yb.rh.common.NotificationsKind
 import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
 import com.yb.rh.error.RHException
+import com.yb.rh.error.ErrorType
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -166,8 +167,11 @@ class MainService(
         // Check if the blocked car has an owner
         val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
         if (blockedCarUsers.users.isEmpty()) {
-            logger.info { "Car $blockedCarId has no owner, no notifications needed" }
-            throw RHException("Car has no owner")
+            logger.warn { "Car $blockedCarId (${blockedCar.plateNumber}) has no owner, cannot send need to go notification" }
+            throw RHException(
+                "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
+                ErrorType.CAR_HAS_NO_OWNER
+            )
         }
 
         sendNeedToGoNotification(blockedCar, mutableSetOf())
@@ -209,6 +213,14 @@ class MainService(
         logger.info { "Sending blocked notification to owners of car ${blockedCar.id}" }
 
         val carUsersDTO = userCarService.getCarUsersByCar(blockedCar)
+        if (carUsersDTO.users.isEmpty()) {
+            logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, cannot send blocked notification" }
+            throw RHException(
+                "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
+                ErrorType.CAR_HAS_NO_OWNER
+            )
+        }
+        
         carUsersDTO.users.forEach { userCar ->
             val user = userService.getUserById(userCar.id)
             notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKED)
@@ -219,6 +231,14 @@ class MainService(
         logger.info { "Sending blocking notification to owners of car ${blockingCar.id}" }
 
         val carUsersDTO = userCarService.getCarUsersByCar(blockingCar)
+        if (carUsersDTO.users.isEmpty()) {
+            logger.warn { "Car ${blockingCar.id} (${blockingCar.plateNumber}) has no owner, cannot send blocking notification" }
+            throw RHException(
+                "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
+                ErrorType.CAR_HAS_NO_OWNER
+            )
+        }
+        
         carUsersDTO.users.forEach { userCar ->
             val user = userService.getUserById(userCar.id)
             notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKING)

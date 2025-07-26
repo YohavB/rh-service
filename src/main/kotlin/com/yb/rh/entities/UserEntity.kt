@@ -27,6 +27,8 @@ data class User(
 
     var isActive: Boolean = true,
 
+
+
     @CreationTimestamp
     @Column(name = "creation_time")
     var creationTime: LocalDateTime? = LocalDateTime.now(),

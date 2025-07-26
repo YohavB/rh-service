@@ -32,6 +32,27 @@ dependencies {
     implementation("org.springframework.boot", "spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    
+    // Security dependencies
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    
+    // Google OAuth2
+    implementation("com.google.api-client:google-api-client:2.0.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0")
+    implementation("com.google.auth:google-auth-library-credentials:1.11.0")
+    
+    // Facebook OAuth2 (using RestTemplate instead of Android SDK)
+    // No additional dependencies needed - using Spring's RestTemplate
+    
+    // Apple Sign In (JWT verification)
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5") // Already included above
+    
+    // Rate limiting
+    implementation("com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0")
+    
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -106,6 +127,9 @@ dependencies {
     // Mockito for integration test mocks
     testImplementation("org.mockito:mockito-core:4.8.1")
     testImplementation("org.mockito:mockito-junit-jupiter:4.8.1")
+    
+    // Security testing
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<KotlinCompile> {

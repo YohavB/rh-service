@@ -166,13 +166,13 @@ class NotificationIntegrationTest : IntegrationTestBase() {
         performPost("/api/v1/car-relations", carsRelationRequest)
 
         // When
-        val response = performPost("/api/v1/notification/send-need-to-go?blockedCarId=${car3.id}", "", 400)
+        val response = performPost("/api/v1/notification/send-need-to-go?blockedCarId=${car3.id}", "", 403)
 
         // Then
         assertNotNull(response)
         val errorResponse = objectMapper.readValue(response, ErrorResponse::class.java)
         assertNotNull(errorResponse)
-        assertEquals("Car has no owner", errorResponse.cause)
+        assertTrue(errorResponse.cause.contains("This car has no user so no one would be notified"))
     }
 
     @Test
