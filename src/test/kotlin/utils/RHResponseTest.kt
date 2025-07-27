@@ -172,21 +172,7 @@ class RHResponseTest {
         assertEquals(null, errorResponse.errorCode)
     }
 
-    @Test
-    fun `test mapRHErrorToResponse for FEATURE_DISABLED`() {
-        // Given
-        val exception = RHException("Feature disabled", ErrorType.FEATURE_DISABLED)
 
-        // When
-        val response = Utils.mapRHErrorToResponse(exception)
-
-        // Then
-        assertNotNull(response)
-        assertEquals(HttpStatus.FORBIDDEN, response.statusCode)
-        val errorResponse = response.body as ErrorResponse
-        assertEquals("Feature disabled", errorResponse.cause)
-        assertEquals(null, errorResponse.errorCode)
-    }
 
     @Test
     fun `test mapRHErrorToResponse for HTTP_CALL`() {

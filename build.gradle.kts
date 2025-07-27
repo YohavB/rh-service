@@ -42,6 +42,10 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    exclude(group = "commons-logging", module = "commons-logging")
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot", "spring-boot-starter-jetty")
@@ -57,9 +61,16 @@ dependencies {
     // Google OAuth2
     implementation("com.google.api-client:google-api-client:2.0.0") {
         exclude(module = "commons-logging")
+        exclude(group = "commons-logging")
     }
-    implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0")
-    implementation("com.google.auth:google-auth-library-credentials:1.11.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0") {
+        exclude(module = "commons-logging")
+        exclude(group = "commons-logging")
+    }
+    implementation("com.google.auth:google-auth-library-credentials:1.11.0") {
+        exclude(module = "commons-logging")
+        exclude(group = "commons-logging")
+    }
     
     // Facebook OAuth2 (using RestTemplate instead of Android SDK)
     // No additional dependencies needed - using Spring's RestTemplate
@@ -93,15 +104,22 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
 
     //expo-server-sdk - used in NotificationService
-    implementation ("io.github.jav:expo-server-sdk:1.1.0")
+    implementation ("io.github.jav:expo-server-sdk:1.1.0") {
+        exclude(module = "commons-logging")
+    }
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // Comment out devtools to prevent duplicate logs during development
+    // developmentOnly("org.springframework.boot:spring-boot-devtools")
     
     // MySQL for production
-    runtimeOnly("mysql:mysql-connector-java:8.0.33")
+    runtimeOnly("mysql:mysql-connector-java:8.0.33") {
+        exclude(module = "commons-logging")
+    }
     
     // H2 for tests only
-    testRuntimeOnly("com.h2database:h2")
+    testRuntimeOnly("com.h2database:h2") {
+        exclude(module = "commons-logging")
+    }
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")

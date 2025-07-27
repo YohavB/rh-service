@@ -7,26 +7,34 @@ import com.yb.rh.entities.Car
 import com.yb.rh.repositories.CarRepository
 import com.yb.rh.repositories.UserCarRepository
 import com.yb.rh.repositories.UserRepository
+import mu.KotlinLogging
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
+import org.springframework.dao.DataIntegrityViolationException
 
 @Configuration
 class RhServiceConfiguration {
 
+    private val logger = KotlinLogging.logger {}
+
     @Bean
+    @Profile("dev") // Only run in development profile
     fun databaseInitializer(
         userRepository: UserRepository,
         carRepository: CarRepository,
         userCarRepository: UserCarRepository,
     ) =
         ApplicationRunner {
-            println("DB Init Starting ")
-//            val userOne = User("User1", "One", "login1", "one@gmail.com", "1111")
-//            val userTwo = User("User2", "Two", "login2", "two@gmail.com", "2222")
-//            val userThree = User("User3", "Three", "login3", "three@gmail.com", "3333")
-//            val userFour = User("User4", "Four", "login4", "four@gmail.com", "4444")
-//            val userFive = User("User5", "Five", "login5", "five@gmail.com", "5555")
+            logger.info("DB Init Starting")
+            
+            // Check if data already exists
+            val existingCarsCount = carRepository.count()
+            if (existingCarsCount > 0) {
+                logger.info("Database already contains $existingCarsCount cars. Skipping initialization.")
+                return@ApplicationRunner
+            }
 
             val carOne = Car(
                 "11111111",
@@ -85,37 +93,31 @@ class RhServiceConfiguration {
                 Colors.WHITE,
                 null
             )
-            println("users Init Done")
+            
+            logger.info("Initializing cars data...")
 
-//            usersRepository.save(userOne)
-//            usersRepository.save(userTwo)
-//            usersRepository.save(userThree)
-            println("cars Init Done")
+            // Save cars with error handling
+            val carsToSave = listOf(carOne, carTwo, carThree, carFour, carFive, carSix, carSeven)
+            var savedCount = 0
+            
+            for (car in carsToSave) {
+                try {
+                    // Check if car with this plate number already exists
+                    if (carRepository.findByPlateNumber(car.plateNumber) == null) {
+                        carRepository.save(car)
+                        savedCount++
+                        logger.debug("Saved car with plate number: ${car.plateNumber}")
+                    } else {
+                        logger.debug("Car with plate number ${car.plateNumber} already exists, skipping...")
+                    }
+                } catch (e: DataIntegrityViolationException) {
+                    logger.warn("Failed to save car with plate number ${car.plateNumber}: ${e.message}")
+                } catch (e: Exception) {
+                    logger.error("Unexpected error saving car with plate number ${car.plateNumber}: ${e.message}")
+                }
+            }
 
-            carRepository.save(carOne)
-            carRepository.save(carTwo)
-            carRepository.save(carThree)
-            println("users cars Init Done")
-
-//            usersCarsRepository.save((UsersCars(userOne, carOne, carTwo, null)))
-//            usersCarsRepository.save((UsersCars(userTwo, carTwo, null, carOne)))
-//            usersCarsRepository.save((UsersCars(userThree, carThree)))
-
-            println("DB Init Done")
-//            usersCarsRepository.deleteAll()
-//            carsRepository.deleteAll()
-//            usersRepository.deleteAll()
-
-//            val userCars0 = usersCarsRepository.save((UsersCars(userOne, carOne, carTwo, null)))
-//            val userCars1 = usersCarsRepository.save((UsersCars(userTwo, carTwo, null, carOne)))
-//            val userCars2 = usersCarsRepository.save((UsersCars(userThree, carThree)))
-//            val userCars3 = usersCarsRepository.save((UsersCars(userFour, carFour)))
-//            val userCars4 = usersCarsRepository.save((UsersCars(userFive, carFive)))
-//            val userCars5 = usersCarsRepository.save((UsersCars(userFive, carSix)))
-//            val userCars6 = usersCarsRepository.save((UsersCars(userFour, carOne)))
-//            println(userCars0)
-//            println(usersCarsRepository.findAll())
-//            println(usersCarsRepository.findByUserId(userOne))
-//            println(usersCarsRepository.findByUserCar(carTwo))
+            logger.info("Cars initialization completed. Saved $savedCount new cars.")
+            logger.info("DB Init Done")
         }
 }
