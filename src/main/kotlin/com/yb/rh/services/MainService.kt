@@ -3,8 +3,8 @@ package com.yb.rh.services
 import com.yb.rh.common.NotificationsKind
 import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
-import com.yb.rh.error.RHException
 import com.yb.rh.error.ErrorType
+import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -82,21 +82,36 @@ class MainService(
         logger.info { "Successfully created Cars Relation between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
 
         // Send appropriate notifications based on the user situation
+        var notificationMessage: String?
         when (carsRelationRequestDTO.userCarSituation) {
             UserCarSituation.IS_BLOCKING -> {
                 // User's car is blocking another car - notify blocked car's owners
-                sendBlockedNotification(blockedCar)
+                val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
+                if (blockedCarUsers.users.isNotEmpty()) {
+                    sendBlockedNotification(blockedCar)
+                    notificationMessage = "Blocking relationship created. Notifications sent to owner(s) of car ${blockedCar.plateNumber}."
+                } else {
+                    logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
+                    notificationMessage = "Blocking relationship created. No notifications sent - car ${blockedCar.plateNumber} has no registered owners."
+                }
             }
 
             UserCarSituation.IS_BLOCKED -> {
                 // User's car is being blocked - notify blocking car's owners
-                sendBlockingNotification(blockingCar)
+                val blockingCarUsers = userCarService.getCarUsersByCar(blockingCar)
+                if (blockingCarUsers.users.isNotEmpty()) {
+                    sendBlockingNotification(blockingCar)
+                    notificationMessage = "Blocking relationship created. Notifications sent to owner(s) of car ${blockingCar.plateNumber}."
+                } else {
+                    logger.warn { "Car ${blockingCar.id} (${blockingCar.plateNumber}) has no owner, skipping notification" }
+                    notificationMessage = "Blocking relationship created. No notifications sent - car ${blockingCar.plateNumber} has no registered owners."
+                }
             }
         }
 
         val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
 
-        return carsRelationsService.findCarRelationsDTO(userCar)
+        return carsRelationsService.findCarRelationsDTO(userCar, notificationMessage)
     }
 
     fun getCarRelationsByCarId(carId: Long): CarRelationsDTO {
@@ -120,11 +135,18 @@ class MainService(
         logger.info { "Successfully deleted Cars Relation between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
 
         // Send "free to go" notification to blocked car's owners
-        sendFreeToGoNotification(blockedCar)
+        val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
+        val notificationMessage = if (blockedCarUsers.users.isNotEmpty()) {
+            sendFreeToGoNotification(blockedCar)
+            "Blocking relationship removed. Notifications sent to owner(s) of car ${blockedCar.plateNumber}."
+        } else {
+            logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
+            "Blocking relationship removed. No notifications sent - car ${blockedCar.plateNumber} has no registered owners."
+        }
 
         val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
 
-        return carsRelationsService.findCarRelationsDTO(userCar)
+        return carsRelationsService.findCarRelationsDTO(userCar, notificationMessage)
     }
 
     @Transactional
@@ -142,7 +164,12 @@ class MainService(
 
         // Send "free to go" notifications to all previously blocked cars
         blockedCars.forEach { blockedCar ->
+            val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
+            if (blockedCarUsers.users.isNotEmpty()) {
             sendFreeToGoNotification(blockedCar)
+            } else {
+                logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
+            }
         }
     }
 
@@ -213,14 +240,6 @@ class MainService(
         logger.info { "Sending blocked notification to owners of car ${blockedCar.id}" }
 
         val carUsersDTO = userCarService.getCarUsersByCar(blockedCar)
-        if (carUsersDTO.users.isEmpty()) {
-            logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, cannot send blocked notification" }
-            throw RHException(
-                "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
-                ErrorType.CAR_HAS_NO_OWNER
-            )
-        }
-        
         carUsersDTO.users.forEach { userCar ->
             val user = userService.getUserById(userCar.id)
             notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKED)
@@ -231,14 +250,6 @@ class MainService(
         logger.info { "Sending blocking notification to owners of car ${blockingCar.id}" }
 
         val carUsersDTO = userCarService.getCarUsersByCar(blockingCar)
-        if (carUsersDTO.users.isEmpty()) {
-            logger.warn { "Car ${blockingCar.id} (${blockingCar.plateNumber}) has no owner, cannot send blocking notification" }
-            throw RHException(
-                "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
-                ErrorType.CAR_HAS_NO_OWNER
-            )
-        }
-        
         carUsersDTO.users.forEach { userCar ->
             val user = userService.getUserById(userCar.id)
             notificationService.sendPushNotification(user, NotificationsKind.BEEN_BLOCKING)

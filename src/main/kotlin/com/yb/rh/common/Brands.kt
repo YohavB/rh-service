@@ -2,16 +2,12 @@ package com.yb.rh.common
 
 enum class Brands(private val value: Int, private val prettyName: String) {
     AIWAYS(0, "Aiways"),
-
-    // FREE	(	1	,	"Free"	)	,
     ALPHA_ROMEO(2, "Alpha Romeo"),
     ASTON_MARTIN(3, "Aston Martin"),
     AUDI(4, "Audi"),
     AVTOVAZ(5, "AvtoVAZ"),
     BENTLEY(6, "Bentley"),
     BMW(7, "BMW"),
-
-    //FREE(8, "Free"),
     BUICK(9, "Buick"),
     CADILLAC(10, "Cadillac"),
     CENNTRO(11, "Cenntro"),
@@ -26,8 +22,6 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     DODGE(20, "Dodge"),
     DONGFENG(21, "Dongfeng"),
     DS(22, "DS"),
-
-    // FREE(23, "FREE"),
     FERRARI(24, "Ferrari"),
     FIAT(25, "Fiat"),
     FORD(26, "Ford"),
@@ -55,8 +49,6 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     LTI(48, "LTI"),
     LYNK_AND_CO(49, "Lynk & Co"),
     MAN(50, "Man"),
-
-    // FREE	(	51	,	"FREE"	)	,
     MASERATI(52, "Maserati"),
     MAXUS(53, "Maxus"),
     MAZDA(54, "Mazda"),
@@ -85,8 +77,6 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     TELCO(77, "TELCO"),
     TESLA(78, "Tesla"),
     TOYOTA(79, "Toyota"),
-
-    //  FREE	(	80	,	"FREE"	)	,
     VOLKSWAGEN(81, "Volkswagen"),
     VOLVO(82, "Volvo"),
     UNKNOWN(999, "Unknown");
@@ -100,7 +90,7 @@ enum class Brands(private val value: Int, private val prettyName: String) {
         }
 
         init {
-            for (brands in Brands.values()) {
+            for (brands in Brands.entries) {
                 mapping[brands.value] = brands
             }
         }

@@ -7,6 +7,7 @@
 - [Base URL & Headers](#base-url--headers)
 - [Data Types](#data-types)
 - [API Endpoints](#api-endpoints)
+  - [Health Check](#health-endpoint)
   - [Authentication](#authentication-endpoints)
   - [Users](#user-endpoints)
   - [Cars](#car-endpoints)
@@ -72,11 +73,9 @@ enum Countries {
 #### Brands
 ```typescript
 enum Brands {
-  AIWAYS = 0,
-  ALPHA_ROMEO = 2,
-  ASTON_MARTIN = 3,
-  AUDI = 4,
-  // ... (see full list in Brands.kt)
+  // Integer values representing car brands
+  // Examples: AIWAYS = 0, TOYOTA = 79, BMW = 7, etc.
+  // Full list available in API responses
   UNKNOWN = 999
 }
 ```
@@ -84,10 +83,10 @@ enum Brands {
 #### Colors
 ```typescript
 enum Colors {
+  // Integer values representing car colors
+  // Examples: UNKNOWN = 0, WHITE = 100, BLACK = 10, RED = 50, etc.
+  // Full list available in API responses
   UNKNOWN = 0,
-  PEARL_GREEN = 1,
-  PEARL_BLACK = 2,
-  // ... (see full list in Colors.kt)
   WHITE = 100
 }
 ```
@@ -100,9 +99,95 @@ enum UserCarSituation {
 }
 ```
 
+#### CarRelationsDTO
+```typescript
+interface CarRelationsDTO {
+  car: CarDTO;
+  isBlocking: CarDTO[];
+  isBlockedBy: CarDTO[];
+  message?: string; // Optional message about notification status
+}
+```
+
+**Message Field Values**:
+- `null` - No notification action taken (e.g., GET requests)
+- `"Blocking relationship created. Notifications sent to owners."` - Successfully sent notifications
+- `"Blocking relationship created. No notifications sent - car has no registered owners."` - No notifications sent due to missing car owner
+- `"Blocking relationship removed. Notifications sent to owners."` - Successfully sent "free to go" notifications
+- `"Blocking relationship removed. No notifications sent - car has no registered owners."` - No "free to go" notifications sent due to missing car owner
+
+#### Request DTOs
+```typescript
+interface OAuthLoginRequestDTO {
+  token: string; // OAuth provider token (Google ID token, Facebook access token, Apple ID token)
+}
+
+interface UserCreationDTO {
+  firstName: string;
+  lastName: string;
+  email: string;
+  pushNotificationToken: string;
+  urlPhoto?: string;
+}
+
+interface FindCarRequestDTO {
+  plateNumber: string;
+  country: Countries;
+  userId?: number; // Optional user ID for car association
+}
+
+interface UserCarRequestDTO {
+  userId: number;
+  carId: number;
+}
+
+interface CarsRelationRequestDTO {
+  blockingCarId: number;
+  blockedCarId: number;
+  userCarSituation: UserCarSituation;
+}
+```
+
+#### Response DTOs
+```typescript
+interface AuthResponseDTO {
+  token: string; // JWT token for API access
+  user: UserDTO;
+}
+
+interface UserCarsDTO {
+  user: UserDTO;
+  cars: CarDTO[];
+}
+
+interface CarUsersDTO {
+  car: CarDTO;
+  users: UserDTO[];
+}
+```
+
 ---
 
 ## 🔌 API Endpoints
+
+### Health Endpoint
+
+#### 1. Health Check
+```http
+GET /api/v1/health
+```
+
+**Response**:
+```json
+{
+  "status": "UP",
+  "timestamp": "2024-07-27T20:01:16.620",
+  "service": "RushHour Backend",
+  "version": "1.0.0"
+}
+```
+
+---
 
 ### Authentication Endpoints
 
@@ -391,15 +476,36 @@ Content-Type: application/json
       "carLicenseExpireDate": "2025-12-31T23:59:59"
     }
   ],
-  "isBlockedBy": []
+  "isBlockedBy": [],
+  "message": "Blocking relationship created. Notifications sent to owners."
 }
 ```
 
-**Error Response (Car has no owner)**:
+**Response when car has no owner**:
 ```json
 {
-  "cause": "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
-  "errorCode": 403
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE",
+    "carLicenseExpireDate": "2025-12-31T23:59:59"
+  },
+  "isBlocking": [
+    {
+      "id": 789,
+      "plateNumber": "XYZ789",
+      "country": "IL",
+      "brand": "HONDA",
+      "model": "Civic",
+      "color": "BLACK",
+      "carLicenseExpireDate": "2025-12-31T23:59:59"
+    }
+  ],
+  "isBlockedBy": [],
+  "message": "Blocking relationship created. No notifications sent - car has no registered owners."
 }
 ```
 
@@ -409,7 +515,33 @@ GET /api/v1/car-relations?carId=456
 Authorization: Bearer <jwt_token>
 ```
 
-**Response**: Same as Create Car Relations response
+**Response**:
+```json
+{
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE",
+    "carLicenseExpireDate": "2025-12-31T23:59:59"
+  },
+  "isBlocking": [
+    {
+      "id": 789,
+      "plateNumber": "XYZ789",
+      "country": "IL",
+      "brand": "HONDA",
+      "model": "Civic",
+      "color": "BLACK",
+      "carLicenseExpireDate": "2025-12-31T23:59:59"
+    }
+  ],
+  "isBlockedBy": [],
+  "message": null
+}
+```
 
 #### 3. Remove Car Blocking Relationship
 ```http
@@ -424,7 +556,41 @@ Content-Type: application/json
 }
 ```
 
-**Response**: Same as Create Car Relations response (updated list)
+**Response**:
+```json
+{
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE",
+    "carLicenseExpireDate": "2025-12-31T23:59:59"
+  },
+  "isBlocking": [],
+  "isBlockedBy": [],
+  "message": "Blocking relationship removed. Notifications sent to owners."
+}
+```
+
+**Response when car has no owner**:
+```json
+{
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE",
+    "carLicenseExpireDate": "2025-12-31T23:59:59"
+  },
+  "isBlocking": [],
+  "isBlockedBy": [],
+  "message": "Blocking relationship removed. No notifications sent - car has no registered owners."
+}
+```
 
 #### 4. Remove All Car Relations
 ```http
@@ -456,6 +622,14 @@ Authorization: Bearer <jwt_token>
 {
   "cause": "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
   "errorCode": 403
+}
+```
+
+**Error Response (Car is not blocked)**:
+```json
+{
+  "cause": "Car is not blocked by any other car",
+  "errorCode": 400
 }
 ```
 
@@ -509,7 +683,28 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### Car Has No Owner (Notification Errors)
+#### Car Has No Owner (Mixed Handling)
+
+**Car Relations Endpoints** (Handled Gracefully):
+- Creating/removing the blocking relationship successfully
+- Including a message in the response indicating no notifications were sent
+- Returning HTTP 200 instead of HTTP 403
+
+**Example Response**:
+```json
+{
+  "car": { /* car details */ },
+  "isBlocking": [ /* blocking cars */ ],
+  "isBlockedBy": [ /* blocked by cars */ ],
+  "message": "Blocking relationship created. No notifications sent - car has no registered owners."
+}
+```
+
+**Direct Notification Endpoints** (Still Throw 403):
+- The `/api/v1/notification/send-need-to-go` endpoint still throws HTTP 403 when the car has no owner
+- This is because it's a direct notification request that cannot be fulfilled
+
+**Example Error Response**:
 ```json
 {
   "cause": "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
@@ -575,7 +770,14 @@ class RushHourAPI {
       })
     });
     
-    return response.json();
+    const result = await response.json();
+    
+    // Handle notification status message
+    if (result.message) {
+      console.log('Notification status:', result.message);
+    }
+    
+    return result;
   }
 }
 
@@ -589,6 +791,11 @@ console.log('Logged in user:', authData.user);
 // Get user's cars
 const userCars = await api.getUserCars(authData.user.id);
 console.log('User cars:', userCars.cars);
+
+// Create car blocking relationship
+const carRelations = await api.createCarBlocking(456, 789);
+console.log('Car relations:', carRelations);
+console.log('Notification status:', carRelations.message);
 ```
 
 ### React Hook Example
@@ -647,6 +854,11 @@ const useRushHourAPI = () => {
 
 ### cURL Examples
 
+#### Health Check
+```bash
+curl -X GET http://localhost:8008/api/v1/health
+```
+
 #### Google Login
 ```bash
 curl -X POST http://localhost:8008/api/v1/auth/google \
@@ -672,6 +884,32 @@ curl -X POST http://localhost:8008/api/v1/car-relations \
   }'
 ```
 
+**Example Response**:
+```json
+{
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE"
+  },
+  "isBlocking": [
+    {
+      "id": 789,
+      "plateNumber": "XYZ789",
+      "country": "IL",
+      "brand": "HONDA",
+      "model": "Civic",
+      "color": "BLACK"
+    }
+  ],
+  "isBlockedBy": [],
+  "message": "Blocking relationship created. Notifications sent to owners."
+}
+```
+
 ---
 
 ## 🔧 Development Setup
@@ -679,7 +917,10 @@ curl -X POST http://localhost:8008/api/v1/car-relations \
 ### Local Development
 ```bash
 # Start the backend server
-./run.sh dev
+./gradlew bootRun
+
+# Or use the provided script
+./run-app.sh
 
 # Base URL for local development
 const API_BASE_URL = 'http://localhost:8008';
@@ -712,4 +953,6 @@ For API support and questions:
 
 **Last Updated**: July 2024  
 **API Version**: v1  
-**Authentication**: OAuth2 + JWT 
+**Authentication**: OAuth2 + JWT  
+**Framework**: Spring Boot 3.2.0 + Kotlin  
+**Database**: MySQL (Production) / H2 (Testing) 

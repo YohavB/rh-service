@@ -1,11 +1,11 @@
 package com.yb.rh.security
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import com.fasterxml.jackson.annotation.JsonProperty
 
 @Component
 class FacebookTokenVerifier {

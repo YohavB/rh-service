@@ -141,7 +141,7 @@ class UserDTOTest {
 
         assertEquals(userDTO1, userDTO1) // Same object
         assertEquals(userDTO1.hashCode(), userDTO1.hashCode())
-        assertEquals(userDTO1, userDTO2) // Different objects with same values should be equal (data class behavior)
+        assertEquals(userDTO1, userDTO2)
         assertEquals(userDTO1.hashCode(), userDTO2.hashCode())
         assert(userDTO1 != userDTO3) // Different objects with different values
     }
@@ -154,7 +154,7 @@ class UserDTOTest {
 
         assertEquals(userCreationDTO1, userCreationDTO1) // Same object
         assertEquals(userCreationDTO1.hashCode(), userCreationDTO1.hashCode())
-        assertEquals(userCreationDTO1, userCreationDTO2) // Different objects with same values should be equal (data class behavior)
+        assertEquals(userCreationDTO1, userCreationDTO2)
         assertEquals(userCreationDTO1.hashCode(), userCreationDTO2.hashCode())
         assert(userCreationDTO1 != userCreationDTO3) // Different objects with different values
     }

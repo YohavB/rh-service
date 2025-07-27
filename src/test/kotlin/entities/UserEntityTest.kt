@@ -117,10 +117,10 @@ class UserEntityTest {
         assertEquals(userCreationDTO.email, user.email)
         assertEquals(userCreationDTO.pushNotificationToken, user.pushNotificationToken)
         assertEquals(userCreationDTO.urlPhoto, user.urlPhoto)
-        assertEquals(true, user.isActive) // Default value
+        assertEquals(true, user.isActive)
         assertNotNull(user.creationTime)
         assertNotNull(user.updateTime)
-        assertEquals(0L, user.userId) // Default value
+        assertEquals(0L, user.userId)
     }
 
     @Test
@@ -160,7 +160,6 @@ class UserEntityTest {
         user.isActive = false
         user.creationTime = LocalDateTime.of(2023, 1, 1, 0, 0)
         user.updateTime = LocalDateTime.of(2023, 12, 31, 23, 59)
-        // userId is val, cannot be reassigned
 
         // Then
         assertEquals("Updated", user.firstName)
@@ -171,7 +170,6 @@ class UserEntityTest {
         assertEquals(false, user.isActive)
         assertEquals(LocalDateTime.of(2023, 1, 1, 0, 0), user.creationTime)
         assertEquals(LocalDateTime.of(2023, 12, 31, 23, 59), user.updateTime)
-        // userId is val, cannot be reassigned
     }
 
     @Test

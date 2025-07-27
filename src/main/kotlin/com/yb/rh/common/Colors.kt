@@ -112,7 +112,7 @@ enum class Colors(private val value: Int, private val prettyName: String) {
         }
 
         init {
-            for (colors in Colors.values()) {
+            for (colors in Colors.entries) {
                 mapping[colors.value] = colors
             }
         }

@@ -1,7 +1,5 @@
 package com.yb.rh.dtos
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 data class OAuthLoginRequestDTO(
     val token: String
 )

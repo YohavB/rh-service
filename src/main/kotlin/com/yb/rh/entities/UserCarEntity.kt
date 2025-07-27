@@ -1,8 +1,8 @@
 package com.yb.rh.entities
 
 import com.yb.rh.dtos.UserCarDTO
+import jakarta.persistence.*
 import org.jetbrains.annotations.NotNull
-import javax.persistence.*
 
 @Entity
 @Table(name = "users_cars")

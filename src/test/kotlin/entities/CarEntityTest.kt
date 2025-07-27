@@ -121,7 +121,7 @@ class CarEntityTest {
         assertEquals(carDTO.carLicenseExpireDate, car.carLicenseExpireDate)
         assertNotNull(car.creationTime)
         assertNotNull(car.updateTime)
-        assertEquals(0L, car.id) // Default value
+        assertEquals(0L, car.id)
     }
 
     @Test

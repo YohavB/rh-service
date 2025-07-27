@@ -1,7 +1,7 @@
 package com.yb.rh.error
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -29,13 +29,6 @@ class ErrorHandlerAdvice {
             ErrorResponse("Value ${it.rejectedValue} for `${it.field}` ${it.defaultMessage}")
         }
 
-    @ExceptionHandler(MissingKotlinParameterException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    fun handleMissingParameter(ex: MissingKotlinParameterException): ErrorResponse =
-        ErrorResponse("parameter `${ex.parameter.name}` is missing from request body")
-
-
     @ExceptionHandler(MissingRequestHeaderException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -43,8 +36,14 @@ class ErrorHandlerAdvice {
         ErrorResponse("parameter `${ex.headerName}` is missing from request header")
 
     @ExceptionHandler(RHException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    fun handleRHException(ex: RHException): ErrorResponse =
-        ErrorResponse(ex.message ?: "Unknown error occurred")
+    fun handleRHException(ex: RHException): ResponseEntity<ErrorResponse> {
+        val status = when (ex.errorType) {
+            ErrorType.CAR_HAS_NO_OWNER -> HttpStatus.FORBIDDEN
+            else -> HttpStatus.BAD_REQUEST
+        }
+        
+        val response = ErrorResponse(ex.message ?: "Unknown error occurred")
+        return ResponseEntity.status(status).body(response)
+    }
 }

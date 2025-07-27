@@ -1,9 +1,7 @@
 package com.yb.rh.integration
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.yb.rh.common.Countries
 import com.yb.rh.dtos.*
-import com.yb.rh.utils.SuccessResponse
 import com.yb.rh.utils.ErrorResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -102,7 +100,8 @@ class NotificationIntegrationTest : IntegrationTestBase() {
         } else {
             emptyList<CarDTO>()
         }
-        carsRelation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy)
+        val message = if (jsonNode.has("message")) jsonNode.get("message").asText() else null
+        carsRelation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy, message = message)
     }
 
     @Test

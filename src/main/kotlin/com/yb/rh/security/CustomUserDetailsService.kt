@@ -2,7 +2,6 @@ package com.yb.rh.security
 
 import com.yb.rh.entities.User
 import com.yb.rh.repositories.UserRepository
-import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails

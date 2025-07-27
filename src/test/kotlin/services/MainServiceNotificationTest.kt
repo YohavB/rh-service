@@ -5,13 +5,10 @@ import com.yb.rh.common.Colors
 import com.yb.rh.common.Countries
 import com.yb.rh.common.NotificationsKind
 import com.yb.rh.dtos.CarUsersDTO
-import com.yb.rh.dtos.UserDTO
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.User
 import com.yb.rh.error.ErrorType
 import com.yb.rh.error.RHException
-import com.yb.rh.repositories.CarRepository
-import com.yb.rh.repositories.UserRepository
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -66,37 +63,33 @@ class MainServiceNotificationTest {
     }
 
     @Test
-    fun `sendBlockedNotification should throw CAR_HAS_NO_OWNER error when car has no users`() {
+    fun `sendBlockedNotification should work when car has no users`() {
         // Given
         val car = createTestCar(1L, "ABC123")
         val emptyCarUsers = CarUsersDTO(car.toDto(), emptyList())
         
         every { userCarService.getCarUsersByCar(car) } returns emptyCarUsers
 
-        // When & Then
-        val exception = assertThrows<RHException> {
+        // When
             mainService.sendBlockedNotification(car)
-        }
         
-        assert(exception.errorType == ErrorType.CAR_HAS_NO_OWNER)
-        assert(exception.message?.contains("This car has no user so no one would be notified") == true)
+        // Then - should not throw exception, just do nothing
+        verify(exactly = 0) { notificationService.sendPushNotification(any(), any()) }
     }
 
     @Test
-    fun `sendBlockingNotification should throw CAR_HAS_NO_OWNER error when car has no users`() {
+    fun `sendBlockingNotification should work when car has no users`() {
         // Given
         val car = createTestCar(1L, "ABC123")
         val emptyCarUsers = CarUsersDTO(car.toDto(), emptyList())
         
         every { userCarService.getCarUsersByCar(car) } returns emptyCarUsers
 
-        // When & Then
-        val exception = assertThrows<RHException> {
+        // When
             mainService.sendBlockingNotification(car)
-        }
         
-        assert(exception.errorType == ErrorType.CAR_HAS_NO_OWNER)
-        assert(exception.message?.contains("This car has no user so no one would be notified") == true)
+        // Then - should not throw exception, just do nothing
+        verify(exactly = 0) { notificationService.sendPushNotification(any(), any()) }
     }
 
     @Test

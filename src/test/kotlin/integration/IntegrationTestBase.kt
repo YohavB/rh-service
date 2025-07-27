@@ -1,31 +1,29 @@
 package com.yb.rh.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.yb.rh.RhServiceApplication
-import com.yb.rh.services.CarApi
-import com.yb.rh.dtos.CarDTO
-import com.yb.rh.common.Countries
 import com.yb.rh.common.Brands
 import com.yb.rh.common.Colors
+import com.yb.rh.common.Countries
+import com.yb.rh.dtos.CarDTO
+import com.yb.rh.services.CarApi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.mockito.Mockito
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.context.WebApplicationContext
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.MediaType
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.transaction.annotation.Transactional
-import javax.sql.DataSource
-import org.springframework.jdbc.core.JdbcTemplate
-
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 import java.time.LocalDateTime
+import javax.sql.DataSource
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -75,6 +73,12 @@ abstract class IntegrationTestBase {
         jdbcTemplate.execute("DELETE FROM users_cars")
         jdbcTemplate.execute("DELETE FROM cars")
         jdbcTemplate.execute("DELETE FROM users")
+        
+        // Reset auto-increment counters for H2 database
+        jdbcTemplate.execute("ALTER TABLE cars ALTER COLUMN id RESTART WITH 1")
+        jdbcTemplate.execute("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1")
+        jdbcTemplate.execute("ALTER TABLE users_cars ALTER COLUMN id RESTART WITH 1")
+        jdbcTemplate.execute("ALTER TABLE cars_relations ALTER COLUMN id RESTART WITH 1")
     }
 
     protected fun setupDefaultMocks() {

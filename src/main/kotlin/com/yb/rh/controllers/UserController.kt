@@ -3,15 +3,17 @@ package com.yb.rh.controllers
 import com.yb.rh.dtos.UserCreationDTO
 import com.yb.rh.dtos.UserDTO
 import com.yb.rh.services.UserService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
+import mu.KotlinLogging
 
 /**
  * Controller handling user-related operations in the Rush Hour service
  */
 @RestController
 @RequestMapping("/api/v1/user")
-class UsersController(private val userService: UserService) : BaseController() {
+class UsersController(private val userService: UserService) {
+    private val logger = KotlinLogging.logger {}
 
     @PostMapping
     fun createUser(

@@ -1,11 +1,18 @@
 package com.yb.rh
 
+import mu.KotlinLogging
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 
 @SpringBootApplication
 class RhServiceApplication
 
+private val logger = KotlinLogging.logger {}
+
 fun main(args: Array<String>) {
-    runApplication<RhServiceApplication>(*args)
+    logger.info("@}}>----- Launching Rush-Hour-Service -----<{{@")
+
+    SpringApplication.run(RhServiceApplication::class.java, *args)
+
+    logger.info("°º¤ø,¸¸,ø¤º°`°º¤ø,¸,ø¤°º¤ø,¸¸,ø¤º°`°º¤ø,¸ Rush-Hour-Service is up °º¤ø,¸¸,ø¤º°`°º¤ø,¸,ø¤°º¤ø,¸¸,ø¤º°`°º¤ø,¸")
 }

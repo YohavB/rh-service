@@ -1,6 +1,6 @@
 package com.yb.rh.dtos
 
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 data class UserCarDTO(
     @NotNull

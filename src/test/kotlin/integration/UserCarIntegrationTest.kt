@@ -1,15 +1,10 @@
 package com.yb.rh.integration
 
-import com.yb.rh.dtos.UserCreationDTO
-import com.yb.rh.dtos.FindCarRequestDTO
-import com.yb.rh.dtos.UserCarRequestDTO
-import com.yb.rh.dtos.UserCarsDTO
-import com.yb.rh.dtos.CarDTO
-import com.yb.rh.dtos.UserDTO
 import com.yb.rh.common.Countries
+import com.yb.rh.dtos.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
-import com.fasterxml.jackson.core.type.TypeReference
 
 class UserCarIntegrationTest : IntegrationTestBase() {
 

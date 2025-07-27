@@ -1,6 +1,5 @@
 package com.yb.rh.error
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import com.yb.rh.utils.ErrorResponse
 import io.mockk.every
 import io.mockk.mockk
@@ -41,23 +40,6 @@ class ErrorHandlerAdviceTest {
         val errorResponse = response?.first()
         assertNotNull(errorResponse)
         assertEquals("Value rejectedValue for `field` default message", errorResponse.cause)
-    }
-
-    @Test
-    fun `test handleMissingParameter`() {
-        // Given
-        val parameter = mockk<kotlin.reflect.KParameter>()
-        every { parameter.name } returns "testParam"
-        
-        val exception = mockk<MissingKotlinParameterException>()
-        every { exception.parameter } returns parameter
-
-        // When
-        val response = errorHandlerAdvice.handleMissingParameter(exception)
-
-        // Then
-        assertNotNull(response)
-        assertEquals("parameter `testParam` is missing from request body", response.cause)
     }
 
     @Test

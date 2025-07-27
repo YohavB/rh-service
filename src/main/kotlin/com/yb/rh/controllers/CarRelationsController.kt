@@ -3,8 +3,9 @@ package com.yb.rh.controllers
 import com.yb.rh.dtos.CarRelationsDTO
 import com.yb.rh.dtos.CarsRelationRequestDTO
 import com.yb.rh.services.MainService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
+import mu.KotlinLogging
 
 /**
  * Controller handling relationships between cars
@@ -13,7 +14,8 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/car-relations")
 class CarRelationsController(
     private val mainService: MainService,
-) : BaseController() {
+) {
+    private val logger = KotlinLogging.logger {}
 
     @PostMapping
     fun createCarsRelations(

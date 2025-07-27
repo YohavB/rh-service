@@ -49,7 +49,7 @@ class CarsRelationsService(
         return carRelations
     }
 
-    fun findCarRelationsDTO(car: Car): CarRelationsDTO {
+    fun findCarRelationsDTO(car: Car, message: String? = null): CarRelationsDTO {
         logger.info { "Finding Car Relations for Car : ${car.plateNumber}" }
 
         val carRelations = findCarRelations(car)
@@ -57,7 +57,8 @@ class CarsRelationsService(
         return CarRelationsDTO(
             car = car.toDto(),
             isBlocking = carRelations.isBlocking.map { it.toDto() },
-            isBlockedBy = carRelations.isBlockedBy.map { it.toDto() }
+            isBlockedBy = carRelations.isBlockedBy.map { it.toDto() },
+            message = message
         )
     }
 

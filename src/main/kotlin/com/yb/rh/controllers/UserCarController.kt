@@ -3,8 +3,9 @@ package com.yb.rh.controllers
 import com.yb.rh.dtos.UserCarRequestDTO
 import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.services.MainService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
+import mu.KotlinLogging
 
 /**
  * Controller handling relationships between users and cars
@@ -13,7 +14,8 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/user-car")
 class UserCarController(
     private val mainService: MainService,
-) : BaseController() {
+) {
+    private val logger = KotlinLogging.logger {}
 
     @PostMapping
     fun createUserCar(

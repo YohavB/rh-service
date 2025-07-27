@@ -1,10 +1,8 @@
 package com.yb.rh.integration
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.yb.rh.common.Countries
 import com.yb.rh.dtos.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class CarRelationsIntegrationTest : IntegrationTestBase() {
@@ -45,7 +43,8 @@ class CarRelationsIntegrationTest : IntegrationTestBase() {
         } else {
             emptyList<CarDTO>()
         }
-        val relation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy)
+        val message = if (jsonNode.has("message")) jsonNode.get("message").asText() else null
+        val relation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy, message = message)
 
         assertEquals(car1.id, relation.car.id)
         // The API response only contains the car information, not the relationships

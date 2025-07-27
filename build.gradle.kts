@@ -1,26 +1,42 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.7.1"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.spring") version "1.6.21"
-    kotlin("plugin.jpa") version "1.6.21"
-    kotlin("plugin.allopen") version "1.4.32"
-    kotlin("plugin.serialization") version "1.6.10"
+    id("org.springframework.boot") version "3.2.0"
+    id("io.spring.dependency-management") version "1.1.4"
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.spring") version "1.9.22"
+    kotlin("plugin.jpa") version "1.9.22"
+    kotlin("plugin.allopen") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
     id("jacoco")
-    id("org.flywaydb.flyway") version "8.5.13"
+    id("org.flywaydb.flyway") version "9.22.3"
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.Embeddable")
-    annotation("javax.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "17"
+    }
+}
+
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
+}
 
 repositories {
     mavenCentral()
@@ -28,7 +44,6 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-mustache")
     implementation("org.springframework.boot", "spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -40,7 +55,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     
     // Google OAuth2
-    implementation("com.google.api-client:google-api-client:2.0.0")
+    implementation("com.google.api-client:google-api-client:2.0.0") {
+        exclude(module = "commons-logging")
+    }
     implementation("com.google.auth:google-auth-library-oauth2-http:1.11.0")
     implementation("com.google.auth:google-auth-library-credentials:1.11.0")
     
@@ -50,51 +67,32 @@ dependencies {
     // Apple Sign In (JWT verification)
     implementation("io.jsonwebtoken:jjwt-api:0.11.5") // Already included above
     
-    // Rate limiting
-    implementation("com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0")
-    
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.github.microutils", "kotlin-logging", "1.5.4")
 
-    implementation("com.michael-bull.kotlin-result", "kotlin-result", "1.1.9")
+    // Flyway for database migrations (used in production profiles)
+    implementation("org.flywaydb:flyway-core:9.22.3")
+    implementation("org.flywaydb:flyway-mysql:9.22.3")
 
-    // Flyway for database migrations
-    implementation("org.flywaydb:flyway-core")
-
-    // retrofit
-    val retrofitVersion = "2.9.0"
-    implementation("com.squareup.retrofit2", "retrofit", retrofitVersion)
-    implementation("com.squareup.retrofit2", "converter-jackson", retrofitVersion)
-
-    // okhttp
+    // okhttp - used in CarApi service
     val okhttpVersion = "4.1.1"
     implementation("com.squareup.okhttp3", "okhttp", okhttpVersion)
-    implementation("com.squareup.okhttp3", "logging-interceptor", okhttpVersion)
+    implementation("com.squareup.okhttp3", "logging-interceptor", okhttpVersion) {
+        exclude(module = "commons-logging")
+    }
 
-    //jackson
-    val jacksonVersion = "2.11.1"
-    implementation("com.fasterxml.jackson.core", "jackson-core", jacksonVersion)
-    implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
-    implementation("com.fasterxml.jackson.core", "jackson-annotations", jacksonVersion)
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", jacksonVersion)
-    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", jacksonVersion)
-    implementation("com.fasterxml.jackson.dataformat", "jackson-dataformat-csv", jacksonVersion)
-
-    //moshi
+    // moshi - used in IlCarJson
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
 
-    // GSON
+    // GSON - used in IlCarJson and GoogleTokenVerifier
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // coroutine
+    // coroutines - used in NotificationService
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
 
-    //expo-server-sdk
+    //expo-server-sdk - used in NotificationService
     implementation ("io.github.jav:expo-server-sdk:1.1.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -108,21 +106,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
         exclude(module = "mockito-core")
+        exclude(module = "commons-logging") // Exclude commons-logging to fix warning
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testImplementation("com.ninja-squad:springmockk:3.1.1")
-    testImplementation("net.bytebuddy:byte-buddy:1.14.12")
-    testImplementation("net.bytebuddy:byte-buddy-agent:1.14.12")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.mockk:mockk:1.12.0")
-    
-    // TestContainers for integration testing
-    testImplementation("org.testcontainers:testcontainers:1.17.6")
-    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("org.postgresql:postgresql:42.5.4")
     
     // Mockito for integration test mocks
     testImplementation("org.mockito:mockito-core:4.8.1")
@@ -132,12 +122,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
-    }
-}
+
 
 tasks.withType<Test> {
     useJUnitPlatform()
@@ -229,7 +214,7 @@ val testCount by tasks.registering {
 }
 
 jacoco {
-    toolVersion = "0.8.9"
+    toolVersion = "0.8.11"
 }
 
 tasks.jacocoTestReport {

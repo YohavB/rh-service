@@ -1,6 +1,5 @@
 package com.yb.rh.security
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value

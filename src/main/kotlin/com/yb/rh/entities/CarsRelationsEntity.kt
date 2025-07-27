@@ -1,7 +1,7 @@
 package com.yb.rh.entities
 
+import jakarta.persistence.*
 import org.jetbrains.annotations.NotNull
-import javax.persistence.*
 
 @Entity
 @Table(name = "cars_relations")

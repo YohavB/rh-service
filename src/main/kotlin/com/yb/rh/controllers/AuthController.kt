@@ -2,16 +2,12 @@ package com.yb.rh.controllers
 
 import com.yb.rh.dtos.AuthResponseDTO
 import com.yb.rh.dtos.OAuthLoginRequestDTO
-import com.yb.rh.security.GoogleTokenVerifier
-import com.yb.rh.security.FacebookTokenVerifier
-import com.yb.rh.security.AppleTokenVerifier
-import com.yb.rh.security.JwtTokenProvider
-import com.yb.rh.security.OAuthProvider
+import com.yb.rh.security.*
 import com.yb.rh.services.UserService
-import mu.KotlinLogging
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
+import mu.KotlinLogging
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -21,7 +17,8 @@ class AuthController(
     private val appleTokenVerifier: AppleTokenVerifier,
     private val jwtTokenProvider: JwtTokenProvider,
     private val userService: UserService
-) : BaseController() {
+) {
+    private val logger = KotlinLogging.logger {}
     
     @PostMapping("/google")
     fun googleLogin(@Valid @RequestBody request: OAuthLoginRequestDTO): ResponseEntity<AuthResponseDTO> {
@@ -127,7 +124,7 @@ class AuthController(
     @PostMapping("/logout")
     fun logout(): ResponseEntity<Map<String, String>> {
         // In a stateless JWT setup, logout is handled client-side by removing the token
-        // You might want to implement a token blacklist for additional security
+        // You might want to implement a token blocklist for additional security
         logger.info { "User logout" }
         return ResponseEntity.ok(mapOf("message" to "Logged out successfully"))
     }

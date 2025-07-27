@@ -55,7 +55,7 @@ class MainServiceTest {
         every { carService.getCarById(2L) } returns blockedCar
         every { carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar) } returns false
         every { carsRelationsService.createCarsRelation(blockingCar, blockedCar) } just Runs
-        every { carsRelationsService.findCarRelationsDTO(any()) } returns carRelationsDTO
+        every { carsRelationsService.findCarRelationsDTO(any(), any()) } returns carRelationsDTO
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { notificationService.sendPushNotification(any(), any()) } just Runs
@@ -71,7 +71,7 @@ class MainServiceTest {
             carService.getCarById(2L)
             carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar)
             carsRelationsService.createCarsRelation(blockingCar, blockedCar)
-            carsRelationsService.findCarRelationsDTO(any())
+            carsRelationsService.findCarRelationsDTO(any(), any())
         }
     }
 
@@ -97,7 +97,7 @@ class MainServiceTest {
         every { carService.getCarById(2L) } returns blockedCar
         every { carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar) } returns false
         every { carsRelationsService.createCarsRelation(blockingCar, blockedCar) } just Runs
-        every { carsRelationsService.findCarRelationsDTO(any()) } returns carRelationsDTO
+        every { carsRelationsService.findCarRelationsDTO(any(), any()) } returns carRelationsDTO
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { notificationService.sendPushNotification(any(), any()) } just Runs
@@ -113,7 +113,7 @@ class MainServiceTest {
             carService.getCarById(2L)
             carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar)
             carsRelationsService.createCarsRelation(blockingCar, blockedCar)
-            carsRelationsService.findCarRelationsDTO(any())
+            carsRelationsService.findCarRelationsDTO(any(), any())
         }
     }
 
@@ -190,7 +190,7 @@ class MainServiceTest {
         every { carService.getCarById(1L) } returns blockingCar
         every { carService.getCarById(2L) } returns blockedCar
         every { carsRelationsService.deleteSpecificCarsRelation(blockingCar, blockedCar) } just Runs
-        every { carsRelationsService.findCarRelationsDTO(any()) } returns carRelationsDTO
+        every { carsRelationsService.findCarRelationsDTO(any(), any()) } returns carRelationsDTO
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { notificationService.sendPushNotification(any(), any()) } just Runs
@@ -205,7 +205,7 @@ class MainServiceTest {
             carService.getCarById(1L)
             carService.getCarById(2L)
             carsRelationsService.deleteSpecificCarsRelation(blockingCar, blockedCar)
-            carsRelationsService.findCarRelationsDTO(any())
+            carsRelationsService.findCarRelationsDTO(any(), any())
         }
     }
 

@@ -174,11 +174,13 @@ object TestObjectBuilder {
     fun getCarRelationsDTO(
         car: CarDTO = getCarDTO(),
         isBlocking: List<CarDTO> = listOf(getCarDTO(id = 2L, plateNumber = "BLOCKED")),
-        isBlockedBy: List<CarDTO> = listOf(getCarDTO(id = 3L, plateNumber = "BLOCKER"))
+        isBlockedBy: List<CarDTO> = listOf(getCarDTO(id = 3L, plateNumber = "BLOCKER")),
+        message: String? = null
     ) = CarRelationsDTO(
         car = car,
         isBlocking = isBlocking,
-        isBlockedBy = isBlockedBy
+        isBlockedBy = isBlockedBy,
+        message = message
     )
 
     fun getCarsRelationRequestDTO(

@@ -1,9 +1,9 @@
 package com.yb.rh.dtos
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.yb.rh.entities.Car
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 data class CarRelationsDTO(
@@ -13,10 +13,12 @@ data class CarRelationsDTO(
     @JsonProperty("isBlocking")
     var isBlocking: List<CarDTO>,
     @JsonProperty("isBlockedBy")
-    var isBlockedBy: List<CarDTO>
+    var isBlockedBy: List<CarDTO>,
+    @JsonProperty("message")
+    var message: String? = null
 ) {
     override fun toString(): String {
-        return "CarRelationsDTO(car=${car.plateNumber}, isBlocking=${isBlocking.map { it.plateNumber }}, isBlockedBy=${isBlockedBy.map { it.plateNumber }})"
+        return "CarRelationsDTO(car=${car.plateNumber}, isBlocking=${isBlocking.map { it.plateNumber }}, isBlockedBy=${isBlockedBy.map { it.plateNumber }}, message=$message)"
     }
 }
 

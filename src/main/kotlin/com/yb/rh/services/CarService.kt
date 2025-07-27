@@ -6,10 +6,10 @@ import com.yb.rh.dtos.FindCarRequestDTO
 import com.yb.rh.entities.Car
 import com.yb.rh.error.RHException
 import com.yb.rh.repositories.CarRepository
+import jakarta.validation.constraints.NotBlank
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import javax.validation.constraints.NotBlank
 
 @Service
 class CarService(
