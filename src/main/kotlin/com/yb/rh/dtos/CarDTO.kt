@@ -1,8 +1,8 @@
 package com.yb.rh.dtos
 
-import com.yb.rh.common.Brands
-import com.yb.rh.common.Colors
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Brands
+import com.yb.rh.enum.Colors
+import com.yb.rh.enum.Countries
 import com.yb.rh.entities.Car
 import java.time.LocalDateTime
 

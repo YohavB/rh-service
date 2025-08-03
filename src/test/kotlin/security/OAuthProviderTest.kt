@@ -1,5 +1,6 @@
 package com.yb.rh.security
 
+import com.yb.rh.enum.OAuthProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test

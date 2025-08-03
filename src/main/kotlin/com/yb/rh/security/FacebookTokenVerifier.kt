@@ -1,6 +1,7 @@
 package com.yb.rh.security
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.yb.rh.dtos.FacebookUserInfoDTO
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -19,7 +20,7 @@ class FacebookTokenVerifier {
     @Value("\${facebook.app.secret}")
     private lateinit var facebookAppSecret: String
     
-    fun verifyToken(accessToken: String): FacebookUserInfo {
+    fun verifyToken(accessToken: String): FacebookUserInfoDTO {
         return try {
             // Verify token with Facebook Graph API
             val url = "https://graph.facebook.com/debug_token?" +
@@ -34,7 +35,7 @@ class FacebookTokenVerifier {
                     "fields=id,name,email,first_name,last_name,picture" +
                     "&access_token=$accessToken"
                 
-                val userInfo = restTemplate.getForObject(userInfoUrl, FacebookUserInfo::class.java)
+                val userInfo = restTemplate.getForObject(userInfoUrl, FacebookUserInfoDTO::class.java)
                 
                 if (userInfo != null && userInfo.email != null) {
                     userInfo
@@ -52,36 +53,6 @@ class FacebookTokenVerifier {
         }
     }
 }
-
-data class FacebookUserInfo(
-    val id: String,
-    val name: String?,
-    val email: String?,
-    @JsonProperty("first_name")
-    val firstName: String?,
-    @JsonProperty("last_name")
-    val lastName: String?,
-    val picture: FacebookPicture?
-) {
-    fun toGoogleUserInfo(): GoogleUserInfo {
-        return GoogleUserInfo(
-            email = email ?: "",
-            name = name,
-            givenName = firstName,
-            familyName = lastName,
-            picture = picture?.data?.url,
-            emailVerified = true
-        )
-    }
-}
-
-data class FacebookPicture(
-    val data: FacebookPictureData?
-)
-
-data class FacebookPictureData(
-    val url: String?
-)
 
 data class FacebookDebugResponse(
     val data: FacebookDebugData?

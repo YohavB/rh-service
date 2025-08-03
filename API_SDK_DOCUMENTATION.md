@@ -951,7 +951,7 @@ For API support and questions:
 
 ---
 
-**Last Updated**: July 2024  
+**Last Updated**: July 2025 
 **API Version**: v1  
 **Authentication**: OAuth2 + JWT  
 **Framework**: Spring Boot 3.2.0 + Kotlin  

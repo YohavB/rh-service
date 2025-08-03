@@ -1,4 +1,4 @@
-package com.yb.rh.common
+package com.yb.rh.enum
 
 enum class NotificationsKind(private val value: Int, val notificationTitle: String, val notificationMessage: String) {
     BEEN_BLOCKED(1, "You've been blocked", "Don't forget to use the 'Let Me Go' button when you'll leave"),

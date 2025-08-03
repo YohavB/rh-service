@@ -1,9 +1,9 @@
 package com.yb.rh.services
 
-import com.yb.rh.common.Brands
-import com.yb.rh.common.Colors
-import com.yb.rh.common.Countries
-import com.yb.rh.common.NotificationsKind
+import com.yb.rh.enum.Brands
+import com.yb.rh.enum.Colors
+import com.yb.rh.enum.Countries
+import com.yb.rh.enum.NotificationsKind
 import com.yb.rh.dtos.CarUsersDTO
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.User

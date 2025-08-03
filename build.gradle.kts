@@ -81,6 +81,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.github.microutils", "kotlin-logging", "1.5.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
 
     // Flyway for database migrations (used in production profiles)
     implementation("org.flywaydb:flyway-core:9.22.3")

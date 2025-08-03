@@ -1,6 +1,6 @@
 package com.yb.rh.services
 
-import com.yb.rh.common.NotificationsKind
+import com.yb.rh.enum.NotificationsKind
 import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
 import com.yb.rh.error.ErrorType

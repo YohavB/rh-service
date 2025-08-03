@@ -1,7 +1,7 @@
 package com.yb.rh.services
 
 import com.yb.rh.TestObjectBuilder
-import com.yb.rh.common.NotificationsKind
+import com.yb.rh.enum.NotificationsKind
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull

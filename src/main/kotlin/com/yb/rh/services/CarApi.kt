@@ -1,8 +1,8 @@
 package com.yb.rh.services
 
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Countries
 import com.yb.rh.dtos.CarDTO
-import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
+import com.yb.rh.utils.countryCarJson.CountryCarJsonFactory
 import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request

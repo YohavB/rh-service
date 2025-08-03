@@ -1,7 +1,7 @@
 package com.yb.rh.services
 
 import com.yb.rh.TestObjectBuilder
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Countries
 import com.yb.rh.repositories.CarRepository
 import io.mockk.every
 import io.mockk.mockk

@@ -16,6 +16,7 @@ data class UserDTO(
     @NotBlank(message = "Email is required")
     var email: String,
     var urlPhoto: String? = null,
+    var pushNotificationToken: String? = null,
 )
 
 data class UserCreationDTO(

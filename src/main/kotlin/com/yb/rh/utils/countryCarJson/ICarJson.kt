@@ -1,6 +1,6 @@
-package com.yb.rh.services.countryCarJson
+package com.yb.rh.utils.countryCarJson
 
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Countries
 import com.yb.rh.dtos.CarDTO
 import okhttp3.ResponseBody
 

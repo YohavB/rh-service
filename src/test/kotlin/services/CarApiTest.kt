@@ -1,7 +1,7 @@
 package com.yb.rh.services
 
-import com.yb.rh.common.Countries
-import com.yb.rh.services.countryCarJson.CountryCarJsonFactory
+import com.yb.rh.enum.Countries
+import com.yb.rh.utils.countryCarJson.CountryCarJsonFactory
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

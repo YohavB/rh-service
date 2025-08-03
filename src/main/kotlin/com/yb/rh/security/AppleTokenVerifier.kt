@@ -1,5 +1,6 @@
 package com.yb.rh.security
 
+import com.yb.rh.dtos.AppleUserInfoDTO
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -26,7 +27,7 @@ class AppleTokenVerifier {
     @Value("\${apple.key.id}")
     private lateinit var appleKeyId: String
     
-    fun verifyToken(idToken: String): AppleUserInfo {
+    fun verifyToken(idToken: String): AppleUserInfoDTO {
         return try {
             // Get Apple's public keys
             val keysResponse = restTemplate.getForObject(
@@ -48,11 +49,10 @@ class AppleTokenVerifier {
             validateClaims(claims)
             
             // Extract user info
-            AppleUserInfo(
+            AppleUserInfoDTO(
                 sub = claims["sub"] as String? ?: "",
                 email = claims["email"] as String?,
-                name = claims["name"] as String?,
-                emailVerified = claims["email_verified"] as String? == "true"
+                name = claims["name"] as String?
             )
         } catch (ex: RHException) {
             throw ex
@@ -98,23 +98,7 @@ class AppleTokenVerifier {
     }
 }
 
-data class AppleUserInfo(
-    val sub: String,
-    val email: String?,
-    val name: String?,
-    val emailVerified: Boolean
-) {
-    fun toGoogleUserInfo(): GoogleUserInfo {
-        return GoogleUserInfo(
-            email = email ?: "",
-            name = name,
-            givenName = name?.split(" ")?.firstOrNull(),
-            familyName = name?.split(" ")?.drop(1)?.joinToString(" "),
-            picture = null, // Apple doesn't provide profile pictures
-            emailVerified = emailVerified
-        )
-    }
-}
+
 
 data class AppleKeysResponse(
     val keys: List<AppleKey>?

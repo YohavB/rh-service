@@ -1,6 +1,6 @@
 package com.yb.rh.integration
 
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Countries
 import com.yb.rh.dtos.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

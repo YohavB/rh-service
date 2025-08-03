@@ -12,10 +12,10 @@ class CarEntityTest {
     fun `test Car constructor with all parameters`() {
         // Given
         val plateNumber = "ABC123"
-        val country = com.yb.rh.common.Countries.IL
-        val brand = com.yb.rh.common.Brands.TOYOTA
+        val country = com.yb.rh.enum.Countries.IL
+        val brand = com.yb.rh.enum.Brands.TOYOTA
         val model = "Corolla"
-        val color = com.yb.rh.common.Colors.WHITE
+        val color = com.yb.rh.enum.Colors.WHITE
         val carLicenseExpireDate = LocalDateTime.now().plusYears(1)
         val creationTime = LocalDateTime.now()
         val updateTime = LocalDateTime.now()
@@ -50,10 +50,10 @@ class CarEntityTest {
     fun `test Car constructor with default parameters`() {
         // Given
         val plateNumber = "XYZ789"
-        val country = com.yb.rh.common.Countries.IL
-        val brand = com.yb.rh.common.Brands.BMW
+        val country = com.yb.rh.enum.Countries.IL
+        val brand = com.yb.rh.enum.Brands.BMW
         val model = "X5"
-        val color = com.yb.rh.common.Colors.BLACK
+        val color = com.yb.rh.enum.Colors.BLACK
         val carLicenseExpireDate = LocalDateTime.now().plusYears(2)
         val creationTime = LocalDateTime.now()
         val updateTime = LocalDateTime.now()
@@ -146,13 +146,13 @@ class CarEntityTest {
         // When
         val copiedCar = originalCar.copy(
             plateNumber = "COPIED123",
-            brand = com.yb.rh.common.Brands.BMW,
+            brand = com.yb.rh.enum.Brands.BMW,
             model = "Copied Model"
         )
 
         // Then
         assertEquals("COPIED123", copiedCar.plateNumber)
-        assertEquals(com.yb.rh.common.Brands.BMW, copiedCar.brand)
+        assertEquals(com.yb.rh.enum.Brands.BMW, copiedCar.brand)
         assertEquals("Copied Model", copiedCar.model)
         assertEquals(originalCar.country, copiedCar.country)
         assertEquals(originalCar.color, copiedCar.color)
@@ -196,53 +196,53 @@ class CarEntityTest {
         // Given
         val israelCar = TestObjectBuilder.getCar(
             plateNumber = "IL123",
-            country = com.yb.rh.common.Countries.IL
+            country = com.yb.rh.enum.Countries.IL
         )
         val usCar = TestObjectBuilder.getCar(
             plateNumber = "US123",
-            country = com.yb.rh.common.Countries.IL
+            country = com.yb.rh.enum.Countries.IL
         )
 
         // When & Then
-        assertEquals(com.yb.rh.common.Countries.IL, israelCar.country)
-        assertEquals(com.yb.rh.common.Countries.IL, usCar.country)
+        assertEquals(com.yb.rh.enum.Countries.IL, israelCar.country)
+        assertEquals(com.yb.rh.enum.Countries.IL, usCar.country)
     }
 
     @Test
     fun `test Car with different brands`() {
         // Given
         val toyotaCar = TestObjectBuilder.getCar(
-            brand = com.yb.rh.common.Brands.TOYOTA
+            brand = com.yb.rh.enum.Brands.TOYOTA
         )
         val bmwCar = TestObjectBuilder.getCar(
-            brand = com.yb.rh.common.Brands.BMW
+            brand = com.yb.rh.enum.Brands.BMW
         )
         val mercedesCar = TestObjectBuilder.getCar(
-            brand = com.yb.rh.common.Brands.MERCEDES
+            brand = com.yb.rh.enum.Brands.MERCEDES
         )
 
         // When & Then
-        assertEquals(com.yb.rh.common.Brands.TOYOTA, toyotaCar.brand)
-        assertEquals(com.yb.rh.common.Brands.BMW, bmwCar.brand)
-        assertEquals(com.yb.rh.common.Brands.MERCEDES, mercedesCar.brand)
+        assertEquals(com.yb.rh.enum.Brands.TOYOTA, toyotaCar.brand)
+        assertEquals(com.yb.rh.enum.Brands.BMW, bmwCar.brand)
+        assertEquals(com.yb.rh.enum.Brands.MERCEDES, mercedesCar.brand)
     }
 
     @Test
     fun `test Car with different colors`() {
         // Given
         val whiteCar = TestObjectBuilder.getCar(
-            color = com.yb.rh.common.Colors.WHITE
+            color = com.yb.rh.enum.Colors.WHITE
         )
         val blackCar = TestObjectBuilder.getCar(
-            color = com.yb.rh.common.Colors.BLACK
+            color = com.yb.rh.enum.Colors.BLACK
         )
         val redCar = TestObjectBuilder.getCar(
-            color = com.yb.rh.common.Colors.RED
+            color = com.yb.rh.enum.Colors.RED
         )
 
         // When & Then
-        assertEquals(com.yb.rh.common.Colors.WHITE, whiteCar.color)
-        assertEquals(com.yb.rh.common.Colors.BLACK, blackCar.color)
-        assertEquals(com.yb.rh.common.Colors.RED, redCar.color)
+        assertEquals(com.yb.rh.enum.Colors.WHITE, whiteCar.color)
+        assertEquals(com.yb.rh.enum.Colors.BLACK, blackCar.color)
+        assertEquals(com.yb.rh.enum.Colors.RED, redCar.color)
     }
 } 

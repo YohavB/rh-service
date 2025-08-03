@@ -1,8 +1,8 @@
 package com.yb.rh.entities
 
-import com.yb.rh.common.Brands
-import com.yb.rh.common.Colors
-import com.yb.rh.common.Countries
+import com.yb.rh.enum.Brands
+import com.yb.rh.enum.Colors
+import com.yb.rh.enum.Countries
 import com.yb.rh.dtos.CarDTO
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp

@@ -1,4 +1,4 @@
-package com.yb.rh.common
+package com.yb.rh.enum
 
 enum class Colors(private val value: Int, private val prettyName: String) {
     UNKNOWN(0, "Unknown"),

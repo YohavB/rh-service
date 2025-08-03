@@ -1,4 +1,4 @@
-package com.yb.rh.common
+package com.yb.rh.enum
 
 enum class Brands(private val value: Int, private val prettyName: String) {
     AIWAYS(0, "Aiways"),

@@ -1,8 +1,10 @@
 package com.yb.rh
 
-import com.yb.rh.common.Brands
-import com.yb.rh.common.Colors
-import com.yb.rh.common.Countries
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.yb.rh.enum.Brands
+import com.yb.rh.enum.Colors
+import com.yb.rh.enum.Countries
 import com.yb.rh.entities.Car
 import com.yb.rh.repositories.CarRepository
 import com.yb.rh.repositories.UserCarRepository
@@ -11,6 +13,7 @@ import mu.KotlinLogging
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.dao.DataIntegrityViolationException
 
@@ -18,6 +21,14 @@ import org.springframework.dao.DataIntegrityViolationException
 class RhServiceConfiguration {
 
     private val logger = KotlinLogging.logger {}
+    
+    @Bean
+    @Primary
+    fun objectMapper(): ObjectMapper {
+        return ObjectMapper().registerModule(KotlinModule.Builder().build())
+    }
+    
+
 
     @Bean
     @Profile("dev") // Only run in development profile

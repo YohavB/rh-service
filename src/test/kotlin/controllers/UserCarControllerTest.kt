@@ -1,50 +1,77 @@
 package com.yb.rh.controllers
 
 import com.yb.rh.TestObjectBuilder
-import com.yb.rh.services.CarService
+import com.yb.rh.dtos.UserCarRequestDTO
+import com.yb.rh.dtos.UserCarsDTO
+import com.yb.rh.error.RHException
 import com.yb.rh.services.MainService
-import com.yb.rh.services.UserCarService
-import com.yb.rh.services.UserService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class UserCarControllerTest {
     private lateinit var mainService: MainService
-    private lateinit var userCarService: UserCarService
-    private lateinit var carService: CarService
-    private lateinit var userService: UserService
     private lateinit var userCarController: UserCarController
 
     @BeforeEach
     fun setUp() {
         mainService = mockk()
-        userCarService = mockk()
-        carService = mockk()
-        userService = mockk()
         userCarController = UserCarController(mainService)
     }
 
     @Test
     fun `test createUserCar success`() {
         // Given
-        val userCarRequestDTO = TestObjectBuilder.getUserCarRequestDTO()
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO()
         val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
         
-        every { mainService.createUserCar(userCarRequestDTO) } returns userCarsDTO
+        every { mainService.createUserCar(userCarRequest) } returns userCarsDTO
 
         // When
-        val result = userCarController.createUserCar(userCarRequestDTO)
+        val result = userCarController.createUserCar(userCarRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(userCarsDTO.user.id, result.user.id)
-        assertEquals(userCarsDTO.cars.size, result.cars.size)
-        verify { mainService.createUserCar(userCarRequestDTO) }
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.createUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test createUserCar with different user and car ids`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO(userId = 2L, carId = 3L)
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.createUserCar(userCarRequest) } returns userCarsDTO
+
+        // When
+        val result = userCarController.createUserCar(userCarRequest)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.createUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test createUserCar failure - service throws exception`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO()
+        
+        every { mainService.createUserCar(userCarRequest) } throws RHException("User or car not found")
+
+        // When & Then
+        assertThrows<RHException> {
+            userCarController.createUserCar(userCarRequest)
+        }
+        verify { mainService.createUserCar(userCarRequest) }
     }
 
     @Test
@@ -60,62 +87,16 @@ class UserCarControllerTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(userCarsDTO.user.id, result.user.id)
-        assertEquals(userCarsDTO.cars.size, result.cars.size)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
         verify { mainService.getUserCarsByUser(userId) }
     }
 
     @Test
-    fun `test deleteUserCar success`() {
+    fun `test getUserCarsByUserId with different user id`() {
         // Given
-        val userCarRequestDTO = TestObjectBuilder.getUserCarRequestDTO()
+        val userId = 999L
         val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
-        
-        every { mainService.deleteUserCar(userCarRequestDTO) } returns userCarsDTO
-
-        // When
-        val result = userCarController.deleteUserCar(userCarRequestDTO)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(userCarsDTO.user.id, result.user.id)
-        assertEquals(userCarsDTO.cars.size, result.cars.size)
-        verify { mainService.deleteUserCar(userCarRequestDTO) }
-    }
-
-    @Test
-    fun `test createUserCar with different user and car`() {
-        // Given
-        val userCarRequestDTO = TestObjectBuilder.getUserCarRequestDTO(
-            userId = 2L,
-            carId = 3L
-        )
-        val userCarsDTO = TestObjectBuilder.getUserCarsDTO(
-            user = TestObjectBuilder.getUserDTO(id = 2L),
-            cars = listOf(TestObjectBuilder.getCarDTO(id = 3L))
-        )
-        
-        every { mainService.createUserCar(userCarRequestDTO) } returns userCarsDTO
-
-        // When
-        val result = userCarController.createUserCar(userCarRequestDTO)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(2L, result.user.id)
-        assertEquals(1, result.cars.size)
-        assertEquals(3L, result.cars[0].id)
-        verify { mainService.createUserCar(userCarRequestDTO) }
-    }
-
-    @Test
-    fun `test getUserCarsByUserId with different user`() {
-        // Given
-        val userId = 5L
-        val userCarsDTO = TestObjectBuilder.getUserCarsDTO(
-            user = TestObjectBuilder.getUserDTO(id = 5L),
-            cars = TestObjectBuilder.getMultipleCars(3).map { TestObjectBuilder.getCarDTO(id = it.id) }
-        )
         
         every { mainService.getUserCarsByUser(userId) } returns userCarsDTO
 
@@ -124,8 +105,144 @@ class UserCarControllerTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(5L, result.user.id)
-        assertEquals(3, result.cars.size)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.getUserCarsByUser(userId) }
+    }
+
+    @Test
+    fun `test getUserCarsByUserId with zero user id`() {
+        // Given
+        val userId = 0L
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.getUserCarsByUser(userId) } returns userCarsDTO
+
+        // When
+        val result = userCarController.getUserCarsByUserId(userId)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.getUserCarsByUser(userId) }
+    }
+
+    @Test
+    fun `test getUserCarsByUserId failure - service throws exception`() {
+        // Given
+        val userId = 1L
+        
+        every { mainService.getUserCarsByUser(userId) } throws RHException("User not found")
+
+        // When & Then
+        assertThrows<RHException> {
+            userCarController.getUserCarsByUserId(userId)
+        }
+        verify { mainService.getUserCarsByUser(userId) }
+    }
+
+    @Test
+    fun `test deleteUserCar success`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO()
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.deleteUserCar(userCarRequest) } returns userCarsDTO
+
+        // When
+        val result = userCarController.deleteUserCar(userCarRequest)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.deleteUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test deleteUserCar with different user and car ids`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO(userId = 5L, carId = 10L)
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.deleteUserCar(userCarRequest) } returns userCarsDTO
+
+        // When
+        val result = userCarController.deleteUserCar(userCarRequest)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.deleteUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test deleteUserCar failure - service throws exception`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO()
+        
+        every { mainService.deleteUserCar(userCarRequest) } throws RHException("User car relationship not found")
+
+        // When & Then
+        assertThrows<RHException> {
+            userCarController.deleteUserCar(userCarRequest)
+        }
+        verify { mainService.deleteUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test createUserCar with negative user id`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO(userId = -1L)
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.createUserCar(userCarRequest) } returns userCarsDTO
+
+        // When
+        val result = userCarController.createUserCar(userCarRequest)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.createUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test createUserCar with negative car id`() {
+        // Given
+        val userCarRequest = TestObjectBuilder.getUserCarRequestDTO(carId = -1L)
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.createUserCar(userCarRequest) } returns userCarsDTO
+
+        // When
+        val result = userCarController.createUserCar(userCarRequest)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
+        verify { mainService.createUserCar(userCarRequest) }
+    }
+
+    @Test
+    fun `test getUserCarsByUserId with negative user id`() {
+        // Given
+        val userId = -1L
+        val userCarsDTO = TestObjectBuilder.getUserCarsDTO()
+        
+        every { mainService.getUserCarsByUser(userId) } returns userCarsDTO
+
+        // When
+        val result = userCarController.getUserCarsByUserId(userId)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(userCarsDTO.user, result.user)
+        assertEquals(userCarsDTO.cars, result.cars)
         verify { mainService.getUserCarsByUser(userId) }
     }
 } 

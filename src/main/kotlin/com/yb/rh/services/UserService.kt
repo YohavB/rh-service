@@ -5,8 +5,6 @@ import com.yb.rh.dtos.UserDTO
 import com.yb.rh.entities.User
 import com.yb.rh.error.RHException
 import com.yb.rh.repositories.UserRepository
-import com.yb.rh.security.GoogleUserInfo
-import com.yb.rh.security.OAuthProvider
 import com.yb.rh.utils.maskEmail
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -83,39 +81,37 @@ class UserService(
                 userRepository.save(user).toDto()
             } ?: throw RHException("User not found with id: $userId")
     }
-    
-    fun findOrCreateUserFromOAuth(googleUserInfo: GoogleUserInfo, provider: OAuthProvider): User {
-        logger.info { "Finding or creating user from ${provider.displayName}: ${googleUserInfo.email.maskEmail()}" }
+
+    fun findOrCreateUserFromOAuth(userDTO: UserDTO): User {
+        logger.debug("Starting OAuth user creation/lookup for email: ${userDTO.email.maskEmail()}")
         
-        // Try to find existing user by email
-        val existingUser = userRepository.findByEmail(googleUserInfo.email)
+        val existingUser = userRepository.findByEmail(userDTO.email)
         
         return if (existingUser != null) {
-            // Update existing user with latest OAuth info
+            logger.debug("Found existing user: ${existingUser.email.maskEmail()}, updating if needed")
             val updatedUser = existingUser.copy(
-                firstName = googleUserInfo.givenName ?: existingUser.firstName,
-                lastName = googleUserInfo.familyName ?: existingUser.lastName,
-                urlPhoto = googleUserInfo.picture ?: existingUser.urlPhoto,
-                isActive = true // Reactivate if user was deactivated
-            )
-            userRepository.save(updatedUser)
-        } else {
-            // Create new user from OAuth info
-            val newUser = User(
-                userId = 0, // Will be auto-generated
-                firstName = googleUserInfo.givenName ?: "",
-                lastName = googleUserInfo.familyName ?: "",
-                email = googleUserInfo.email,
-                pushNotificationToken = "", // Will be set by client later
-                urlPhoto = googleUserInfo.picture,
+                firstName = userDTO.firstName,
+                lastName = userDTO.lastName,
+                urlPhoto = userDTO.urlPhoto ?: existingUser.urlPhoto,
                 isActive = true
             )
-            userRepository.save(newUser)
+            val savedUser = userRepository.save(updatedUser)
+            logger.debug("Updated existing user: ${savedUser.email.maskEmail()}")
+            savedUser
+        } else {
+            logger.debug("Creating new user with email: ${userDTO.email.maskEmail()}")
+            val newUser = User(
+                userId = 0,
+                firstName = userDTO.firstName,
+                lastName = userDTO.lastName,
+                email = userDTO.email,
+                pushNotificationToken = "",
+                urlPhoto = userDTO.urlPhoto,
+                isActive = true
+            )
+            val savedUser = userRepository.save(newUser)
+            logger.debug("Created new user: ${savedUser.email.maskEmail()}")
+            savedUser
         }
-    }
-    
-    // Keep the old method for backward compatibility
-    fun findOrCreateUserFromGoogle(googleUserInfo: GoogleUserInfo): User {
-        return findOrCreateUserFromOAuth(googleUserInfo, OAuthProvider.GOOGLE)
     }
 }

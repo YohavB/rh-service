@@ -27,8 +27,6 @@ data class User(
 
     var isActive: Boolean = true,
 
-
-
     @CreationTimestamp
     @Column(name = "creation_time")
     var creationTime: LocalDateTime? = LocalDateTime.now(),
@@ -43,7 +41,7 @@ data class User(
     val userId: Long = 0L,
 ) {
     fun toDto() =
-        UserDTO(userId, firstName, lastName, email, urlPhoto)
+        UserDTO(userId, firstName, lastName, email, urlPhoto, pushNotificationToken)
 
     companion object {
         fun fromDto(userDTO: UserCreationDTO) =

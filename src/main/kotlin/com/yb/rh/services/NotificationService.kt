@@ -1,6 +1,6 @@
 package com.yb.rh.services
 
-import com.yb.rh.common.NotificationsKind
+import com.yb.rh.enum.NotificationsKind
 import com.yb.rh.entities.User
 import io.github.jav.exposerversdk.*
 import kotlinx.coroutines.CoroutineScope
