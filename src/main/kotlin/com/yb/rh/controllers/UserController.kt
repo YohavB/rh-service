@@ -2,11 +2,7 @@ package com.yb.rh.controllers
 
 import com.yb.rh.dtos.UserDTO
 import com.yb.rh.services.UserService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 /**
  * Controller handling user-related operations in the Rush Hour service

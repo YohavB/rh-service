@@ -1,10 +1,10 @@
 package com.yb.rh.dtos
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.yb.rh.entities.Car
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.entities.Car
 import java.time.LocalDateTime
 
 data class CarDTO(

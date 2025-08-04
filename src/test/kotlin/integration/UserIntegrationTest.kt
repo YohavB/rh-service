@@ -1,7 +1,5 @@
 package com.yb.rh.integration
 
-import com.yb.rh.dtos.UserCreationDTO
-import com.yb.rh.dtos.UserDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test

@@ -3,18 +3,16 @@ package com.yb.rh.services
 import com.yb.rh.entities.User
 import com.yb.rh.error.RHException
 import com.yb.rh.repositories.UserRepository
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import com.yb.rh.security.JwtTokenProvider
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User as SpringUser
-import com.yb.rh.security.JwtTokenProvider
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class CurrentUserServiceTest {
     
@@ -24,7 +22,7 @@ class CurrentUserServiceTest {
     @BeforeEach
     fun setUp() {
         userRepository = mockk()
-        val jwtTokenProvider = mockk<com.yb.rh.security.JwtTokenProvider>()
+        val jwtTokenProvider = mockk<JwtTokenProvider>()
         currentUserService = CurrentUserService(userRepository, jwtTokenProvider)
         SecurityContextHolder.clearContext()
         

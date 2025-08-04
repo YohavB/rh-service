@@ -1,7 +1,7 @@
 package com.yb.rh.integration
 
-import com.yb.rh.enum.Countries
 import com.yb.rh.dtos.*
+import com.yb.rh.enum.Countries
 import com.yb.rh.utils.ErrorResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

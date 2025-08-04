@@ -1,8 +1,6 @@
 package com.yb.rh.controllers
 
 import com.yb.rh.TestObjectBuilder
-import com.yb.rh.dtos.UserCarRequestDTO
-import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.error.RHException
 import com.yb.rh.services.MainService
 import io.mockk.every

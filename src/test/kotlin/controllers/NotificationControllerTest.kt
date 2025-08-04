@@ -1,13 +1,11 @@
 package com.yb.rh.controllers
 
 import com.yb.rh.services.MainService
-import com.yb.rh.utils.SuccessResponse
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 

@@ -3,10 +3,10 @@ package com.yb.rh
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.yb.rh.entities.Car
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.entities.Car
 import com.yb.rh.repositories.CarRepository
 import com.yb.rh.repositories.UserCarRepository
 import com.yb.rh.repositories.UserRepository

@@ -2,10 +2,10 @@ package com.yb.rh.utils.countryCarJson
 
 import com.google.gson.GsonBuilder
 import com.squareup.moshi.JsonClass
+import com.yb.rh.dtos.CarDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.dtos.CarDTO
 import mu.KotlinLogging
 import okhttp3.ResponseBody
 import java.time.LocalDate

@@ -2,10 +2,10 @@ package com.yb.rh.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yb.rh.RhServiceApplication
+import com.yb.rh.dtos.CarDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.dtos.CarDTO
 import com.yb.rh.services.CarApi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance

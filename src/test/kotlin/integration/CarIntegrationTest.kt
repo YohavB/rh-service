@@ -1,10 +1,10 @@
 package com.yb.rh.integration
 
+import com.yb.rh.dtos.CarDTO
+import com.yb.rh.dtos.FindCarRequestDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.dtos.CarDTO
-import com.yb.rh.dtos.FindCarRequestDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
