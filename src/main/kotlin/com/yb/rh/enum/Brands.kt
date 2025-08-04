@@ -1,5 +1,7 @@
 package com.yb.rh.enum
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class Brands(private val value: Int, private val prettyName: String) {
     AIWAYS(0, "Aiways"),
     ALPHA_ROMEO(2, "Alpha Romeo"),
@@ -81,6 +83,9 @@ enum class Brands(private val value: Int, private val prettyName: String) {
     VOLVO(82, "Volvo"),
     UNKNOWN(999, "Unknown");
 
+
+    @JsonValue
+    fun getValue(): Int = value
 
     companion object {
         private val mapping: MutableMap<Int, Brands> = HashMap()

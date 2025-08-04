@@ -21,15 +21,14 @@ class UserControllerTest {
     }
 
     @Test
-    fun `test createUser success`() {
+    fun `test getUser success`() {
         // Given
-        val userCreationDTO = TestObjectBuilder.getUserCreationDTO()
         val userDTO = TestObjectBuilder.getUserDTO()
         
-        every { userService.createUser(userCreationDTO) } returns userDTO
+        every { userService.getUserDTOByToken() } returns userDTO
 
         // When
-        val result = userController.createUser(userCreationDTO)
+        val result = userController.getUser()
 
         // Then
         assertNotNull(result)
@@ -37,63 +36,7 @@ class UserControllerTest {
         assertEquals(userDTO.firstName, result.firstName)
         assertEquals(userDTO.lastName, result.lastName)
         assertEquals(userDTO.email, result.email)
-        verify { userService.createUser(userCreationDTO) }
-    }
-
-    @Test
-    fun `test getUserById success`() {
-        // Given
-        val userId = 1L
-        val userDTO = TestObjectBuilder.getUserDTO()
-        
-        every { userService.getUserDTOByUserId(userId) } returns userDTO
-
-        // When
-        val result = userController.getUserById(userId)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        verify { userService.getUserDTOByUserId(userId) }
-    }
-
-    @Test
-    fun `test getUserByEmail success`() {
-        // Given
-        val email = "test@example.com"
-        val userDTO = TestObjectBuilder.getUserDTO()
-        
-        every { userService.findUserDTOByEmail(email) } returns userDTO
-
-        // When
-        val result = userController.getUserByEmail(email)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        assertEquals(userDTO.email, result.email)
-        verify { userService.findUserDTOByEmail(email) }
-    }
-
-    @Test
-    fun `test updateUser success`() {
-        // Given
-        val userDTO = TestObjectBuilder.getUserDTO()
-        val updatedUserDTO = TestObjectBuilder.getUserDTO(
-            firstName = "Updated",
-            lastName = "Name"
-        )
-        
-        every { userService.updateUser(userDTO) } returns updatedUserDTO
-
-        // When
-        val result = userController.updateUser(userDTO)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(updatedUserDTO.firstName, result.firstName)
-        assertEquals(updatedUserDTO.lastName, result.lastName)
-        verify { userService.updateUser(userDTO) }
+        verify { userService.getUserDTOByToken() }
     }
 
     @Test

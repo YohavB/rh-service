@@ -24,6 +24,7 @@ class AuthServiceTest {
     private lateinit var appleTokenVerifier: AppleTokenVerifier
     private lateinit var jwtTokenProvider: JwtTokenProvider
     private lateinit var userService: UserService
+    private lateinit var currentUserService: CurrentUserService
     private lateinit var authService: AuthService
 
     @BeforeEach
@@ -33,12 +34,14 @@ class AuthServiceTest {
         appleTokenVerifier = mockk()
         jwtTokenProvider = mockk()
         userService = mockk()
+        currentUserService = mockk()
         authService = AuthService(
             googleTokenVerifier,
             facebookTokenVerifier,
             appleTokenVerifier,
             jwtTokenProvider,
-            userService
+            userService,
+            currentUserService
         )
     }
 
@@ -51,27 +54,22 @@ class AuthServiceTest {
             name = "Test User",
             givenName = "Test",
             familyName = "User",
-            picture = "https://example.com/photo.jpg",
-            emailVerified = true
+            picture = "https://example.com/photo.jpg"
         )
-        val user = TestObjectBuilder.getUser(email = "test@example.com")
-        val jwtToken = "jwt-token"
         
         every { googleTokenVerifier.verifyToken(request.token) } returns googleUserInfo
-        every { userService.findOrCreateUserFromGoogle(googleUserInfo) } returns user
-        every { jwtTokenProvider.generateToken(user.userId, user.email) } returns jwtToken
 
         // When
         val result = authService.googleLogin(request)
 
         // Then
         assertNotNull(result)
-        assertEquals(jwtToken, result.token)
-        assertEquals(user.toDto(), result.user)
+        assertEquals("test@example.com", result.email)
+        assertEquals("Test", result.firstName)
+        assertEquals("User", result.lastName)
+        assertEquals("https://example.com/photo.jpg", result.urlPhoto)
         verify { 
             googleTokenVerifier.verifyToken(request.token)
-            userService.findOrCreateUserFromGoogle(googleUserInfo)
-            jwtTokenProvider.generateToken(user.userId, user.email)
         }
     }
 
@@ -101,24 +99,20 @@ class AuthServiceTest {
             fbLastName = "User",
             fbPicture = FacebookPicture(FacebookPictureData("https://example.com/photo.jpg"))
         )
-        val user = TestObjectBuilder.getUser(email = "test@example.com")
-        val jwtToken = "jwt-token"
         
         every { facebookTokenVerifier.verifyToken(request.token) } returns facebookUserInfo
-        every { userService.findOrCreateUserFromFacebook(facebookUserInfo) } returns user
-        every { jwtTokenProvider.generateToken(user.userId, user.email) } returns jwtToken
 
         // When
         val result = authService.facebookLogin(request)
 
         // Then
         assertNotNull(result)
-        assertEquals(jwtToken, result.token)
-        assertEquals(user.toDto(), result.user)
+        assertEquals("test@example.com", result.email)
+        assertEquals("Test", result.firstName)
+        assertEquals("User", result.lastName)
+        assertEquals("https://example.com/photo.jpg", result.urlPhoto)
         verify { 
             facebookTokenVerifier.verifyToken(request.token)
-            userService.findOrCreateUserFromFacebook(facebookUserInfo)
-            jwtTokenProvider.generateToken(user.userId, user.email)
         }
     }
 
@@ -143,27 +137,22 @@ class AuthServiceTest {
         val appleUserInfo = AppleUserInfoDTO(
             sub = "apple_user_id",
             email = "test@example.com",
-            name = "Test User",
-            emailVerified = true
+            name = "Test User"
         )
-        val user = TestObjectBuilder.getUser(email = "test@example.com")
-        val jwtToken = "jwt-token"
         
         every { appleTokenVerifier.verifyToken(request.token) } returns appleUserInfo
-        every { userService.findOrCreateUserFromApple(appleUserInfo) } returns user
-        every { jwtTokenProvider.generateToken(user.userId, user.email) } returns jwtToken
 
         // When
         val result = authService.appleLogin(request)
 
         // Then
         assertNotNull(result)
-        assertEquals(jwtToken, result.token)
-        assertEquals(user.toDto(), result.user)
+        assertEquals("test@example.com", result.email)
+        assertEquals("Test", result.firstName)
+        assertEquals("User", result.lastName)
+        assertEquals(null, result.urlPhoto)
         verify { 
             appleTokenVerifier.verifyToken(request.token)
-            userService.findOrCreateUserFromApple(appleUserInfo)
-            jwtTokenProvider.generateToken(user.userId, user.email)
         }
     }
 
@@ -184,41 +173,36 @@ class AuthServiceTest {
     @Test
     fun `test refreshToken success`() {
         // Given
-        val authHeader = "Bearer valid-jwt-token"
-        val userId = 1L
-        val user = TestObjectBuilder.getUser(userId = userId)
+        val user = TestObjectBuilder.getUser(userId = 1L)
         val newJwtToken = "new-jwt-token"
         
-        every { jwtTokenProvider.getUserIdFromToken("valid-jwt-token") } returns userId
-        every { userService.getUserById(userId) } returns user
+        every { currentUserService.getCurrentUser() } returns user
         every { jwtTokenProvider.generateToken(user.userId, user.email) } returns newJwtToken
 
         // When
-        val result = authService.refreshToken(authHeader)
+        val result = authService.refreshToken()
 
         // Then
         assertNotNull(result)
         assertEquals(newJwtToken, result.token)
         assertEquals(user.toDto(), result.user)
         verify { 
-            jwtTokenProvider.getUserIdFromToken("valid-jwt-token")
-            userService.getUserById(userId)
+            currentUserService.getCurrentUser()
             jwtTokenProvider.generateToken(user.userId, user.email)
         }
     }
 
     @Test
-    fun `test refreshToken failure - invalid token`() {
+    fun `test refreshToken failure - no authenticated user`() {
         // Given
-        val authHeader = "Bearer invalid-jwt-token"
         
-        every { jwtTokenProvider.getUserIdFromToken("invalid-jwt-token") } returns null
+        every { currentUserService.getCurrentUser() } throws IllegalArgumentException("No authenticated user")
 
         // When & Then
         assertThrows<IllegalArgumentException> {
-            authService.refreshToken(authHeader)
+            authService.refreshToken()
         }
-        verify { jwtTokenProvider.getUserIdFromToken("invalid-jwt-token") }
+        verify { currentUserService.getCurrentUser() }
     }
 
     @Test
@@ -246,30 +230,33 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `test refreshToken with malformed header`() {
+    fun `test refreshToken with service error`() {
         // Given
-        val authHeader = "InvalidHeader"
         
-        every { jwtTokenProvider.getUserIdFromToken("InvalidHeader") } returns null
+        every { currentUserService.getCurrentUser() } throws RuntimeException("Service error")
 
         // When & Then
-        assertThrows<IllegalArgumentException> {
-            authService.refreshToken(authHeader)
+        assertThrows<RuntimeException> {
+            authService.refreshToken()
         }
-        verify { jwtTokenProvider.getUserIdFromToken("InvalidHeader") }
+        verify { currentUserService.getCurrentUser() }
     }
 
     @Test
-    fun `test refreshToken with empty token`() {
+    fun `test refreshToken with token generation error`() {
         // Given
-        val authHeader = "Bearer "
+        val user = TestObjectBuilder.getUser(userId = 1L)
         
-        every { jwtTokenProvider.getUserIdFromToken("") } returns null
+        every { currentUserService.getCurrentUser() } returns user
+        every { jwtTokenProvider.generateToken(user.userId, user.email) } throws RuntimeException("Token generation failed")
 
         // When & Then
-        assertThrows<IllegalArgumentException> {
-            authService.refreshToken(authHeader)
+        assertThrows<RuntimeException> {
+            authService.refreshToken()
         }
-        verify { jwtTokenProvider.getUserIdFromToken("") }
+        verify { 
+            currentUserService.getCurrentUser()
+            jwtTokenProvider.generateToken(user.userId, user.email)
+        }
     }
 } 

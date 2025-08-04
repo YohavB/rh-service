@@ -293,4 +293,16 @@ abstract class IntegrationTestBase {
     protected fun getAllRowsFromTable(tableName: String): List<Map<String, Any>> {
         return jdbcTemplate.queryForList("SELECT * FROM $tableName")
     }
+
+    protected fun createUserInDatabase(email: String, firstName: String, lastName: String, pushNotificationToken: String): Long {
+        val sql = """
+            INSERT INTO users (email, first_name, last_name, push_notification_token, is_active, creation_time, update_time)
+            VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+        """.trimIndent()
+        
+        jdbcTemplate.update(sql, email, firstName, lastName, pushNotificationToken, true)
+        
+        val userId = jdbcTemplate.queryForObject("SELECT user_id FROM users WHERE email = ?", Long::class.java, email)
+        return userId ?: throw RuntimeException("User not found after creation")
+    }
 } 

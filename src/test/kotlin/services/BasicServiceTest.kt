@@ -14,32 +14,33 @@ import kotlin.test.assertNotNull
 class BasicServiceTest {
 
     private lateinit var userRepository: UserRepository
+    private lateinit var currentUserService: CurrentUserService
     private lateinit var userService: UserService
 
     @BeforeEach
     fun setUp() {
         userRepository = mockk()
-        userService = UserService(userRepository)
+        currentUserService = mockk()
+        userService = UserService(userRepository, currentUserService)
     }
 
     @Test
-    fun `test createUser success`() {
+    fun `test getUserDTOByToken success`() {
         // Given
-        val userCreationDTO = TestObjectBuilder.getUserCreationDTO()
-        val user = mockk<com.yb.rh.entities.User>()
-        val userDTO = TestObjectBuilder.getUserDTO()
+        val user = TestObjectBuilder.getUser(userId = 1L)
         
-        every { userRepository.save(any()) } returns user
-        every { user.toDto() } returns userDTO
+        every { currentUserService.getCurrentUser() } returns user
 
         // When
-        val result = userService.createUser(userCreationDTO)
+        val result = userService.getUserDTOByToken()
 
         // Then
         assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        assertEquals(userDTO.email, result.email)
-        verify { userRepository.save(any()) }
+        assertEquals(user.userId, result.id)
+        assertEquals(user.email, result.email)
+        assertEquals(user.firstName, result.firstName)
+        assertEquals(user.lastName, result.lastName)
+        verify { currentUserService.getCurrentUser() }
     }
 
     @Test

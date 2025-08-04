@@ -1,5 +1,7 @@
 package com.yb.rh.enum
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class Colors(private val value: Int, private val prettyName: String) {
     UNKNOWN(0, "Unknown"),
     PEARL_GREEN(1, "Pearl Green"),
@@ -103,6 +105,9 @@ enum class Colors(private val value: Int, private val prettyName: String) {
     DARK_SILVER_METALLIC(99, "Dark Silver Metallic"),
     WHITE(100, "White");
 
+
+    @JsonValue
+    fun getValue(): Int = value
 
     companion object {
         private val mapping: MutableMap<Int, Colors> = HashMap()

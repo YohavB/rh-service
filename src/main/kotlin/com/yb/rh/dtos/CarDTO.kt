@@ -1,5 +1,6 @@
 package com.yb.rh.dtos
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
@@ -13,6 +14,7 @@ data class CarDTO(
     val brand: Brands,
     val model: String,
     val color: Colors,
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     var carLicenseExpireDate: LocalDateTime?
 ) {
     fun toEntity() = Car.fromDto(this)

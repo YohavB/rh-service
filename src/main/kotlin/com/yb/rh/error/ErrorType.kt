@@ -1,5 +1,7 @@
 package com.yb.rh.error
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class ErrorType {
     AUTHENTICATION,
     INVALID_JWT,
@@ -12,5 +14,8 @@ enum class ErrorType {
     UNKNOWN,
     ENTITY_NOT_FOUND,
     BAD_CREDENTIAL,
-    CAR_HAS_NO_OWNER
+    CAR_HAS_NO_OWNER;
+
+    @JsonValue
+    fun getValue(): String = name
 }

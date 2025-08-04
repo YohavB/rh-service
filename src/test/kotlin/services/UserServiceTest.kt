@@ -13,85 +13,30 @@ import kotlin.test.assertNotNull
 
 class UserServiceTest {
     private lateinit var userRepository: UserRepository
+    private lateinit var currentUserService: CurrentUserService
     private lateinit var userService: UserService
 
     @BeforeEach
     fun setUp() {
         userRepository = mockk()
-        userService = UserService(userRepository)
+        currentUserService = mockk()
+        userService = UserService(userRepository, currentUserService)
     }
 
     @Test
-    fun `test createUser success`() {
-        val userCreationDTO = TestObjectBuilder.getUserCreationDTO()
-        val user = mockk<com.yb.rh.entities.User>()
-        val userDTO = TestObjectBuilder.getUserDTO()
+    fun `test getUserDTOByToken success`() {
+        val user = TestObjectBuilder.getUser(userId = 1L)
 
-        every { userRepository.save(any()) } returns user
-        every { user.toDto() } returns userDTO
+        every { currentUserService.getCurrentUser() } returns user
 
-        val result = userService.createUser(userCreationDTO)
+        val result = userService.getUserDTOByToken()
 
         assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        assertEquals(userDTO.email, result.email)
-        verify { userRepository.save(any()) }
-    }
-
-    @Test
-    fun `test getUserDTOByUserId success`() {
-        val userId = 1L
-        val user = mockk<com.yb.rh.entities.User>()
-        val userDTO = TestObjectBuilder.getUserDTO()
-
-        every { userRepository.findByUserId(userId) } returns user
-        every { user.toDto() } returns userDTO
-
-        val result = userService.getUserDTOByUserId(userId)
-
-        assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        verify { userRepository.findByUserId(userId) }
-    }
-
-    @Test
-    fun `test getUserDTOByUserId not found`() {
-        val userId = 1L
-
-        every { userRepository.findByUserId(userId) } returns null
-
-        assertThrows<com.yb.rh.error.RHException> {
-            userService.getUserDTOByUserId(userId)
-        }
-        verify { userRepository.findByUserId(userId) }
-    }
-
-    @Test
-    fun `test findUserDTOByEmail success`() {
-        val email = "test@example.com"
-        val user = mockk<com.yb.rh.entities.User>()
-        val userDTO = TestObjectBuilder.getUserDTO()
-
-        every { userRepository.findByEmail(email) } returns user
-        every { user.toDto() } returns userDTO
-
-        val result = userService.findUserDTOByEmail(email)
-
-        assertNotNull(result)
-        assertEquals(userDTO.id, result.id)
-        verify { userRepository.findByEmail(email) }
-    }
-
-    @Test
-    fun `test findUserDTOByEmail not found`() {
-        val email = "test@example.com"
-
-        every { userRepository.findByEmail(email) } returns null
-
-        assertThrows<com.yb.rh.error.RHException> {
-            userService.findUserDTOByEmail(email)
-        }
-        verify { userRepository.findByEmail(email) }
+        assertEquals(user.userId, result.id)
+        assertEquals(user.email, result.email)
+        assertEquals(user.firstName, result.firstName)
+        assertEquals(user.lastName, result.lastName)
+        verify { currentUserService.getCurrentUser() }
     }
 
     @Test

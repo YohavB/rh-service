@@ -47,5 +47,8 @@ data class CarsRelationRequestDTO(
 
 enum class UserCarSituation {
     IS_BLOCKING,
-    IS_BLOCKED,
+    IS_BLOCKED;
+
+    @com.fasterxml.jackson.annotation.JsonValue
+    fun getValue(): String = name
 }

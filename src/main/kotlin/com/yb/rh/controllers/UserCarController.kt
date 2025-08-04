@@ -5,7 +5,6 @@ import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.services.MainService
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
-import mu.KotlinLogging
 
 /**
  * Controller handling relationships between users and cars
@@ -15,8 +14,6 @@ import mu.KotlinLogging
 class UserCarController(
     private val mainService: MainService,
 ) {
-    private val logger = KotlinLogging.logger {}
-
     @PostMapping
     fun createUserCar(
         @Valid @RequestBody userCar: UserCarRequestDTO,

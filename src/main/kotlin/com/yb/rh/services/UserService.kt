@@ -1,6 +1,5 @@
 package com.yb.rh.services
 
-import com.yb.rh.dtos.UserCreationDTO
 import com.yb.rh.dtos.UserDTO
 import com.yb.rh.entities.User
 import com.yb.rh.error.RHException
@@ -13,31 +12,16 @@ import org.springframework.stereotype.Service
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val currentUserService: CurrentUserService
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun createUser(userCreationDTO: UserCreationDTO): UserDTO {
-        logger.info { "Create user : ${userCreationDTO.email.maskEmail()} " }
-
-        return userRepository.save(userCreationDTO.toEntity()).toDto()
+    fun getUserDTOByToken(): UserDTO {
+        logger.info { "Getting current user from token" }
+        val currentUser = currentUserService.getCurrentUser()
+        return currentUser.toDto()
     }
 
-    fun getUserDTOByUserId(userId: Long): UserDTO {
-        logger.info { "Try to find user : $userId " }
-
-        return userRepository.findByUserId(userId)
-            ?.toDto()
-            ?: throw RHException("User not found with id: $userId")
-
-    }
-
-    fun findUserDTOByEmail(mail: String): UserDTO {
-        logger.info { "Try to find user by mail : $mail " }
-
-        return userRepository.findByEmail(mail)
-            ?.toDto()
-            ?: throw RHException("User not found with email: $mail")
-    }
 
     fun getUserById(userId: Long): User {
         logger.info { "Try to find user by id : $userId " }

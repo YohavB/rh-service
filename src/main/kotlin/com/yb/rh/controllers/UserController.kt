@@ -1,7 +1,8 @@
 package com.yb.rh.controllers
 
+import com.yb.rh.dtos.UserDTO
 import com.yb.rh.services.UserService
-import mu.KotlinLogging
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,27 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/user")
 class UsersController(private val userService: UserService) {
-    private val logger = KotlinLogging.logger {}
-
-//    @PostMapping
-//    fun createUser(
-//        @Valid @RequestBody userCreationDTO: UserCreationDTO
-//    ): UserDTO = userService.createUser(userCreationDTO)
-//
-//    @GetMapping
-//    fun getUserById(
-//        @RequestParam(name = "id") id: Long
-//    ): UserDTO = userService.getUserDTOByUserId(id)
-//
-//    @GetMapping("/by-email")
-//    fun getUserByEmail(
-//        @RequestParam(name = "email") email: String
-//    ): UserDTO = userService.findUserDTOByEmail(email)
-//
-//    @PutMapping
-//    fun updateUser(
-//        @Valid @RequestBody userDTO: UserDTO
-//    ): UserDTO = userService.updateUser(userDTO)
+    @GetMapping
+    fun getUser(): UserDTO = userService.getUserDTOByToken()
 
     @PutMapping("/deactivate/{userId}")
     fun deactivateUserByPath(

@@ -26,25 +26,36 @@ class NotificationIntegrationTest : IntegrationTestBase() {
         super.setUp()
 
         // Create users
-        val userCreation1 = UserCreationDTO(
+
+
+        val user1Id = createUserInDatabase(
+            email = "john.doe@example.com",
             firstName = "John",
             lastName = "Doe",
-            email = "john.doe@example.com",
-            pushNotificationToken = "token1",
-            urlPhoto = "http://example.com/photo1.jpg"
+            pushNotificationToken = "token1"
         )
-        val userCreation2 = UserCreationDTO(
+        val user2Id = createUserInDatabase(
+            email = "jane.smith@example.com",
             firstName = "Jane",
             lastName = "Smith",
+            pushNotificationToken = "token2"
+        )
+        
+        // Create UserDTO objects for the tests
+        user1 = UserDTO(
+            id = user1Id,
+            email = "john.doe@example.com",
+            firstName = "John",
+            lastName = "Doe",
+            urlPhoto = "http://example.com/photo1.jpg"
+        )
+        user2 = UserDTO(
+            id = user2Id,
             email = "jane.smith@example.com",
-            pushNotificationToken = "token2",
+            firstName = "Jane",
+            lastName = "Smith",
             urlPhoto = "http://example.com/photo2.jpg"
         )
-
-        val user1Response = performPost("/api/v1/user", userCreation1)
-        val user2Response = performPost("/api/v1/user", userCreation2)
-        user1 = objectMapper.readValue(user1Response, UserDTO::class.java)
-        user2 = objectMapper.readValue(user2Response, UserDTO::class.java)
 
         // Create cars
         val findCarRequest1 = FindCarRequestDTO(
@@ -63,11 +74,11 @@ class NotificationIntegrationTest : IntegrationTestBase() {
 
         // Associate users with cars
         val userCarRequest1 = UserCarRequestDTO(
-            userId = user1.id,
+            userId = user1Id,
             carId = car1.id
         )
         val userCarRequest2 = UserCarRequestDTO(
-            userId = user2.id,
+            userId = user2Id,
             carId = car2.id
         )
 

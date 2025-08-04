@@ -1,8 +1,8 @@
 package com.yb.rh.services
 
-import com.yb.rh.enum.NotificationsKind
 import com.yb.rh.dtos.*
 import com.yb.rh.entities.Car
+import com.yb.rh.enum.NotificationsKind
 import com.yb.rh.error.ErrorType
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
@@ -15,7 +15,8 @@ class MainService(
     private val carService: CarService,
     private val userCarService: UserCarService,
     private val carsRelationsService: CarsRelationsService,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val currentUserService: CurrentUserService
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -121,6 +122,15 @@ class MainService(
 
         return carsRelationsService.findCarRelationsDTO(car)
             .also { logger.info { "Found Car Relations for Car ID: $carId - $it" } }
+    }
+
+    fun getUserCarRelations(): List<CarRelationsDTO> {
+        val user = currentUserService.getCurrentUser()
+        logger.info { " Fetching User : ${user.userId} car relations" }
+
+        val userCars = userCarService.getUserCarsByUser(user)
+
+        return userCars.cars.map { carService.getCarById(it.id) }.map { carsRelationsService.findCarRelationsDTO(it) }
     }
 
     @Transactional

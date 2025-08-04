@@ -32,12 +32,14 @@ class MainServiceNotificationTest {
         carsRelationsService = mockk()
         notificationService = mockk()
         
+        val currentUserService = mockk<com.yb.rh.services.CurrentUserService>()
         mainService = MainService(
             userService,
             carService,
             userCarService,
             carsRelationsService,
-            notificationService
+            notificationService,
+            currentUserService
         )
     }
 

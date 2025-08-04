@@ -18,7 +18,8 @@ class AuthService(
     private val facebookTokenVerifier: FacebookTokenVerifier,
     private val appleTokenVerifier: AppleTokenVerifier,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val userService: UserService
+    private val userService: UserService,
+    private val currentUserService: CurrentUserService
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -57,40 +58,35 @@ class AuthService(
         )
     }
 
-    private fun googleLogin(request: OAuthLoginRequestDTO): UserDTO {
+    internal fun googleLogin(request: OAuthLoginRequestDTO): UserDTO {
         logger.debug { "Verifying Google token..." }
         val googleUserInfo = googleTokenVerifier.verifyToken(request.token)
         logger.debug { "Google token verified successfully for email: ${googleUserInfo.email?.maskEmail()}" }
         return googleUserInfo.toUserDTO()
     }
 
-    private fun facebookLogin(request: OAuthLoginRequestDTO): UserDTO {
+    internal fun facebookLogin(request: OAuthLoginRequestDTO): UserDTO {
         logger.debug { "Verifying Facebook token..." }
         val facebookUserInfo = facebookTokenVerifier.verifyToken(request.token)
         logger.debug { "Facebook token verified successfully for email: ${facebookUserInfo.email?.maskEmail()}" }
         return facebookUserInfo.toUserDTO()
     }
 
-    private fun appleLogin(request: OAuthLoginRequestDTO): UserDTO {
+    internal fun appleLogin(request: OAuthLoginRequestDTO): UserDTO {
         logger.debug { "Verifying Apple token..." }
         val appleUserInfo = appleTokenVerifier.verifyToken(request.token)
         logger.debug { "Apple token verified successfully for email: ${appleUserInfo.email?.maskEmail()}" }
         return appleUserInfo.toUserDTO()
     }
 
-    fun refreshToken(authHeader: String): AuthResponseDTO {
-        val token = authHeader.removePrefix("Bearer ")
-
+    fun refreshToken(): AuthResponseDTO {
         return try {
-            val userId = jwtTokenProvider.getUserIdFromToken(token)
-                ?: throw IllegalArgumentException("Invalid token")
-
-            val user = userService.getUserById(userId)
-            val newToken = jwtTokenProvider.generateToken(user.userId, user.email)
+            val currentUser = currentUserService.getCurrentUser()
+            val newToken = jwtTokenProvider.generateToken(currentUser.userId, currentUser.email)
 
             AuthResponseDTO(
                 token = newToken,
-                user = user.toDto()
+                user = currentUser.toDto()
             )
         } catch (ex: Exception) {
             logger.warn(ex) { "Token refresh failed" }

@@ -3,6 +3,7 @@ package com.yb.rh.controllers
 import com.yb.rh.TestObjectBuilder
 import com.yb.rh.dtos.AuthResponseDTO
 import com.yb.rh.dtos.OAuthLoginRequestDTO
+import com.yb.rh.enum.OAuthProvider
 import com.yb.rh.services.AuthService
 import io.mockk.every
 import io.mockk.mockk
@@ -34,7 +35,7 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.googleLogin(request) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.GOOGLE) } returns expectedResponse
 
         // When
         val result = authController.googleLogin(request)
@@ -45,7 +46,7 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.googleLogin(request) }
+        verify { authService.login(request, OAuthProvider.GOOGLE) }
     }
 
     @Test
@@ -53,13 +54,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-token")
         
-        every { authService.googleLogin(request) } throws RuntimeException("Invalid token")
+        every { authService.login(request, OAuthProvider.GOOGLE) } throws RuntimeException("Invalid token")
 
         // When & Then
         assertThrows<RuntimeException> {
             authController.googleLogin(request)
         }
-        verify { authService.googleLogin(request) }
+        verify { authService.login(request, OAuthProvider.GOOGLE) }
     }
 
     @Test
@@ -71,7 +72,7 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.facebookLogin(request) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.FACEBOOK) } returns expectedResponse
 
         // When
         val result = authController.facebookLogin(request)
@@ -82,7 +83,7 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.facebookLogin(request) }
+        verify { authService.login(request, OAuthProvider.FACEBOOK) }
     }
 
     @Test
@@ -94,7 +95,7 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.appleLogin(request) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.APPLE) } returns expectedResponse
 
         // When
         val result = authController.appleLogin(request)
@@ -105,22 +106,21 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.appleLogin(request) }
+        verify { authService.login(request, OAuthProvider.APPLE) }
     }
 
     @Test
     fun `test refreshToken success`() {
         // Given
-        val authHeader = "Bearer valid-jwt-token"
         val expectedResponse = AuthResponseDTO(
             token = "new-jwt-token",
             user = TestObjectBuilder.getUserDTO(id = 1L)
         )
         
-        every { authService.refreshToken(authHeader) } returns expectedResponse
+        every { authService.refreshToken() } returns expectedResponse
 
         // When
-        val result = authController.refreshToken(authHeader)
+        val result = authController.refreshToken()
 
         // Then
         assertNotNull(result)
@@ -128,21 +128,20 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.refreshToken(authHeader) }
+        verify { authService.refreshToken() }
     }
 
     @Test
     fun `test refreshToken failure - service throws exception`() {
         // Given
-        val authHeader = "Bearer invalid-jwt-token"
         
-        every { authService.refreshToken(authHeader) } throws IllegalArgumentException("Invalid token")
+        every { authService.refreshToken() } throws IllegalArgumentException("Invalid token")
 
         // When & Then
         assertThrows<IllegalArgumentException> {
-            authController.refreshToken(authHeader)
+            authController.refreshToken()
         }
-        verify { authService.refreshToken(authHeader) }
+        verify { authService.refreshToken() }
     }
 
     @Test
@@ -168,13 +167,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("")
         
-        every { authService.googleLogin(request) } throws RuntimeException("Empty token")
+        every { authService.login(request, OAuthProvider.GOOGLE) } throws RuntimeException("Empty token")
 
         // When & Then
         assertThrows<RuntimeException> {
             authController.googleLogin(request)
         }
-        verify { authService.googleLogin(request) }
+        verify { authService.login(request, OAuthProvider.GOOGLE) }
     }
 
     @Test
@@ -182,13 +181,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-facebook-token")
         
-        every { authService.facebookLogin(request) } throws RuntimeException("Invalid Facebook token")
+        every { authService.login(request, OAuthProvider.FACEBOOK) } throws RuntimeException("Invalid Facebook token")
 
         // When & Then
         assertThrows<RuntimeException> {
             authController.facebookLogin(request)
         }
-        verify { authService.facebookLogin(request) }
+        verify { authService.login(request, OAuthProvider.FACEBOOK) }
     }
 
     @Test
@@ -196,40 +195,38 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-apple-token")
         
-        every { authService.appleLogin(request) } throws RuntimeException("Invalid Apple token")
+        every { authService.login(request, OAuthProvider.APPLE) } throws RuntimeException("Invalid Apple token")
 
         // When & Then
         assertThrows<RuntimeException> {
             authController.appleLogin(request)
         }
-        verify { authService.appleLogin(request) }
+        verify { authService.login(request, OAuthProvider.APPLE) }
     }
 
     @Test
-    fun `test refreshToken with malformed header`() {
+    fun `test refreshToken with authentication failure`() {
         // Given
-        val authHeader = "InvalidHeader"
         
-        every { authService.refreshToken(authHeader) } throws IllegalArgumentException("Invalid header")
+        every { authService.refreshToken() } throws IllegalArgumentException("No authenticated user")
 
         // When & Then
         assertThrows<IllegalArgumentException> {
-            authController.refreshToken(authHeader)
+            authController.refreshToken()
         }
-        verify { authService.refreshToken(authHeader) }
+        verify { authService.refreshToken() }
     }
 
     @Test
-    fun `test refreshToken with empty token`() {
+    fun `test refreshToken with service error`() {
         // Given
-        val authHeader = "Bearer "
         
-        every { authService.refreshToken(authHeader) } throws IllegalArgumentException("Empty token")
+        every { authService.refreshToken() } throws RuntimeException("Service error")
 
         // When & Then
-        assertThrows<IllegalArgumentException> {
-            authController.refreshToken(authHeader)
+        assertThrows<RuntimeException> {
+            authController.refreshToken()
         }
-        verify { authService.refreshToken(authHeader) }
+        verify { authService.refreshToken() }
     }
 } 
