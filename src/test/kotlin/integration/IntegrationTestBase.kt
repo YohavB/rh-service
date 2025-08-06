@@ -2,6 +2,9 @@ package com.yb.rh.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yb.rh.RhServiceApplication
+import com.yb.rh.TestSecurityConfig
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import com.yb.rh.dtos.CarDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
@@ -27,7 +30,7 @@ import javax.sql.DataSource
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = [RhServiceApplication::class]
+    classes = [RhServiceApplication::class, TestSecurityConfig::class]
 )
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -190,6 +193,13 @@ abstract class IntegrationTestBase {
         for (i in 1..5) {
             Mockito.`when`(carApi.getCarInfo("CHAIN00$i", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "CHAIN00$i"))
         }
+        
+        // MainServiceIntegrationTest mocks
+        Mockito.`when`(carApi.getCarInfo("CAR003", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "CAR003"))
+        Mockito.`when`(carApi.getCarInfo("SINGLE", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "SINGLE"))
+        Mockito.`when`(carApi.getCarInfo("CHAIN1", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "CHAIN1"))
+        Mockito.`when`(carApi.getCarInfo("CHAIN2", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "CHAIN2"))
+        Mockito.`when`(carApi.getCarInfo("CHAIN3", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "CHAIN3"))
     }
 
     protected fun getBaseUrl(): String = "http://localhost:$port"

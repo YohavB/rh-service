@@ -12,6 +12,8 @@ interface UserCarRepository : CrudRepository<UserCar, Long> {
     fun findAllByCar(car: Car): List<UserCar>
 
     fun findByUserAndCar(user: User, car: Car): UserCar?
+    
+    fun countByCar(car: Car): Long
 }
 
 

@@ -15,7 +15,9 @@ data class CarDTO(
     val model: String,
     val color: Colors,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    var carLicenseExpireDate: LocalDateTime?
+    var carLicenseExpireDate: LocalDateTime?,
+    var hasOwner: Boolean,
+
 ) {
     fun toEntity() = Car.fromDto(this)
 }

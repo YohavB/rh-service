@@ -23,6 +23,6 @@ data class UserCar(
 ) {
     fun toDto() = UserCarDTO(
         user = user.toDto(),
-        car = car.toDto()
+        car = car.toDto(true)
     )
 }

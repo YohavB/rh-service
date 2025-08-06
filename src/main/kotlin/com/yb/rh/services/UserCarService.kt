@@ -39,19 +39,14 @@ class UserCarService(
 
         return userCarRepository.findAllByUser(user)
             .map { userCar -> userCar.toDto() }
-            .also { usersCars ->
-                logger.info { "Found ${usersCars.size} UserCars for User ID : ${user.userId}" }
-            }
+            .also { usersCars -> logger.info { "Found ${usersCars.size} UserCars for User ID : ${user.userId}" } }
     }
 
     fun getUsersCarsByCar(car: Car): List<UserCarDTO> {
         logger.info { "Try to find UsersCars for Car ID : ${car.id}" }
 
-        return userCarRepository.findAllByCar(car).map { userCar ->
-            userCar.toDto()
-        }.also { usersCars ->
-            logger.info { "Found ${usersCars.size} UserCars for Car ID : ${car.id}" }
-        }
+        return userCarRepository.findAllByCar(car).map { userCar -> userCar.toDto() }
+            .also { usersCars -> logger.info { "Found ${usersCars.size} UserCars for Car ID : ${car.id}" } }
     }
 
     fun getUserCarByUserAndCar(user: User, car: Car): UserCarDTO? {
@@ -71,7 +66,7 @@ class UserCarService(
     fun getCarUsersByCar(car: Car): CarUsersDTO {
         logger.info { "Fetching UserCars for Car ID : ${car.id}" }
 
-        return CarUsersDTO(car.toDto(), getUsersCarsByCar(car).map { it.user })
+        return CarUsersDTO(car.toDto(isCarHasOwners(car)), getUsersCarsByCar(car).map { it.user })
     }
 
     fun deleteUserCar(user: User, car: Car): UserCarsDTO {
@@ -85,6 +80,16 @@ class UserCarService(
         logger.info { "Successfully deleted UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
 
         return getUserCarsByUser(user)
+    }
+
+    fun isCarHasOwners(car: Car): Boolean {
+        logger.info { "Checking if Car ID : ${car.id} has owners" }
+
+        val hasOwners = userCarRepository.countByCar(car) > 0
+
+        logger.info { "Car ID : ${car.id} has owners: $hasOwners" }
+
+        return hasOwners
     }
 }
 

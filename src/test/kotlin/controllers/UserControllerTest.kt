@@ -42,28 +42,24 @@ class UserControllerTest {
     @Test
     fun `test deactivateUserByPath success`() {
         // Given
-        val userId = 1L
-        
-        every { userService.deActivateUser(userId) } returns Unit
+        every { userService.deActivateUser() } returns Unit
 
         // When
-        userController.deactivateUserByPath(userId)
+        userController.deactivateUserByPath()
 
         // Then
-        verify { userService.deActivateUser(userId) }
+        verify { userService.deActivateUser() }
     }
 
     @Test
     fun `test activateUserByPath success`() {
         // Given
-        val userId = 1L
-        
-        every { userService.activateUser(userId) } returns Unit
+        every { userService.activateUser() } returns Unit
 
         // When
-        userController.activateUserByPath(userId)
+        userController.activateUserByPath()
 
         // Then
-        verify { userService.activateUser(userId) }
+        verify { userService.activateUser() }
     }
 } 

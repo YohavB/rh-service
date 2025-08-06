@@ -1,7 +1,6 @@
 package com.yb.rh.services
 
 import com.yb.rh.dtos.CarRelations
-import com.yb.rh.dtos.CarRelationsDTO
 import com.yb.rh.entities.Car
 import com.yb.rh.entities.CarsRelations
 import com.yb.rh.error.RHException
@@ -49,17 +48,10 @@ class CarsRelationsService(
         return carRelations
     }
 
-    fun findCarRelationsDTO(car: Car, message: String? = null): CarRelationsDTO {
+    fun findCarRelationsByCar(car: Car): CarRelations {
         logger.info { "Finding Car Relations for Car : ${car.plateNumber}" }
 
-        val carRelations = findCarRelations(car)
-
-        return CarRelationsDTO(
-            car = car.toDto(),
-            isBlocking = carRelations.isBlocking.map { it.toDto() },
-            isBlockedBy = carRelations.isBlockedBy.map { it.toDto() },
-            message = message
-        )
+        return findCarRelations(car)
     }
 
     @Transactional

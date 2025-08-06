@@ -43,7 +43,7 @@ data class Car(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 ) {
-    fun toDto() = CarDTO(id, plateNumber, country, brand, model, color, carLicenseExpireDate)
+    fun toDto(hasOwner: Boolean) = CarDTO(id, plateNumber, country, brand, model, color, carLicenseExpireDate, hasOwner)
 
     companion object {
         fun fromDto(carDTO: CarDTO) = Car(

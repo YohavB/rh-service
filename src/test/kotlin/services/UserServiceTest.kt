@@ -99,55 +99,29 @@ class UserServiceTest {
 
     @Test
     fun `test deActivateUser success`() {
-        val userId = 1L
         val user = mockk<com.yb.rh.entities.User>(relaxed = true)
 
-        every { userRepository.findByUserId(userId) } returns user
+        every { currentUserService.getCurrentUser() } returns user
         every { userRepository.save(user) } returns user
 
-        userService.deActivateUser(userId)
+        userService.deActivateUser()
 
-        verify { userRepository.findByUserId(userId) }
+        verify { currentUserService.getCurrentUser() }
         verify { user.isActive = false }
         verify { userRepository.save(user) }
     }
 
     @Test
-    fun `test deActivateUser not found`() {
-        val userId = 1L
-
-        every { userRepository.findByUserId(userId) } returns null
-
-        assertThrows<com.yb.rh.error.RHException> {
-            userService.deActivateUser(userId)
-        }
-        verify { userRepository.findByUserId(userId) }
-    }
-
-    @Test
     fun `test activateUser success`() {
-        val userId = 1L
         val user = mockk<com.yb.rh.entities.User>(relaxed = true)
 
-        every { userRepository.findByUserId(userId) } returns user
+        every { currentUserService.getCurrentUser() } returns user
         every { userRepository.save(user) } returns user
 
-        userService.activateUser(userId)
+        userService.activateUser()
 
-        verify { userRepository.findByUserId(userId) }
+        verify { currentUserService.getCurrentUser() }
         verify { user.isActive = true }
         verify { userRepository.save(user) }
-    }
-
-    @Test
-    fun `test activateUser not found`() {
-        val userId = 1L
-
-        every { userRepository.findByUserId(userId) } returns null
-
-        assertThrows<com.yb.rh.error.RHException> {
-            userService.activateUser(userId)
-        }
-        verify { userRepository.findByUserId(userId) }
     }
 } 

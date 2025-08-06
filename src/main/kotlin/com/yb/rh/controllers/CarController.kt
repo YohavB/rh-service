@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 /**
  * Controller handling car-related operations in the Rush Hour service
+ * Provides car lookup, creation, and information retrieval functionality
  */
 @RestController
 @RequestMapping("/api/v1/car")
@@ -17,12 +18,16 @@ class CarController(
     private val carService: CarService
 ) {
     /**
-     * Finds a car by its plate number and country and adds it to the database if not already present.
-     * @body requestDTO The request containing the plate number and country of the car
-     * @return The car details if found
+     * Find or create a car by plate number and country
+     * Searches for existing car in database, if not found, fetches car information from external API
+     * and creates a new car record. Returns car details with ownership status.
+     * 
+     * @param requestDTO Request containing plate number, country, and optional user ID
+     * @return Car details including ownership status (hasOwner field)
+     * @throws RHException if plate number is invalid or external API fails
      */
     @PostMapping
-    fun findCarRequest(
+    fun getCarOrCreateRequest(
         @RequestBody requestDTO: FindCarRequestDTO
     ): CarDTO = carService.getCarOrCreateRequest(requestDTO)
 }

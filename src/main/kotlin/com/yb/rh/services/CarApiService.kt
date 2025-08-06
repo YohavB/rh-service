@@ -9,7 +9,7 @@ import okhttp3.Request
 import org.springframework.stereotype.Service
 
 @Service
-class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
+class CarApiService(private val countryCarJsonFactory: CountryCarJsonFactory) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -18,11 +18,11 @@ class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
         logger.info { "Try to get Car Info $plateNumber from $country" }
 
         return try {
-        val url = getCarByCountry(plateNumber, country)
+            val url = getCarByCountry(plateNumber, country)
 
-        val request = Request.Builder().url(url).build()
+            val request = Request.Builder().url(url).build()
 
-        val body = OkHttpClient().newCall(request).execute().body!!
+            val body = OkHttpClient().newCall(request).execute().body!!
 
             val countryCarJsonHandler = countryCarJsonFactory.getCountryCarJsonHandler(country)
 
@@ -47,4 +47,3 @@ class CarApi(private val countryCarJsonFactory: CountryCarJsonFactory) {
         "https://data.gov.il/api/3/action/datastore_search?resource_id=053cea08-09bc-40ec-8f7a-156f0677aff3&q=$plateNumber"
 
 }
-

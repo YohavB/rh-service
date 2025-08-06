@@ -2,26 +2,26 @@
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Authentication](#authentication)
-- [Base URL & Headers](#base-url--headers)
-- [Data Types](#data-types)
-- [API Endpoints](#api-endpoints)
-  - [Health Check](#health-endpoint)
+- [Overview](#-overview)
+- [Authentication](#-authentication)
+- [Base URL and Headers](#-base-url-and-headers)
+- [Data Types](#-data-types)
+- [API Endpoints](#-api-endpoints)
+  - [Health Check](#health-check)
   - [Authentication](#authentication-endpoints)
   - [Users](#user-endpoints)
   - [Cars](#car-endpoints)
-  - [User-Car Relationships](#user-car-endpoints)
-  - [Car Relations (Blocking)](#car-relations-endpoints)
+  - [User-Car Relationships](#user-car-relationships)
+  - [Car Relations (Blocking)](#car-relations-blocking)
   - [Notifications](#notification-endpoints)
-- [Error Handling](#error-handling)
-- [Examples](#examples)
+- [Error Handling](#-error-handling)
+- [Examples](#-examples)
 
 ---
 
 ## 🌟 Overview
 
-The RushHour Backend API provides a comprehensive RESTful interface for managing users, cars, and their relationships. The API supports OAuth2 authentication (Google, Apple, Facebook) and uses JWT tokens for session management.
+The RushHour Backend API provides a comprehensive Restful interface for managing users, cars, and their relationships. The API supports OAuth2 authentication (Google, Apple, Facebook) and uses JWT tokens for session management.
 
 **Base URL**: `https://your-domain.com` (Production) / `http://localhost:8008` (Development)
 
@@ -30,9 +30,21 @@ The RushHour Backend API provides a comprehensive RESTful interface for managing
 ## 🔐 Authentication
 
 ### OAuth2 Providers Supported
-- **Google** - Sign in with Google
-- **Apple** - Sign in with Apple  
-- **Facebook** - Login with Facebook
+- **Google** Sign in with Google
+- **Apple** Sign in with Apple  
+- **Facebook** Login with Facebook
+
+### User Consent Flow
+The API implements a consent-based authentication flow for new users:
+
+1. **New User First Login**: User attempts OAuth login without consent parameter
+2. **Consent Required Error**: API returns `403 Forbidden` with `USER_CONSENT_REQUIRED` error
+3. **Client Shows Agreement**: Frontend displays consent agreement to user
+4. **User Agrees**: User reads and accepts the terms
+5. **Second Login**: Client calls OAuth endpoint again with `agreedConsent=true`
+6. **Success**: User is created and authenticated successfully
+
+**Existing users** do not require consent and can log in directly.
 
 ### JWT Token Management
 - **Token Expiration**: 24 hours
@@ -41,13 +53,13 @@ The RushHour Backend API provides a comprehensive RESTful interface for managing
 
 ---
 
-## 📡 Base URL & Headers
+## 📡 Base URL and Headers
 
 ### Base Headers
 ```javascript
 const headers = {
   'Content-Type': 'application/json',
-  'Authorization': 'Bearer <jwt_token>' // Required for protected endpoints
+  'Authorization': 'Bearer <jwt_token>'
 };
 ```
 
@@ -66,7 +78,7 @@ const headers = {
 ```typescript
 enum Countries {
   UNKNOWN = 0,
-  IL = 1  // Israel
+  IL = 1
 }
 ```
 
@@ -99,29 +111,17 @@ enum UserCarSituation {
 }
 ```
 
-#### CarRelationsDTO
+### Request DTOs
+
+#### OAuthLoginRequestDTO
 ```typescript
-interface CarRelationsDTO {
-  car: CarDTO;
-  isBlocking: CarDTO[];
-  isBlockedBy: CarDTO[];
-  message?: string; // Optional message about notification status
+interface OAuthLoginRequestDTO {
+  token: string
 }
 ```
 
-**Message Field Values**:
-- `null` - No notification action taken (e.g., GET requests)
-- `"Blocking relationship created. Notifications sent to owners."` - Successfully sent notifications
-- `"Blocking relationship created. No notifications sent - car has no registered owners."` - No notifications sent due to missing car owner
-- `"Blocking relationship removed. Notifications sent to owners."` - Successfully sent "free to go" notifications
-- `"Blocking relationship removed. No notifications sent - car has no registered owners."` - No "free to go" notifications sent due to missing car owner
-
-#### Request DTOs
+#### UserCreationDTO
 ```typescript
-interface OAuthLoginRequestDTO {
-  token: string; // OAuth provider token (Google ID token, Facebook access token, Apple ID token)
-}
-
 interface UserCreationDTO {
   firstName: string;
   lastName: string;
@@ -129,18 +129,27 @@ interface UserCreationDTO {
   pushNotificationToken: string;
   urlPhoto?: string;
 }
+```
 
+#### FindCarRequestDTO
+```typescript
 interface FindCarRequestDTO {
   plateNumber: string;
   country: Countries;
-  userId?: number; // Optional user ID for car association
+  userId?: number;
 }
+```
 
+#### UserCarRequestDTO
+```typescript
 interface UserCarRequestDTO {
   userId: number;
   carId: number;
 }
+```
 
+#### CarsRelationRequestDTO
+```typescript
 interface CarsRelationRequestDTO {
   blockingCarId: number;
   blockedCarId: number;
@@ -148,29 +157,80 @@ interface CarsRelationRequestDTO {
 }
 ```
 
-#### Response DTOs
+### Response DTOs
+
+#### AuthResponseDTO
 ```typescript
 interface AuthResponseDTO {
-  token: string; // JWT token for API access
+  token: string;
   user: UserDTO;
 }
+```
 
+#### UserDTO
+```typescript
+interface UserDTO {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  urlPhoto?: string;
+  pushNotificationToken?: string;
+}
+```
+
+#### CarDTO
+```typescript
+interface CarDTO {
+  id: number;
+  plateNumber: string;
+  country: Countries;
+  brand: Brands;
+  model: string;
+  color: Colors;
+  carLicenseExpireDate?: string;
+  hasOwner: boolean;
+}
+```
+
+#### UserCarsDTO
+```typescript
 interface UserCarsDTO {
   user: UserDTO;
   cars: CarDTO[];
 }
+```
 
+#### CarUsersDTO
+```typescript
 interface CarUsersDTO {
   car: CarDTO;
   users: UserDTO[];
 }
 ```
 
+#### CarRelationsDTO
+```typescript
+interface CarRelationsDTO {
+  car: CarDTO;
+  isBlocking: CarDTO[];
+  isBlockedBy: CarDTO[];
+  message?: string;
+}
+```
+
+**Message Field Values**:
+- `null` - No notification action taken (e.g., GET requests)
+- `"Blocking relationship created. Notifications sent to owners."` - Successfully sent notifications
+- `"Blocking relationship created. No notifications sent - car has no registered owners."` - No notifications sent due to a missing car owner
+- `"Blocking relationship removed. Notifications sent to owners."` - Successfully sent "free to go" notifications
+- `"Blocking relationship removed. No notifications sent - car has no registered owners."` - No "free to go" notifications sent due to a missing car owner
+
 ---
 
 ## 🔌 API Endpoints
 
-### Health Endpoint
+### Health Check
 
 #### 1. Health Check
 ```http
@@ -193,13 +253,16 @@ GET /api/v1/health
 
 #### 1. Google OAuth2 Login
 ```http
-POST /api/v1/auth/google
+POST /api/v1/auth/google?agreedConsent=true
 Content-Type: application/json
 
 {
   "token": "google_id_token_from_client"
 }
 ```
+
+**Parameters**:
+- `agreedConsent` (optional): Boolean indicating user consent for new users
 
 **Response**:
 ```json
@@ -215,9 +278,17 @@ Content-Type: application/json
 }
 ```
 
+**Error Response (New User Without Consent)**:
+```json
+{
+  "cause": "User consent is required for OAuth login",
+  "errorCode": 403
+}
+```
+
 #### 2. Facebook Login
 ```http
-POST /api/v1/auth/facebook
+POST /api/v1/auth/facebook?agreedConsent=true
 Content-Type: application/json
 
 {
@@ -225,11 +296,22 @@ Content-Type: application/json
 }
 ```
 
+**Parameters**:
+- `agreedConsent` (optional): Boolean indicating user consent for new users
+
 **Response**: Same as Google login
+
+**Error Response (New User Without Consent)**:
+```json
+{
+  "cause": "User consent is required for OAuth login",
+  "errorCode": 403
+}
+```
 
 #### 3. Apple Sign In
 ```http
-POST /api/v1/auth/apple
+POST /api/v1/auth/apple?agreedConsent=true
 Content-Type: application/json
 
 {
@@ -237,7 +319,18 @@ Content-Type: application/json
 }
 ```
 
+**Parameters**:
+- `agreedConsent` (optional): Boolean indicating user consent for new users
+
 **Response**: Same as Google login
+
+**Error Response (New User Without Consent)**:
+```json
+{
+  "cause": "User consent is required for OAuth login",
+  "errorCode": 403
+}
+```
 
 #### 4. Refresh JWT Token
 ```http
@@ -271,18 +364,10 @@ Authorization: Bearer <jwt_token>
 
 ### User Endpoints
 
-#### 1. Create User
+#### 1. Get Current User
 ```http
-POST /api/v1/user
-Content-Type: application/json
-
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "pushNotificationToken": "expo_push_token",
-  "urlPhoto": "https://example.com/photo.jpg"
-}
+GET /api/v1/user
+Authorization: Bearer <jwt_token>
 ```
 
 **Response**:
@@ -296,50 +381,9 @@ Content-Type: application/json
 }
 ```
 
-#### 2. Get User by ID
+#### 2. Deactivate Current User
 ```http
-GET /api/v1/user?id=123
-Authorization: Bearer <jwt_token>
-```
-
-**Response**: Same as Create User response
-
-#### 3. Get User by Email
-```http
-GET /api/v1/user/by-email?email=john.doe@example.com
-Authorization: Bearer <jwt_token>
-```
-
-**Response**: Same as Create User response
-
-#### 4. Update User
-```http
-PUT /api/v1/user
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "id": 123,
-  "firstName": "John",
-  "lastName": "Smith",
-  "email": "john.smith@example.com",
-  "urlPhoto": "https://example.com/new-photo.jpg"
-}
-```
-
-**Response**: Same as Create User response
-
-#### 5. Deactivate User
-```http
-PUT /api/v1/user/deactivate/123
-Authorization: Bearer <jwt_token>
-```
-
-**Response**: `200 OK`
-
-#### 6. Activate User
-```http
-PUT /api/v1/user/activate/123
+PUT /api/v1/user/deactivate
 Authorization: Bearer <jwt_token>
 ```
 
@@ -370,13 +414,19 @@ Content-Type: application/json
   "brand": "TOYOTA",
   "model": "Corolla",
   "color": "WHITE",
-  "carLicenseExpireDate": "2025-12-31T23:59:59"
+  "carLicenseExpireDate": "2025-12-31T23:59:59",
+  "hasOwner": true
 }
 ```
 
+**Notes**:
+- `hasOwner` field indicates whether the car has any registered owners in the system
+- This field is calculated in real-time based on user-car relationships
+- New cars without owners will have `hasOwner: false`
+
 ---
 
-### User-Car Endpoints
+### User-Car Relationships
 
 #### 1. Assign Car to User
 ```http
@@ -414,9 +464,9 @@ Content-Type: application/json
 }
 ```
 
-#### 2. Get User's Cars
+#### 2. Get Current User's Cars
 ```http
-GET /api/v1/user-car/by-user-id?userId=123
+GET /api/v1/user-car
 Authorization: Bearer <jwt_token>
 ```
 
@@ -438,7 +488,7 @@ Content-Type: application/json
 
 ---
 
-### Car Relations Endpoints
+### Car Relations (Blocking)
 
 #### 1. Create Car Blocking Relationship
 ```http
@@ -511,7 +561,7 @@ Content-Type: application/json
 
 #### 2. Get Car's Blocking Relationships
 ```http
-GET /api/v1/car-relations?carId=456
+GET /api/v1/car-relations/by-car-id?carId=456
 Authorization: Bearer <jwt_token>
 ```
 
@@ -543,7 +593,15 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### 3. Remove Car Blocking Relationship
+#### 3. Get Current User's Car Relations
+```http
+GET /api/v1/car-relations/by-user
+Authorization: Bearer <jwt_token>
+```
+
+**Response**: List of CarRelationsDTO for all cars owned by the current user
+
+#### 4. Remove Car Blocking Relationship
 ```http
 DELETE /api/v1/car-relations
 Authorization: Bearer <jwt_token>
@@ -592,7 +650,7 @@ Content-Type: application/json
 }
 ```
 
-#### 4. Remove All Car Relations
+#### 5. Remove All Car Relations
 ```http
 DELETE /api/v1/car-relations/all-by-car-id?carId=456
 Authorization: Bearer <jwt_token>
@@ -647,17 +705,17 @@ Authorization: Bearer <jwt_token>
 
 ### HTTP Status Codes
 
-| Status | Description | Common Causes |
-|--------|-------------|---------------|
-| `200` | Success | Request completed successfully |
-| `201` | Created | Resource created successfully |
-| `400` | Bad Request | Invalid request data |
-| `401` | Unauthorized | Missing or invalid JWT token |
-| `403` | Forbidden | Insufficient permissions |
-| `404` | Not Found | Resource not found |
-| `409` | Conflict | Resource already exists |
-| `422` | Unprocessable Entity | Validation errors |
-| `500` | Internal Server Error | Server error |
+| Status | Description           | Common Causes                  |
+|--------|-----------------------|--------------------------------|
+| `200`  | Success               | Request completed successfully |
+| `201`  | Created               | Resource created successfully  |
+| `400`  | Bad Request           | Invalid request data           |
+| `401`  | Unauthorized          | Missing or invalid JWT token   |
+| `403`  | Forbidden             | Insufficient permissions       |
+| `404`  | Not Found             | Resource not found             |
+| `409`  | Conflict              | Resource already exists        |
+| `422`  | Unprocessable Entity  | Validation errors              |
+| `500`  | Internal Server Error | Server error                   |
 
 ### Common Error Scenarios
 
@@ -666,6 +724,14 @@ Authorization: Bearer <jwt_token>
 {
   "cause": "Invalid JWT token",
   "errorCode": 401
+}
+```
+
+#### Consent Required Error (New Users)
+```json
+{
+  "cause": "User consent is required for OAuth login",
+  "errorCode": 403
 }
 ```
 
@@ -683,7 +749,7 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### Car Has No Owner (Mixed Handling)
+#### Car Without Owner (Mixed Handling)
 
 **Car Relations Endpoints** (Handled Gracefully):
 - Creating/removing the blocking relationship successfully
@@ -693,9 +759,25 @@ Authorization: Bearer <jwt_token>
 **Example Response**:
 ```json
 {
-  "car": { /* car details */ },
-  "isBlocking": [ /* blocking cars */ ],
-  "isBlockedBy": [ /* blocked by cars */ ],
+  "car": {
+    "id": 456,
+    "plateNumber": "ABC123",
+    "country": "IL",
+    "brand": "TOYOTA",
+    "model": "Corolla",
+    "color": "WHITE"
+  },
+  "isBlocking": [
+    {
+      "id": 789,
+      "plateNumber": "XYZ789",
+      "country": "IL",
+      "brand": "HONDA",
+      "model": "Civic",
+      "color": "BLACK"
+    }
+  ],
+  "isBlockedBy": [],
   "message": "Blocking relationship created. No notifications sent - car has no registered owners."
 }
 ```
@@ -727,23 +809,57 @@ class RushHourAPI {
     this.baseURL = baseURL;
   }
 
-  // Authentication
-  async googleLogin(idToken: string) {
-    const response = await fetch(`${this.baseURL}/api/v1/auth/google`, {
+  async googleLogin(idToken: string, agreedConsent?: boolean) {
+    const url = new URL(`${this.baseURL}/api/v1/auth/google`);
+    if (agreedConsent !== undefined) {
+      url.searchParams.set('agreedConsent', agreedConsent.toString());
+    }
+
+    const response = await fetch(url.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: idToken })
     });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      if (error.errorCode === 403 && error.cause.includes('consent')) {
+        throw new Error('USER_CONSENT_REQUIRED');
+      }
+      throw new Error(error.cause || 'Authentication failed');
+    }
     
     const data = await response.json();
     this.token = data.token;
     return data;
   }
 
-  // Get user's cars
-  async getUserCars(userId: number) {
+  async loginWithConsent(idToken: string) {
+    try {
+      return await this.googleLogin(idToken);
+    } catch (error) {
+      if (error.message === 'USER_CONSENT_REQUIRED') {
+        const userAgreed = await this.showConsentAgreement();
+        if (userAgreed) {
+          return await this.googleLogin(idToken, true);
+        } else {
+          throw new Error('User declined consent');
+        }
+      }
+      throw error;
+    }
+  }
+
+  private async showConsentAgreement(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const agreed = confirm('Do you agree to our terms and conditions?');
+      resolve(agreed);
+    });
+  }
+
+  async getUserCars() {
     const response = await fetch(
-      `${this.baseURL}/api/v1/user-car/by-user-id?userId=${userId}`,
+      `${this.baseURL}/api/v1/user-car`,
       {
         headers: {
           'Authorization': `Bearer ${this.token}`,
@@ -755,7 +871,6 @@ class RushHourAPI {
     return response.json();
   }
 
-  // Create car blocking relationship
   async createCarBlocking(blockingCarId: number, blockedCarId: number) {
     const response = await fetch(`${this.baseURL}/api/v1/car-relations`, {
       method: 'POST',
@@ -772,7 +887,6 @@ class RushHourAPI {
     
     const result = await response.json();
     
-    // Handle notification status message
     if (result.message) {
       console.log('Notification status:', result.message);
     }
@@ -781,18 +895,22 @@ class RushHourAPI {
   }
 }
 
-// Usage
 const api = new RushHourAPI();
 
-// Login
-const authData = await api.googleLogin('google_id_token');
-console.log('Logged in user:', authData.user);
+try {
+  const authData = await api.loginWithConsent('google_id_token');
+  console.log('Logged in user:', authData.user);
+} catch (error) {
+  if (error.message === 'User declined consent') {
+    console.log('User declined to agree to terms');
+  } else {
+    console.error('Login failed:', error.message);
+  }
+}
 
-// Get user's cars
-const userCars = await api.getUserCars(authData.user.id);
+const userCars = await api.getUserCars();
 console.log('User cars:', userCars.cars);
 
-// Create car blocking relationship
 const carRelations = await api.createCarBlocking(456, 789);
 console.log('Car relations:', carRelations);
 console.log('Notification status:', carRelations.message);
@@ -819,18 +937,34 @@ interface Car {
   model: string;
   color: string;
   carLicenseExpireDate?: string;
+  hasOwner: boolean;
 }
 
 const useRushHourAPI = () => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [showConsent, setShowConsent] = useState(false);
 
-  const login = async (provider: 'google' | 'facebook' | 'apple', token: string) => {
-    const response = await fetch(`/api/v1/auth/${provider}`, {
+  const login = async (provider: 'google' | 'facebook' | 'apple', token: string, agreedConsent?: boolean) => {
+    const url = new URL(`/api/v1/auth/${provider}`);
+    if (agreedConsent !== undefined) {
+      url.searchParams.set('agreedConsent', agreedConsent.toString());
+    }
+
+    const response = await fetch(url.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
     });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      if (error.errorCode === 403 && error.cause.includes('consent')) {
+        setShowConsent(true);
+        throw new Error('USER_CONSENT_REQUIRED');
+      }
+      throw new Error(error.cause || 'Authentication failed');
+    }
     
     const data = await response.json();
     setToken(data.token);
@@ -838,17 +972,45 @@ const useRushHourAPI = () => {
     return data;
   };
 
-  const getUserCars = async (userId: number) => {
+  const loginWithConsent = async (provider: 'google' | 'facebook' | 'apple', token: string) => {
+    try {
+      return await login(provider, token);
+    } catch (error) {
+      if (error.message === 'USER_CONSENT_REQUIRED') {
+        setShowConsent(true);
+        throw error;
+      }
+      throw error;
+    }
+  };
+
+  const handleConsentAgreement = async (agreed: boolean) => {
+    setShowConsent(false);
+    if (agreed) {
+      return await login('google', 'stored_token', true);
+    }
+    throw new Error('User declined consent');
+  };
+
+  const getUserCars = async () => {
     if (!token) throw new Error('Not authenticated');
     
-    const response = await fetch(`/api/v1/user-car/by-user-id?userId=${userId}`, {
+    const response = await fetch(`/api/v1/user-car`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     return response.json();
   };
 
-  return { login, getUserCars, user, token };
+  return { 
+    login, 
+    loginWithConsent, 
+    handleConsentAgreement,
+    getUserCars, 
+    user, 
+    token, 
+    showConsent 
+  };
 };
 ```
 
@@ -864,11 +1026,15 @@ curl -X GET http://localhost:8008/api/v1/health
 curl -X POST http://localhost:8008/api/v1/auth/google \
   -H "Content-Type: application/json" \
   -d '{"token": "google_id_token_here"}'
+
+curl -X POST "http://localhost:8008/api/v1/auth/google?agreedConsent=true" \
+  -H "Content-Type: application/json" \
+  -d '{"token": "google_id_token_here"}'
 ```
 
 #### Get User's Cars
 ```bash
-curl -X GET "http://localhost:8008/api/v1/user-car/by-user-id?userId=123" \
+curl -X GET "http://localhost:8008/api/v1/user-car" \
   -H "Authorization: Bearer your_jwt_token_here"
 ```
 
@@ -916,19 +1082,15 @@ curl -X POST http://localhost:8008/api/v1/car-relations \
 
 ### Local Development
 ```bash
-# Start the backend server
 ./gradlew bootRun
 
-# Or use the provided script
-./run-app.sh
+./rushhour.sh
 
-# Base URL for local development
 const API_BASE_URL = 'http://localhost:8008';
 ```
 
 ### Production
 ```bash
-# Base URL for production
 const API_BASE_URL = 'https://your-production-domain.com';
 ```
 
@@ -936,22 +1098,22 @@ const API_BASE_URL = 'https://your-production-domain.com';
 
 ## 📚 Additional Resources
 
-- [Security Documentation](./SECURITY.md) - Authentication and security details
+- [Security Documentation ](./SECURITY.md)- Authentication and security details
 - [Error Codes](./src/main/kotlin/com/yb/rh/error/ErrorType.kt) - Complete error type definitions
-- [Data Models](./src/main/kotlin/com/yb/rh/dtos/) - Complete DTO definitions
+- [Data Models](./src/main/kotlin/com/yb/rh/dtos) - Complete DTO definitions
 
 ---
 
 ## 🆘 Support
 
 For API support and questions:
-- Check the [Error Handling](#error-handling) section
-- Review the [Examples](#examples) section
+- Check the [Error Handling](#-error-handling) section
+- Review the [Examples](#-examples) section
 - Contact the backend team for technical issues
 
 ---
 
-**Last Updated**: July 2025 
+**Last Updated**: January 2025  
 **API Version**: v1  
 **Authentication**: OAuth2 + JWT  
 **Framework**: Spring Boot 3.2.0 + Kotlin  

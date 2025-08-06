@@ -131,7 +131,7 @@ class CarsRelationsServiceTest {
         every { car.toDto() } returns carDTO
 
         // When
-        val result = carsRelationsService.findCarRelationsDTO(car)
+        val result = carsRelationsService.findCarRelationsByCar(car)
 
         // Then
         assertNotNull(result)

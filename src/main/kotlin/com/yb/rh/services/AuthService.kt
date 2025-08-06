@@ -23,8 +23,9 @@ class AuthService(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun login(request: OAuthLoginRequestDTO, oAuthProvider: OAuthProvider): AuthResponseDTO {
-        logger.info { "Login attempt for provider: $oAuthProvider with token: ${request.token.take(20)}..." }
+    fun login(request: OAuthLoginRequestDTO, oAuthProvider: OAuthProvider, agreedConsent: Boolean?): AuthResponseDTO {
+        logger.info { "Login attempt for provider: $oAuthProvider" }
+
         logger.debug { "Processing OAuth login for provider: $oAuthProvider" }
 
         val userDTO: UserDTO = when (oAuthProvider) {
@@ -43,7 +44,8 @@ class AuthService(
         }
 
         logger.debug { "OAuth verification completed, userDTO: ${userDTO.email.maskEmail()}" }
-        val user = userService.findOrCreateUserFromOAuth(userDTO)
+
+        val user = userService.findOrCreateUserFromOAuth(userDTO, agreedConsent)
 
         logger.info { "About to generate JWT token..." }
         logger.debug { "Generating JWT token for user: ${user.email.maskEmail()}" }
@@ -94,10 +96,10 @@ class AuthService(
         }
     }
 
-    fun logout(): Map<String, String> {
+    fun logout() {
         // In a stateless JWT setup, logout is handled client-side by removing the token
         // You might want to implement a token blocklist for additional security
-        logger.info { "User logout" }
-        return mapOf("message" to "Logged out successfully")
+        val currentUser = currentUserService.getCurrentUser()
+        logger.info { "Logging out user : ${currentUser.userId}" }
     }
 }

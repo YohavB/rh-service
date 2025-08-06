@@ -32,7 +32,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -54,7 +54,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -71,7 +71,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -88,7 +88,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -105,7 +105,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -122,7 +122,7 @@ class CarControllerTest {
 
         // When & Then
         assertThrows<RHException> {
-            carController.findCarRequest(requestDTO)
+            carController.getCarOrCreateRequest(requestDTO)
         }
         verify { carService.getCarOrCreateRequest(requestDTO) }
     }
@@ -136,7 +136,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -153,7 +153,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)
@@ -170,7 +170,7 @@ class CarControllerTest {
         every { carService.getCarOrCreateRequest(requestDTO) } returns carDTO
 
         // When
-        val result = carController.findCarRequest(requestDTO)
+        val result = carController.getCarOrCreateRequest(requestDTO)
 
         // Then
         assertNotNull(result)

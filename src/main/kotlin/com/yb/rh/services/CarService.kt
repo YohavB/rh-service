@@ -6,6 +6,7 @@ import com.yb.rh.entities.Car
 import com.yb.rh.enum.Countries
 import com.yb.rh.error.RHException
 import com.yb.rh.repositories.CarRepository
+import com.yb.rh.services.CarApiService
 import jakarta.validation.constraints.NotBlank
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -14,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class CarService(
     private val carRepository: CarRepository,
-    private val carApi: CarApi
+    private val userCarService: UserCarService,
+    private val carApiService: CarApiService
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -26,11 +28,12 @@ class CarService(
         return carRepository.findByPlateNumber(requestDTO.plateNumber)
             ?.let {
                 logger.info { "Found Car: ${it.plateNumber} in our records" }
-                it.toDto()
+                it.toDto(userCarService.isCarHasOwners(it))
             }
-            ?: createCar(requestDTO.plateNumber, requestDTO.country)
-                .toDto()
-                .also { logger.info { "Created Car: ${it.plateNumber} in our records" } }
+            ?: createCar(requestDTO.plateNumber, requestDTO.country).let { it ->
+                logger.info { "Car with plate number: ${it.plateNumber} not found, creating a new one" }
+                it.toDto(userCarService.isCarHasOwners(it))
+            }
     }
 
     fun getCarOrCreate(plateNumber: String, country: Countries): Car {
@@ -54,7 +57,7 @@ class CarService(
         logger.info { "Creating new $country Car with plate number: $plateNumber" }
 
         return try {
-            carApi.getCarInfo(plateNumber, country)
+            carApiService.getCarInfo(plateNumber, country)
                 .let { carDTO -> carRepository.save(Car.fromDto(carDTO)) }
         } catch (e: Exception) {
             logger.error(e) { "Failed to create car with plate number: $plateNumber" }

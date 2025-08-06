@@ -40,6 +40,7 @@ class ErrorHandlerAdvice {
     fun handleRHException(ex: RHException): ResponseEntity<ErrorResponse> {
         val status = when (ex.errorType) {
             ErrorType.CAR_HAS_NO_OWNER -> HttpStatus.FORBIDDEN
+            ErrorType.USER_CONSENT_REQUIRED -> HttpStatus.FORBIDDEN
             else -> HttpStatus.BAD_REQUEST
         }
         
