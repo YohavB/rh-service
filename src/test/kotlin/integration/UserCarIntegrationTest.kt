@@ -21,6 +21,9 @@ class UserCarIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "user-token-123"
         )
 
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
         // Create a car
         val carRequest = FindCarRequestDTO(
             plateNumber = "CAR123",
@@ -57,6 +60,9 @@ class UserCarIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "cars-token-456"
         )
 
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
         // Create multiple cars
         val car1Request = FindCarRequestDTO(
             plateNumber = "CAR001",
@@ -84,7 +90,7 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         performPost("/api/v1/user-car", userCar2Request)
 
         // Get user cars using the correct endpoint
-        val getUserCarsResponse = performGet("/api/v1/user-car/by-user-id?userId=$userId")
+        val getUserCarsResponse = performGet("/api/v1/user-car")
         val userCars = objectMapper.readValue(getUserCarsResponse, UserCarsDTO::class.java)
 
         assertEquals(2, userCars.cars.size)
@@ -131,11 +137,13 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         performPost("/api/v1/user-car", userCar1Request)
         performPost("/api/v1/user-car", userCar2Request)
 
-        // Get car users - this endpoint doesn't exist, so we'll test the user cars endpoint instead
-        val getUser1CarsResponse = performGet("/api/v1/user-car/by-user-id?userId=$user1Id")
+        // Test by setting up each user as current user and getting their cars
+        setupCurrentUser(user1Id)
+        val getUser1CarsResponse = performGet("/api/v1/user-car")
         val user1Cars = objectMapper.readValue(getUser1CarsResponse, UserCarsDTO::class.java)
         
-        val getUser2CarsResponse = performGet("/api/v1/user-car/by-user-id?userId=$user2Id")
+        setupCurrentUser(user2Id)
+        val getUser2CarsResponse = performGet("/api/v1/user-car")
         val user2Cars = objectMapper.readValue(getUser2CarsResponse, UserCarsDTO::class.java)
 
         assertTrue(user1Cars.cars.any { it.id == car.id })
@@ -154,6 +162,9 @@ class UserCarIntegrationTest : IntegrationTestBase() {
             lastName = "User",
             pushNotificationToken = "remove-token"
         )
+
+        // Setup current user for authentication
+        setupCurrentUser(userId)
 
         val carRequest = FindCarRequestDTO(
             plateNumber = "REMOVE123",
@@ -179,7 +190,7 @@ class UserCarIntegrationTest : IntegrationTestBase() {
         assertEquals(0, countRowsInTable("users_cars"))
 
         // Verify user has no cars
-        val getUserCarsResponse = performGet("/api/v1/user-car/by-user-id?userId=$userId")
+        val getUserCarsResponse = performGet("/api/v1/user-car")
         val userCars = objectMapper.readValue(getUserCarsResponse, UserCarsDTO::class.java)
         assertEquals(0, userCars.cars.size)
     }

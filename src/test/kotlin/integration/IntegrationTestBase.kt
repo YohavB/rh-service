@@ -9,7 +9,7 @@ import com.yb.rh.dtos.CarDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
-import com.yb.rh.services.CarApi
+import com.yb.rh.services.CarApiService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.mockito.Mockito
@@ -49,7 +49,10 @@ abstract class IntegrationTestBase {
     protected lateinit var objectMapper: ObjectMapper
 
     @MockBean
-    protected lateinit var carApi: CarApi
+    protected lateinit var carApi: CarApiService
+
+    @MockBean
+    protected lateinit var currentUserService: com.yb.rh.services.CurrentUserService
 
     protected lateinit var mockMvc: MockMvc
     protected lateinit var jdbcTemplate: JdbcTemplate
@@ -93,7 +96,8 @@ abstract class IntegrationTestBase {
             brand = Brands.TOYOTA,
             model = "Corolla",
             color = Colors.WHITE,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         val car2DTO = CarDTO(
@@ -103,7 +107,8 @@ abstract class IntegrationTestBase {
             brand = Brands.HONDA,
             model = "Civic",
             color = Colors.BLACK,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         val car3DTO = CarDTO(
@@ -113,7 +118,8 @@ abstract class IntegrationTestBase {
             brand = Brands.BMW,
             model = "X3",
             color = Colors.BLUE,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         val car4DTO = CarDTO(
@@ -123,7 +129,8 @@ abstract class IntegrationTestBase {
             brand = Brands.MERCEDES,
             model = "C-Class",
             color = Colors.SILVER,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         val car5DTO = CarDTO(
@@ -133,7 +140,8 @@ abstract class IntegrationTestBase {
             brand = Brands.AUDI,
             model = "A4",
             color = Colors.RED,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         val car6DTO = CarDTO(
@@ -143,7 +151,8 @@ abstract class IntegrationTestBase {
             brand = Brands.VOLKSWAGEN,
             model = "Golf",
             color = Colors.GREEN,
-            carLicenseExpireDate = LocalDateTime.now().plusYears(1)
+            carLicenseExpireDate = LocalDateTime.now().plusYears(1),
+            hasOwner = false
         )
         
         // Mock the CarApi to return cars with the requested plate number
@@ -200,6 +209,28 @@ abstract class IntegrationTestBase {
         Mockito.`when`(carApi.getCarInfo("CHAIN1", Countries.IL)).thenReturn(car1DTO.copy(plateNumber = "CHAIN1"))
         Mockito.`when`(carApi.getCarInfo("CHAIN2", Countries.IL)).thenReturn(car2DTO.copy(plateNumber = "CHAIN2"))
         Mockito.`when`(carApi.getCarInfo("CHAIN3", Countries.IL)).thenReturn(car3DTO.copy(plateNumber = "CHAIN3"))
+    }
+
+    protected fun setupCurrentUser(userId: Long) {
+        // Get user details from the database
+        val dbUser = getRowFromTable("users", userId)
+        requireNotNull(dbUser) { "User with ID $userId not found in database" }
+        
+        // Create a user entity to return with actual data from database
+        val user = com.yb.rh.entities.User(
+            firstName = dbUser["first_name"] as String,
+            lastName = dbUser["last_name"] as String,
+            email = dbUser["email"] as String,
+            pushNotificationToken = (dbUser["push_notification_token"] as String?) ?: "",
+            urlPhoto = dbUser["url_photo"] as String?,
+            isActive = dbUser["is_active"] as Boolean,
+            userId = userId
+        )
+        
+        // Mock the currentUserService to return this user
+        Mockito.`when`(currentUserService.getCurrentUser()).thenReturn(user)
+        Mockito.`when`(currentUserService.getCurrentUserId()).thenReturn(userId)
+        Mockito.`when`(currentUserService.getCurrentUserOrNull()).thenReturn(user)
     }
 
     protected fun getBaseUrl(): String = "http://localhost:$port"

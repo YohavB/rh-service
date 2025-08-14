@@ -2,6 +2,7 @@ package com.yb.rh.security
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.yb.rh.dtos.FacebookUserInfoDTO
+import com.yb.rh.error.ErrorType
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -40,16 +41,14 @@ class FacebookTokenVerifier {
                 if (userInfo != null && userInfo.email != null) {
                     userInfo
                 } else {
-                    throw RHException("Failed to get user info from Facebook", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION)
+                    throw RHException("Failed to get user info from Facebook", ErrorType.AUTHENTICATION)
                 }
             } else {
-                throw RHException("Invalid Facebook access token", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION)
+                throw RHException("Invalid Facebook access token", ErrorType.AUTHENTICATION)
             }
-        } catch (ex: RHException) {
-            throw ex
         } catch (ex: Exception) {
             logger.warn(ex) { "Failed to verify Facebook token" }
-            throw RHException("Failed to verify Facebook token", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION, throwable = ex)
+            throw RHException("Failed to verify Facebook token", ErrorType.AUTHENTICATION, ex)
         }
     }
 }

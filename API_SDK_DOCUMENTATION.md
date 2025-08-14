@@ -358,7 +358,7 @@ POST /api/v1/auth/logout
 Authorization: Bearer <jwt_token>
 ```
 
-**Response**: `200 OK` (Client should discard token)
+**Response**: `200 OK` with empty body (Client should discard token)
 
 ---
 
@@ -388,6 +388,27 @@ Authorization: Bearer <jwt_token>
 ```
 
 **Response**: `200 OK`
+
+#### 3. Update Push Notification Token
+```http
+PUT /api/v1/user/push-notification-token
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+"new_push_notification_token_here"
+```
+
+**Response**:
+```json
+{
+  "id": 123,
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "urlPhoto": "https://example.com/photo.jpg",
+  "pushNotificationToken": "new_push_notification_token_here"
+}
+```
 
 ---
 
@@ -698,8 +719,9 @@ Authorization: Bearer <jwt_token>
 ### Error Response Format
 ```json
 {
-  "cause": "Error message description",
-  "errorCode": 400
+  "code": "ERROR_TYPE",
+  "message": "Human-friendly error message",
+  "status": 422
 }
 ```
 
@@ -722,30 +744,36 @@ Authorization: Bearer <jwt_token>
 #### Authentication Errors
 ```json
 {
-  "cause": "Invalid JWT token",
-  "errorCode": 401
+  "code": "AUTHENTICATION",
+  "message": "Invalid JWT token",
+  "status": 401
 }
 ```
 
 #### Consent Required Error (New Users)
 ```json
 {
-  "cause": "User consent is required for OAuth login",
-  "errorCode": 403
+  "code": "USER_CONSENT_REQUIRED",
+  "message": "User consent is required for OAuth login",
+  "status": 403
 }
 ```
 
 #### Validation Errors
 ```json
 {
-  "cause": "Value invalid@email for `email` must be a well-formed email address"
+  "code": "INVALID_INPUT",
+  "message": "email: must be a well-formed email address",
+  "status": 422
 }
 ```
 
 #### Resource Not Found
 ```json
 {
-  "cause": "User not found with id: 999"
+  "code": "ENTITY_NOT_FOUND",
+  "message": "User not found with id: 999",
+  "status": 404
 }
 ```
 
@@ -782,15 +810,16 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-**Direct Notification Endpoints** (Still Throw 403):
+**Direct Notification Endpoints** (Forbidden for no owner):
 - The `/api/v1/notification/send-need-to-go` endpoint still throws HTTP 403 when the car has no owner
 - This is because it's a direct notification request that cannot be fulfilled
 
 **Example Error Response**:
 ```json
 {
-  "cause": "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
-  "errorCode": 403
+  "code": "CAR_HAS_NO_OWNER",
+  "message": "This car has no user so no one would be notified. Consider finding the owner and telling them to use this app.",
+  "status": 403
 }
 ```
 
@@ -1036,6 +1065,14 @@ curl -X POST "http://localhost:8008/api/v1/auth/google?agreedConsent=true" \
 ```bash
 curl -X GET "http://localhost:8008/api/v1/user-car" \
   -H "Authorization: Bearer your_jwt_token_here"
+```
+
+#### Update Push Notification Token
+```bash
+curl -X PUT "http://localhost:8008/api/v1/user/push-notification-token" \
+  -H "Authorization: Bearer your_jwt_token_here" \
+  -H "Content-Type: application/json" \
+  -d '"new_push_notification_token_here"'
 ```
 
 #### Create Car Blocking

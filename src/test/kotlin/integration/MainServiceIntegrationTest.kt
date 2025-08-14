@@ -17,6 +17,9 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "ExponentPushToken[test-token-123]"
         )
 
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
         // Create multiple cars
         val car1Request = FindCarRequestDTO(
             plateNumber = "CAR001",
@@ -41,6 +44,11 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
         val car1 = objectMapper.readValue(car1Response, CarDTO::class.java)
         val car2 = objectMapper.readValue(car2Response, CarDTO::class.java)
         val car3 = objectMapper.readValue(car3Response, CarDTO::class.java)
+
+        // Create user-car relationships
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car1.id))
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car2.id))
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car3.id))
 
         // Create blocking relationships
         val relation1 = CarsRelationRequestDTO(
@@ -98,6 +106,9 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "ExponentPushToken[test-token-456]"
         )
 
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
         // Create a single car
         val carRequest = FindCarRequestDTO(
             plateNumber = "SINGLE",
@@ -107,6 +118,10 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
 
         val carResponse = performPost("/api/v1/car", carRequest)
         val car = objectMapper.readValue(carResponse, CarDTO::class.java)
+
+        // Create user-car relationship
+        val userCarRequest = UserCarRequestDTO(userId = userId, carId = car.id)
+        performPost("/api/v1/user-car", userCarRequest)
 
         // Get user car relations
         val relationsResponse = performGet("/api/v1/car-relations/by-user")
@@ -130,6 +145,9 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "ExponentPushToken[test-token-789]"
         )
 
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
         // Don't create any cars for this user
 
         // Get user car relations
@@ -150,6 +168,9 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
             lastName = "Brown",
             pushNotificationToken = "ExponentPushToken[test-token-abc]"
         )
+
+        // Setup current user for authentication
+        setupCurrentUser(userId)
 
         // Create multiple cars
         val car1Request = FindCarRequestDTO(
@@ -175,6 +196,11 @@ class MainServiceIntegrationTest : IntegrationTestBase() {
         val car1 = objectMapper.readValue(car1Response, CarDTO::class.java)
         val car2 = objectMapper.readValue(car2Response, CarDTO::class.java)
         val car3 = objectMapper.readValue(car3Response, CarDTO::class.java)
+
+        // Create user-car relationships
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car1.id))
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car2.id))
+        performPost("/api/v1/user-car", UserCarRequestDTO(userId = userId, carId = car3.id))
 
         // Create a chain: car1 blocks car2, car2 blocks car3
         val relation1 = CarsRelationRequestDTO(

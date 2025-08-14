@@ -85,7 +85,7 @@ enum class Brands(private val value: Int, private val prettyName: String) {
 
 
     @JsonValue
-    fun getValue(): Int = value
+    fun getPrettyName(): String = prettyName
 
     companion object {
         private val mapping: MutableMap<Int, Brands> = HashMap()

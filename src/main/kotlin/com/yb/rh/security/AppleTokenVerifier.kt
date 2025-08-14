@@ -1,6 +1,7 @@
 package com.yb.rh.security
 
 import com.yb.rh.dtos.AppleUserInfoDTO
+import com.yb.rh.error.ErrorType
 import com.yb.rh.error.RHException
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -37,7 +38,7 @@ class AppleTokenVerifier {
             
             // Find the key that matches our key ID
             val key = keysResponse?.keys?.find { it.kid == appleKeyId }
-                ?: throw RHException("Apple key not found", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION)
+                ?: throw RHException("Apple key not found", errorType = ErrorType.AUTHENTICATION)
             
             // Build the public key
             val publicKey = buildPublicKey(key)
@@ -54,11 +55,9 @@ class AppleTokenVerifier {
                 email = claims["email"] as String?,
                 name = claims["name"] as String?
             )
-        } catch (ex: RHException) {
-            throw ex
         } catch (ex: Exception) {
             logger.warn(ex) { "Failed to verify Apple token" }
-            throw RHException("Failed to verify Apple token", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION, throwable = ex)
+            throw RHException("Failed to verify Apple token", ErrorType.AUTHENTICATION, ex)
         }
     }
     
@@ -89,11 +88,11 @@ class AppleTokenVerifier {
         val iss = claims["iss"] as String?
         
         if (aud != appleClientId) {
-            throw RHException("Invalid audience in Apple token", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION)
+            throw RHException("Invalid audience in Apple token", ErrorType.AUTHENTICATION)
         }
         
         if (iss != "https://appleid.apple.com") {
-            throw RHException("Invalid issuer in Apple token", errorType = com.yb.rh.error.ErrorType.AUTHENTICATION)
+            throw RHException("Invalid issuer in Apple token", ErrorType.AUTHENTICATION)
         }
     }
 }

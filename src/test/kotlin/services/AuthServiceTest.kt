@@ -205,12 +205,16 @@ class AuthServiceTest {
 
     @Test
     fun `test logout success`() {
+        // Given
+        val user = TestObjectBuilder.getUser()
+        every { currentUserService.getCurrentUser() } returns user
+        
         // When
-        val result = authService.logout()
+        authService.logout()
 
         // Then
-        assertNotNull(result)
-        assertEquals("Logged out successfully", result["message"])
+        // Logout completed successfully (no return value expected)
+        verify { currentUserService.getCurrentUser() }
     }
 
     @Test

@@ -90,7 +90,7 @@ class CarEntityTest {
         val car = TestObjectBuilder.getCar()
 
         // When
-        val carDTO = car.toDto()
+        val carDTO = car.toDto(hasOwner = false)
 
         // Then
         assertNotNull(carDTO)
@@ -101,6 +101,7 @@ class CarEntityTest {
         assertEquals(car.model, carDTO.model)
         assertEquals(car.color, carDTO.color)
         assertEquals(car.carLicenseExpireDate, carDTO.carLicenseExpireDate)
+        assertEquals(false, carDTO.hasOwner)
     }
 
     @Test

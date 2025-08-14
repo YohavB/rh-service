@@ -1,6 +1,7 @@
 package com.yb.rh.services
 
 import com.yb.rh.TestObjectBuilder
+import com.yb.rh.dtos.CarDTO
 import com.yb.rh.repositories.CarsRelationsRepository
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
@@ -128,18 +129,16 @@ class CarsRelationsServiceTest {
 
         every { carsRelationsRepository.findByBlockingCar(car) } returns emptyList()
         every { carsRelationsRepository.findByBlockedCar(car) } returns emptyList()
-        every { car.toDto() } returns carDTO
 
         // When
         val result = carsRelationsService.findCarRelationsByCar(car)
 
         // Then
         assertNotNull(result)
-        assertEquals(carDTO, result.car)
+        assertEquals(car, result.car)
         verify {
             carsRelationsRepository.findByBlockingCar(car)
             carsRelationsRepository.findByBlockedCar(car)
-            car.toDto()
         }
     }
 

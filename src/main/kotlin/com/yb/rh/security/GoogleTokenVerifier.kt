@@ -26,7 +26,6 @@ class GoogleTokenVerifier {
     
     fun verifyToken(idToken: String): GoogleUserInfoDTO {
         return try {
-            logger.info { "Client ID: $googleClientId" }
             logger.info { "Verifying Google ID token: ${idToken.take(20)}..." }
             val googleIdToken = verifier.verify(idToken)
             
@@ -34,7 +33,7 @@ class GoogleTokenVerifier {
                 val payload = googleIdToken.payload
                 
                 if (payload.expirationTimeSeconds * 1000 < System.currentTimeMillis()) {
-                    throw RHException("Google ID token has expired", errorType = ErrorType.AUTHENTICATION)
+                    throw RHException("Google ID token has expired", ErrorType.AUTHENTICATION)
                 }
                 
                 val email = payload.email
@@ -45,7 +44,7 @@ class GoogleTokenVerifier {
                 val picture = payload["picture"] as String?
                 
                 if (email == null || !emailVerified) {
-                    throw RHException("Invalid Google ID token: email not verified", errorType = ErrorType.AUTHENTICATION)
+                    throw RHException("Invalid Google ID token: email not verified", ErrorType.AUTHENTICATION)
                 }
 
                 GoogleUserInfoDTO(
@@ -56,13 +55,11 @@ class GoogleTokenVerifier {
                     picture = picture
                 )
             } else {
-                throw RHException("Invalid Google ID token", errorType = ErrorType.AUTHENTICATION)
+                throw RHException("Invalid Google ID token", ErrorType.AUTHENTICATION)
             }
-        } catch (ex: RHException) {
-            throw ex
         } catch (ex: Exception) {
             logger.warn(ex) { "Failed to verify Google ID token" }
-            throw RHException("Failed to verify Google ID token", errorType = ErrorType.AUTHENTICATION, throwable = ex)
+            throw RHException("Failed to verify Google ID token", ErrorType.AUTHENTICATION, ex)
         }
     }
 }

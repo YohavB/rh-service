@@ -16,8 +16,11 @@ class UserIntegrationTest : IntegrationTestBase() {
             pushNotificationToken = "deactivate-token"
         )
 
-        // Then deactivate the user
-        performPut("/api/v1/user/deactivate/$userId")
+        // Setup current user for authentication
+        setupCurrentUser(userId)
+
+        // Then deactivate the current user
+        performPut("/api/v1/user/deactivate")
 
         // Verify user is deactivated in database
         val dbUser = getRowFromTable("users", userId)
@@ -26,24 +29,27 @@ class UserIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `test activate user successfully`() {
+    fun `test get user successfully`() {
         // First create a user directly in database
         val userId = createUserInDatabase(
-            email = "activate@example.com",
-            firstName = "Activate",
+            email = "getuser@example.com",
+            firstName = "Get",
             lastName = "User",
-            pushNotificationToken = "activate-token"
+            pushNotificationToken = "getuser-token"
         )
 
-        // Deactivate the user first
-        performPut("/api/v1/user/deactivate/$userId")
+        // Setup current user for authentication
+        setupCurrentUser(userId)
 
-        // Then activate the user
-        performPut("/api/v1/user/activate/$userId")
+        // Get current user info
+        val userResponse = performGet("/api/v1/user")
+        val userDTO = objectMapper.readValue(userResponse, com.yb.rh.dtos.UserDTO::class.java)
 
-        // Verify user is activated in database
-        val dbUser = getRowFromTable("users", userId)
-        assertNotNull(dbUser)
-        assertEquals(true, dbUser!!["is_active"])
+        // Verify user data
+        assertNotNull(userDTO)
+        assertEquals(userId, userDTO.id)
+        assertEquals("getuser@example.com", userDTO.email)
+        assertEquals("Get", userDTO.firstName)
+        assertEquals("User", userDTO.lastName)
     }
 } 

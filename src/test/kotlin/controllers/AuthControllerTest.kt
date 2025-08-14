@@ -34,10 +34,10 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.login(request, OAuthProvider.GOOGLE) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.GOOGLE, false) } returns expectedResponse
 
         // When
-        val result = authController.googleLogin(request)
+        val result = authController.googleLogin(request, false)
 
         // Then
         assertNotNull(result)
@@ -45,7 +45,7 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.login(request, OAuthProvider.GOOGLE) }
+        verify { authService.login(request, OAuthProvider.GOOGLE, false) }
     }
 
     @Test
@@ -53,13 +53,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-token")
         
-        every { authService.login(request, OAuthProvider.GOOGLE) } throws RuntimeException("Invalid token")
+        every { authService.login(request, OAuthProvider.GOOGLE, false) } throws RuntimeException("Invalid token")
 
         // When & Then
         assertThrows<RuntimeException> {
-            authController.googleLogin(request)
+            authController.googleLogin(request, false)
         }
-        verify { authService.login(request, OAuthProvider.GOOGLE) }
+        verify { authService.login(request, OAuthProvider.GOOGLE, false) }
     }
 
     @Test
@@ -71,10 +71,10 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.login(request, OAuthProvider.FACEBOOK) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.FACEBOOK, false) } returns expectedResponse
 
         // When
-        val result = authController.facebookLogin(request)
+        val result = authController.facebookLogin(request, false)
 
         // Then
         assertNotNull(result)
@@ -82,7 +82,7 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.login(request, OAuthProvider.FACEBOOK) }
+        verify { authService.login(request, OAuthProvider.FACEBOOK, false) }
     }
 
     @Test
@@ -94,10 +94,10 @@ class AuthControllerTest {
             user = TestObjectBuilder.getUserDTO(email = "test@example.com")
         )
         
-        every { authService.login(request, OAuthProvider.APPLE) } returns expectedResponse
+        every { authService.login(request, OAuthProvider.APPLE, false) } returns expectedResponse
 
         // When
-        val result = authController.appleLogin(request)
+        val result = authController.appleLogin(request, false)
 
         // Then
         assertNotNull(result)
@@ -105,7 +105,7 @@ class AuthControllerTest {
         assertNotNull(result.body)
         assertEquals(expectedResponse.token, result.body!!.token)
         assertEquals(expectedResponse.user, result.body!!.user)
-        verify { authService.login(request, OAuthProvider.APPLE) }
+        verify { authService.login(request, OAuthProvider.APPLE, false) }
     }
 
     @Test
@@ -146,18 +146,12 @@ class AuthControllerTest {
     @Test
     fun `test logout success`() {
         // Given
-        val expectedResponse = mapOf("message" to "Logged out successfully")
-        
-        every { authService.logout() } returns expectedResponse
+        every { authService.logout() } returns Unit
 
         // When
-        val result = authController.logout()
+        authController.logout()
 
         // Then
-        assertNotNull(result)
-        assertEquals(HttpStatus.OK, result.statusCode)
-        assertNotNull(result.body)
-        assertEquals(expectedResponse, result.body)
         verify { authService.logout() }
     }
 
@@ -166,13 +160,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("")
         
-        every { authService.login(request, OAuthProvider.GOOGLE) } throws RuntimeException("Empty token")
+        every { authService.login(request, OAuthProvider.GOOGLE, false) } throws RuntimeException("Empty token")
 
         // When & Then
         assertThrows<RuntimeException> {
-            authController.googleLogin(request)
+            authController.googleLogin(request, false)
         }
-        verify { authService.login(request, OAuthProvider.GOOGLE) }
+        verify { authService.login(request, OAuthProvider.GOOGLE, false) }
     }
 
     @Test
@@ -180,13 +174,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-facebook-token")
         
-        every { authService.login(request, OAuthProvider.FACEBOOK) } throws RuntimeException("Invalid Facebook token")
+        every { authService.login(request, OAuthProvider.FACEBOOK, false) } throws RuntimeException("Invalid Facebook token")
 
         // When & Then
         assertThrows<RuntimeException> {
-            authController.facebookLogin(request)
+            authController.facebookLogin(request, false)
         }
-        verify { authService.login(request, OAuthProvider.FACEBOOK) }
+        verify { authService.login(request, OAuthProvider.FACEBOOK, false) }
     }
 
     @Test
@@ -194,13 +188,13 @@ class AuthControllerTest {
         // Given
         val request = OAuthLoginRequestDTO("invalid-apple-token")
         
-        every { authService.login(request, OAuthProvider.APPLE) } throws RuntimeException("Invalid Apple token")
+        every { authService.login(request, OAuthProvider.APPLE, false) } throws RuntimeException("Invalid Apple token")
 
         // When & Then
         assertThrows<RuntimeException> {
-            authController.appleLogin(request)
+            authController.appleLogin(request, false)
         }
-        verify { authService.login(request, OAuthProvider.APPLE) }
+        verify { authService.login(request, OAuthProvider.APPLE, false) }
     }
 
     @Test

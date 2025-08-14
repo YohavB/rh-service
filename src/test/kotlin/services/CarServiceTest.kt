@@ -14,7 +14,7 @@ import kotlin.test.assertNotNull
 
 class CarServiceTest {
     private lateinit var carRepository: CarRepository
-    private lateinit var carApi: CarApi
+    private lateinit var carApi: CarApiService
     private lateinit var carsRelationsService: CarsRelationsService
     private lateinit var userCarService: UserCarService
     private lateinit var userService: UserService
@@ -27,7 +27,7 @@ class CarServiceTest {
         carsRelationsService = mockk()
         userCarService = mockk()
         userService = mockk()
-        carService = CarService(carRepository, carApi)
+        carService = CarService(carRepository, userCarService, carApi)
     }
 
     @Test
@@ -37,7 +37,8 @@ class CarServiceTest {
         val carDTO = TestObjectBuilder.getCarDTO()
 
         every { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) } returns existingCar
-        every { existingCar.toDto() } returns carDTO
+        every { userCarService.isCarHasOwners(existingCar) } returns false
+        every { existingCar.toDto(any()) } returns carDTO
 
         val result = carService.getCarOrCreateRequest(findCarRequestDTO)
 
@@ -56,7 +57,8 @@ class CarServiceTest {
         every { carRepository.findByPlateNumber(findCarRequestDTO.plateNumber) } returns null
         every { carApi.getCarInfo(findCarRequestDTO.plateNumber, findCarRequestDTO.country) } returns carDTO
         every { carRepository.save(any()) } returns newCar
-        every { newCar.toDto() } returns carDTO
+        every { userCarService.isCarHasOwners(newCar) } returns false
+        every { newCar.toDto(any()) } returns carDTO
 
         val result = carService.getCarOrCreateRequest(findCarRequestDTO)
 

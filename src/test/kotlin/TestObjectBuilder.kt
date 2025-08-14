@@ -39,13 +39,15 @@ object TestObjectBuilder {
         firstName: String = "John",
         lastName: String = "Doe",
         email: String = "john.doe@example.com",
-        urlPhoto: String? = null
+        urlPhoto: String? = null,
+        pushNotificationToken: String? = "ExponentPushToken[test-token-123]"
     ) = UserDTO(
         id = id,
         firstName = firstName,
         lastName = lastName,
         email = email,
-        urlPhoto = urlPhoto
+        urlPhoto = urlPhoto,
+        pushNotificationToken = pushNotificationToken
     )
 
     fun getUserCreationDTO(
@@ -87,7 +89,8 @@ object TestObjectBuilder {
         brand: Brands = Brands.TESLA,
         model: String = "Model 3",
         color: Colors = Colors.WHITE,
-        carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1)
+        carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1),
+        hasOwner: Boolean = false
     ) = CarDTO(
         id = id,
         plateNumber = plateNumber,
@@ -95,7 +98,8 @@ object TestObjectBuilder {
         brand = brand,
         model = model,
         color = color,
-        carLicenseExpireDate = carLicenseExpireDate
+        carLicenseExpireDate = carLicenseExpireDate,
+        hasOwner = hasOwner
     )
 
     fun getFindCarRequestDTO(

@@ -7,6 +7,6 @@ enum class Countries(private val value: Int, private val prettyName: String) {
     IL(1, "Israel");
 
     @JsonValue
-    fun getValue(): Int = value
+    fun getPrettyName(): String = prettyName
 }
 

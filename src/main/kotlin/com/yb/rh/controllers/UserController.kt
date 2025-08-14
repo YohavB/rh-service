@@ -26,4 +26,14 @@ class UsersController(private val userService: UserService) {
      */
     @PutMapping("/deactivate")
     fun deactivateUserByPath() = userService.deActivateUser()
+
+    /**
+     * Update push notification token for current user
+     * @param token Push notification token as string in request body
+     * @return Updated user information with new push notification token
+     * @throws RHException if user is not found or token is invalid
+     */
+    @PutMapping("/push-notification-token")
+    fun updatePushNotificationToken(@RequestBody token: String): UserDTO = 
+        userService.updatePushNotificationToken(token)
 }

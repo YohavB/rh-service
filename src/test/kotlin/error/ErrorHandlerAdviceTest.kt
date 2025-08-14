@@ -1,6 +1,5 @@
 package com.yb.rh.error
 
-import com.yb.rh.utils.ErrorResponse
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -36,10 +35,10 @@ class ErrorHandlerAdviceTest {
 
         // Then
         assertNotNull(response)
-        assertEquals(1, response?.size)
-        val errorResponse = response?.first()
-        assertNotNull(errorResponse)
-        assertEquals("Value rejectedValue for `field` default message", errorResponse.cause)
+        val body = response.body as ApiError
+        assertEquals(ErrorType.INVALID_INPUT, body.code)
+        assertEquals(422, body.status)
+        assert(body.message.contains("field: default message"))
     }
 
     @Test
@@ -54,60 +53,10 @@ class ErrorHandlerAdviceTest {
 
         // Then
         assertNotNull(response)
-        assertEquals("parameter `Authorization` is missing from request header", response.cause)
+        val body = response.body as ApiError
+        assertEquals(ErrorType.INVALID_INPUT, body.code)
+        assertEquals(422, body.status)
+        assertEquals("parameter `Authorization` is missing from request header", body.message)
     }
 
-    @Test
-    fun `test ErrorResponse constructor`() {
-        // Given
-        val cause = "Test error message"
-        val errorCode = 404
-
-        // When
-        val errorResponse = ErrorResponse(cause, errorCode)
-
-        // Then
-        assertNotNull(errorResponse)
-        assertEquals(cause, errorResponse.cause)
-        assertEquals(errorCode, errorResponse.errorCode)
-    }
-
-    @Test
-    fun `test ErrorResponse constructor without error code`() {
-        // Given
-        val cause = "Test error message"
-
-        // When
-        val errorResponse = ErrorResponse(cause)
-
-        // Then
-        assertNotNull(errorResponse)
-        assertEquals(cause, errorResponse.cause)
-        assertEquals(null, errorResponse.errorCode)
-    }
-
-    @Test
-    fun `test ErrorResponse Factory withErrorMessage with message`() {
-        // Given
-        val message = "Test error message"
-
-        // When
-        val errorResponse = ErrorResponse.withErrorMessage(message)
-
-        // Then
-        assertNotNull(errorResponse)
-        assertEquals(message, errorResponse.cause)
-        assertEquals(null, errorResponse.errorCode)
-    }
-
-    @Test
-    fun `test ErrorResponse Factory withErrorMessage with null`() {
-        // When
-        val errorResponse = ErrorResponse.withErrorMessage(null)
-
-        // Then
-        assertNotNull(errorResponse)
-        assertEquals("no error message provided", errorResponse.cause)
-        assertEquals(null, errorResponse.errorCode)
-    }
 } 

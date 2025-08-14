@@ -70,10 +70,25 @@ class UserService(
         }
     }
 
+    fun updatePushNotificationToken(token: String): UserDTO {
+        logger.info { "Updating push notification token for current user" }
+
+        val currentUser = currentUserService.getCurrentUser()
+
+        val updatedUser = currentUser.copy(pushNotificationToken = token)
+
+        return userRepository.save(updatedUser).toDto()
+    }
+
     fun findOrCreateUserFromOAuth(userDTO: UserDTO, agreedConsent: Boolean?): User {
         logger.debug("Starting OAuth user creation/lookup for email: ${userDTO.email.maskEmail()}")
         
         val existingUser = userRepository.findByEmail(userDTO.email)
+
+        if (existingUser == null && (agreedConsent == null || !agreedConsent)) {
+            logger.warn("Non existing user with not provided consent for email: ${userDTO.email.maskEmail()}")
+            throw RHException("User consent is required for OAuth login", ErrorType.USER_CONSENT_REQUIRED)
+        }
         
         return if (existingUser != null) {
             logger.debug("Found existing user: ${existingUser.email.maskEmail()}, updating if needed")
@@ -87,10 +102,6 @@ class UserService(
             savedUser
         } else {
             logger.debug("Creating new user with email: ${userDTO.email.maskEmail()}")
-            if (agreedConsent == null || !agreedConsent) {
-                logger.warn("User consent not provided for email: ${userDTO.email.maskEmail()}")
-                throw RHException("User consent is required for OAuth login", ErrorType.USER_CONSENT_REQUIRED)
-            }
             val newUser = User(
                 userId = 0,
                 firstName = userDTO.firstName,

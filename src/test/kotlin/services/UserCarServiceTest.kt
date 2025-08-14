@@ -180,7 +180,8 @@ class UserCarServiceTest {
         
         every { car.id } returns 1L
         every { userCarRepository.findAllByCar(car) } returns userCars
-        every { car.toDto() } returns carDTO
+        every { userCarRepository.countByCar(car) } returns 2
+        every { car.toDto(any()) } returns carDTO
         userCars.forEachIndexed { index, userCar ->
             every { userCar.toDto() } returns userCarDTOs[index]
         }
@@ -192,7 +193,8 @@ class UserCarServiceTest {
         assertEquals(2, result.users.size)
         verify { 
             userCarRepository.findAllByCar(car)
-            car.toDto()
+            userCarRepository.countByCar(car)
+            car.toDto(any())
         }
     }
 

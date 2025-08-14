@@ -52,14 +52,23 @@ class UserControllerTest {
     }
 
     @Test
-    fun `test activateUserByPath success`() {
+    fun `test updatePushNotificationToken success`() {
         // Given
-        every { userService.activateUser() } returns Unit
+        val newToken = "ExponentPushToken[new-token-456]"
+        val expectedUserDTO = TestObjectBuilder.getUserDTO(pushNotificationToken = newToken)
+        
+        every { userService.updatePushNotificationToken(newToken) } returns expectedUserDTO
 
         // When
-        userController.activateUserByPath()
+        val result = userController.updatePushNotificationToken(newToken)
 
         // Then
-        verify { userService.activateUser() }
+        assertNotNull(result)
+        assertEquals(newToken, result.pushNotificationToken)
+        assertEquals(expectedUserDTO.id, result.id)
+        assertEquals(expectedUserDTO.firstName, result.firstName)
+        assertEquals(expectedUserDTO.lastName, result.lastName)
+        assertEquals(expectedUserDTO.email, result.email)
+        verify { userService.updatePushNotificationToken(newToken) }
     }
 } 

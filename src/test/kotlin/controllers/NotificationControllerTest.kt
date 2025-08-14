@@ -23,16 +23,13 @@ class NotificationControllerTest {
     fun `test sendNeedToGoNotification success`() {
         // Given
         val blockedCarId = 1L
-        val expectedMessage = "Notification sent successfully"
         
-        every { mainService.sendNeedToGoNotification(blockedCarId) } returns expectedMessage
+        every { mainService.sendNeedToGoNotification(blockedCarId) } returns Unit
 
         // When
-        val result = notificationController.sendNeedToGoNotification(blockedCarId)
+        notificationController.sendNeedToGoNotification(blockedCarId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(expectedMessage, result.entity)
         verify { mainService.sendNeedToGoNotification(blockedCarId) }
     }
 
@@ -40,16 +37,13 @@ class NotificationControllerTest {
     fun `test sendNeedToGoNotification with zero car id`() {
         // Given
         val blockedCarId = 0L
-        val expectedMessage = "Notification sent successfully"
         
-        every { mainService.sendNeedToGoNotification(blockedCarId) } returns expectedMessage
+        every { mainService.sendNeedToGoNotification(blockedCarId) } returns Unit
 
         // When
-        val result = notificationController.sendNeedToGoNotification(blockedCarId)
+        notificationController.sendNeedToGoNotification(blockedCarId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(expectedMessage, result.entity)
         verify { mainService.sendNeedToGoNotification(blockedCarId) }
     }
 
@@ -57,16 +51,13 @@ class NotificationControllerTest {
     fun `test sendNeedToGoNotification with large car id`() {
         // Given
         val blockedCarId = 999999L
-        val expectedMessage = "Notification sent successfully"
         
-        every { mainService.sendNeedToGoNotification(blockedCarId) } returns expectedMessage
+        every { mainService.sendNeedToGoNotification(blockedCarId) } returns Unit
 
         // When
-        val result = notificationController.sendNeedToGoNotification(blockedCarId)
+        notificationController.sendNeedToGoNotification(blockedCarId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(expectedMessage, result.entity)
         verify { mainService.sendNeedToGoNotification(blockedCarId) }
     }
 
@@ -74,16 +65,13 @@ class NotificationControllerTest {
     fun `test sendNeedToGoNotification returns empty message`() {
         // Given
         val blockedCarId = 1L
-        val expectedMessage = ""
         
-        every { mainService.sendNeedToGoNotification(blockedCarId) } returns expectedMessage
+        every { mainService.sendNeedToGoNotification(blockedCarId) } returns Unit
 
         // When
-        val result = notificationController.sendNeedToGoNotification(blockedCarId)
+        notificationController.sendNeedToGoNotification(blockedCarId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(expectedMessage, result.entity)
         verify { mainService.sendNeedToGoNotification(blockedCarId) }
     }
 
@@ -91,16 +79,13 @@ class NotificationControllerTest {
     fun `test sendNeedToGoNotification with negative car id`() {
         // Given
         val blockedCarId = -1L
-        val expectedMessage = "Notification sent successfully"
         
-        every { mainService.sendNeedToGoNotification(blockedCarId) } returns expectedMessage
+        every { mainService.sendNeedToGoNotification(blockedCarId) } returns Unit
 
         // When
-        val result = notificationController.sendNeedToGoNotification(blockedCarId)
+        notificationController.sendNeedToGoNotification(blockedCarId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(expectedMessage, result.entity)
         verify { mainService.sendNeedToGoNotification(blockedCarId) }
     }
 } 

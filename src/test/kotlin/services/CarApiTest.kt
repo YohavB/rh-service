@@ -11,12 +11,12 @@ import kotlin.test.assertTrue
 
 class CarApiTest {
     private lateinit var countryCarJsonFactory: CountryCarJsonFactory
-    private lateinit var carApi: CarApi
+    private lateinit var carApi: CarApiService
 
     @BeforeEach
     fun setUp() {
         countryCarJsonFactory = mockk()
-        carApi = CarApi(countryCarJsonFactory)
+        carApi = CarApiService(countryCarJsonFactory)
     }
 
     @Test

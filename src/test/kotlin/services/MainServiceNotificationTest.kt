@@ -44,31 +44,27 @@ class MainServiceNotificationTest {
     }
 
     @Test
-    fun `sendNeedToGoNotification should throw CAR_HAS_NO_OWNER error when car has no users`() {
+    fun `sendNeedToGoNotification should throw exception when car is not blocked by any other car`() {
         // Given
         val carId = 1L
         val car = createTestCar(carId, "ABC123")
-        val blockingCar = createTestCar(2L, "XYZ789")
-        val emptyCarUsers = CarUsersDTO(car.toDto(), emptyList())
         
         every { carService.getCarById(carId) } returns car
-        every { carsRelationsService.findCarRelations(car) } returns createTestCarRelations(car, emptyList(), listOf(blockingCar))
-        every { userCarService.getCarUsersByCar(car) } returns emptyCarUsers
+        every { carsRelationsService.findCarRelations(car) } returns createTestCarRelations(car, emptyList(), emptyList())
 
         // When & Then
         val exception = assertThrows<RHException> {
             mainService.sendNeedToGoNotification(carId)
         }
         
-        assert(exception.errorType == ErrorType.CAR_HAS_NO_OWNER)
-        assert(exception.message?.contains("This car has no user so no one would be notified") == true)
+        assert(exception.message?.contains("Car is not blocked by any other car") == true)
     }
 
     @Test
     fun `sendBlockedNotification should work when car has no users`() {
         // Given
         val car = createTestCar(1L, "ABC123")
-        val emptyCarUsers = CarUsersDTO(car.toDto(), emptyList())
+        val emptyCarUsers = CarUsersDTO(car.toDto(false), emptyList())
         
         every { userCarService.getCarUsersByCar(car) } returns emptyCarUsers
 
@@ -83,7 +79,7 @@ class MainServiceNotificationTest {
     fun `sendBlockingNotification should work when car has no users`() {
         // Given
         val car = createTestCar(1L, "ABC123")
-        val emptyCarUsers = CarUsersDTO(car.toDto(), emptyList())
+        val emptyCarUsers = CarUsersDTO(car.toDto(false), emptyList())
         
         every { userCarService.getCarUsersByCar(car) } returns emptyCarUsers
 
@@ -100,22 +96,22 @@ class MainServiceNotificationTest {
         val carId = 1L
         val car = createTestCar(carId, "ABC123")
         val user = createTestUser(1L, "john@example.com")
-        val carUsers = CarUsersDTO(car.toDto(), listOf(user.toDto()))
+        val carUsers = CarUsersDTO(car.toDto(false), listOf(user.toDto()))
         val blockingCar = createTestCar(2L, "XYZ789")
         
         every { carService.getCarById(carId) } returns car
         every { carsRelationsService.findCarRelations(car) } returns createTestCarRelations(car, emptyList(), listOf(blockingCar))
         every { carsRelationsService.findCarRelations(blockingCar) } returns createTestCarRelations(blockingCar, emptyList(), emptyList())
         every { userCarService.getCarUsersByCar(car) } returns carUsers
-        every { userCarService.getCarUsersByCar(blockingCar) } returns CarUsersDTO(blockingCar.toDto(), listOf(user.toDto()))
+        every { userCarService.getCarUsersByCar(blockingCar) } returns CarUsersDTO(blockingCar.toDto(false), listOf(user.toDto()))
         every { userService.getUserById(1L) } returns user
         every { notificationService.sendPushNotification(any(), any()) } just Runs
 
         // When
-        val result = mainService.sendNeedToGoNotification(carId)
+        mainService.sendNeedToGoNotification(carId)
 
         // Then
-        assert(result == "Notification sent successfully")
+        // Notification sent successfully
         verify { notificationService.sendPushNotification(user, NotificationsKind.NEED_TO_GO) }
     }
 
@@ -124,7 +120,7 @@ class MainServiceNotificationTest {
         // Given
         val car = createTestCar(1L, "ABC123")
         val user = createTestUser(1L, "john@example.com")
-        val carUsers = CarUsersDTO(car.toDto(), listOf(user.toDto()))
+        val carUsers = CarUsersDTO(car.toDto(false), listOf(user.toDto()))
         
         every { userCarService.getCarUsersByCar(car) } returns carUsers
         every { userService.getUserById(1L) } returns user
@@ -142,7 +138,7 @@ class MainServiceNotificationTest {
         // Given
         val car = createTestCar(1L, "ABC123")
         val user = createTestUser(1L, "john@example.com")
-        val carUsers = CarUsersDTO(car.toDto(), listOf(user.toDto()))
+        val carUsers = CarUsersDTO(car.toDto(false), listOf(user.toDto()))
         
         every { userCarService.getCarUsersByCar(car) } returns carUsers
         every { userService.getUserById(1L) } returns user
