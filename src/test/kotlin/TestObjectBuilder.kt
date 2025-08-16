@@ -72,6 +72,7 @@ object TestObjectBuilder {
         brand: Brands = Brands.TESLA,
         model: String = "Model 3",
         color: Colors = Colors.WHITE,
+        year: Int = 2023,
         carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1)
     ) = Car(
         plateNumber = plateNumber,
@@ -79,6 +80,7 @@ object TestObjectBuilder {
         brand = brand,
         model = model,
         color = color,
+        year = year,
         carLicenseExpireDate = carLicenseExpireDate
     )
 
@@ -89,6 +91,7 @@ object TestObjectBuilder {
         brand: Brands = Brands.TESLA,
         model: String = "Model 3",
         color: Colors = Colors.WHITE,
+        year: Int = 2023,
         carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1),
         hasOwner: Boolean = false
     ) = CarDTO(
@@ -98,6 +101,7 @@ object TestObjectBuilder {
         brand = brand,
         model = model,
         color = color,
+        year = year,
         carLicenseExpireDate = carLicenseExpireDate,
         hasOwner = hasOwner
     )

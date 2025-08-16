@@ -6,7 +6,6 @@ import com.yb.rh.entities.Car
 import com.yb.rh.enum.Countries
 import com.yb.rh.error.RHException
 import com.yb.rh.repositories.CarRepository
-import com.yb.rh.services.CarApiService
 import jakarta.validation.constraints.NotBlank
 import mu.KotlinLogging
 import org.springframework.stereotype.Service

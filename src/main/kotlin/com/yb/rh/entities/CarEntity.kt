@@ -29,6 +29,9 @@ data class Car(
     @Enumerated(EnumType.STRING)
     val color: Colors = Colors.UNKNOWN,
 
+    @Column(name = "car_year")
+    val year: Int,
+
     var carLicenseExpireDate: LocalDateTime? = null,
 
     @CreationTimestamp
@@ -43,7 +46,8 @@ data class Car(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 ) {
-    fun toDto(hasOwner: Boolean) = CarDTO(id, plateNumber, country, brand, model, color, carLicenseExpireDate, hasOwner)
+    fun toDto(hasOwner: Boolean) =
+        CarDTO(id, plateNumber, country, brand, model, color, year, carLicenseExpireDate, hasOwner)
 
     companion object {
         fun fromDto(carDTO: CarDTO) = Car(
@@ -52,6 +56,7 @@ data class Car(
             carDTO.brand,
             carDTO.model,
             carDTO.color,
+            carDTO.year,
             carDTO.carLicenseExpireDate,
             LocalDateTime.now(),
             LocalDateTime.now()

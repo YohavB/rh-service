@@ -56,6 +56,7 @@ class RhServiceConfiguration {
                 Brands.AUDI,
                 "TT",
                 Colors.WHITE,
+                2018,
                 null
             )
             val carTwo = Car(
@@ -64,6 +65,7 @@ class RhServiceConfiguration {
                 Brands.AUDI,
                 "Q7",
                 Colors.WHITE,
+                2019,
                 null
             )
             val carThree = Car(
@@ -72,6 +74,7 @@ class RhServiceConfiguration {
                 Brands.AUDI,
                 "R8",
                 Colors.BLACK,
+                2020,
                 null
             )
             val carFour = Car(
@@ -80,6 +83,7 @@ class RhServiceConfiguration {
                 Brands.TESLA,
                 "S",
                 Colors.BLACK,
+                2021,
                 null
             )
             val carFive = Car(
@@ -88,6 +92,7 @@ class RhServiceConfiguration {
                 Brands.TESLA,
                 "3",
                 Colors.WHITE,
+                2022,
                 null
             )
             val carSix = Car(
@@ -96,6 +101,7 @@ class RhServiceConfiguration {
                 Brands.TESLA,
                 "X",
                 Colors.BLACK,
+                2021,
                 null
             )
 
@@ -105,6 +111,7 @@ class RhServiceConfiguration {
                 Brands.TESLA,
                 "Y",
                 Colors.WHITE,
+                2023,
                 null
             )
             

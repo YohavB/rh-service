@@ -6,6 +6,7 @@ CREATE TABLE cars (
     brand VARCHAR(100) DEFAULT 'UNKNOWN',
     model VARCHAR(255) NOT NULL,
     color VARCHAR(100) DEFAULT 'UNKNOWN',
+    year INT NOT NULL,
     car_license_expire_date TIMESTAMP NULL,
     creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -13,4 +14,3 @@ CREATE TABLE cars (
 );
 
 CREATE INDEX idx_cars_plate_number ON cars(plate_number);
-CREATE INDEX idx_cars_country ON cars(country); 

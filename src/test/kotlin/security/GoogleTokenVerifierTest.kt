@@ -1,13 +1,9 @@
 package com.yb.rh.security
 
-import com.yb.rh.dtos.OAuthUserInfoDTO
 import com.yb.rh.error.RHException
-import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class GoogleTokenVerifierTest {
 

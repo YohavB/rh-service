@@ -26,6 +26,7 @@ class IlCarJsonHandler(override val country: Countries = Countries.IL) : ICarJso
             brand = carInfo.getBrand(),
             model = carInfo.getModel(),
             color = carInfo.getColor(),
+            year = carInfo.getYear(),
             carLicenseExpireDate = carInfo.getLicenseDateExpiration(),
             hasOwner = false // Every retrieved car has no owner in a first place
         )
@@ -42,6 +43,7 @@ data class IlCarJson(
     fun getBrand() = this.result.getBrand()
     fun getModel() = this.result.getModel()
     fun getColor() = this.result.getColor()
+    fun getYear() = this.result.getYear()
     fun getLicenseDateExpiration() = this.result.getLicenseDateExpiration()
 }
 
@@ -53,6 +55,7 @@ data class Result(
     fun getBrand() = this.records[0].getBrand()
     fun getModel() = this.records[0].kinuy_mishari
     fun getColor() = this.records[0].getColor()
+    fun getYear() = this.records[0].shnat_yitzur
     fun getLicenseDateExpiration(): LocalDateTime {
         val dateStr = this.records[0].tokef_dt
         

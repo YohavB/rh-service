@@ -3,8 +3,6 @@ package com.yb.rh.integration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.yb.rh.RhServiceApplication
 import com.yb.rh.TestSecurityConfig
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.FilterType
 import com.yb.rh.dtos.CarDTO
 import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
@@ -96,6 +94,7 @@ abstract class IntegrationTestBase {
             brand = Brands.TOYOTA,
             model = "Corolla",
             color = Colors.WHITE,
+            year = 2020,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )
@@ -107,6 +106,7 @@ abstract class IntegrationTestBase {
             brand = Brands.HONDA,
             model = "Civic",
             color = Colors.BLACK,
+            year = 2021,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )
@@ -118,6 +118,7 @@ abstract class IntegrationTestBase {
             brand = Brands.BMW,
             model = "X3",
             color = Colors.BLUE,
+            year = 2022,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )
@@ -129,6 +130,7 @@ abstract class IntegrationTestBase {
             brand = Brands.MERCEDES,
             model = "C-Class",
             color = Colors.SILVER,
+            year = 2021,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )
@@ -140,6 +142,7 @@ abstract class IntegrationTestBase {
             brand = Brands.AUDI,
             model = "A4",
             color = Colors.RED,
+            year = 2020,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )
@@ -151,6 +154,7 @@ abstract class IntegrationTestBase {
             brand = Brands.VOLKSWAGEN,
             model = "Golf",
             color = Colors.GREEN,
+            year = 2022,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             hasOwner = false
         )

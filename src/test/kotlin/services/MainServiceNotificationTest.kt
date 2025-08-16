@@ -7,7 +7,6 @@ import com.yb.rh.enum.Brands
 import com.yb.rh.enum.Colors
 import com.yb.rh.enum.Countries
 import com.yb.rh.enum.NotificationsKind
-import com.yb.rh.error.ErrorType
 import com.yb.rh.error.RHException
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
@@ -158,6 +157,7 @@ class MainServiceNotificationTest {
             brand = Brands.TOYOTA,
             model = "Corolla",
             color = Colors.WHITE,
+            year = 2020,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             creationTime = LocalDateTime.now(),
             updateTime = LocalDateTime.now(),

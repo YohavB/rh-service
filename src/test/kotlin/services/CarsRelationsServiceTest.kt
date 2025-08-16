@@ -1,7 +1,6 @@
 package com.yb.rh.services
 
 import com.yb.rh.TestObjectBuilder
-import com.yb.rh.dtos.CarDTO
 import com.yb.rh.repositories.CarsRelationsRepository
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
