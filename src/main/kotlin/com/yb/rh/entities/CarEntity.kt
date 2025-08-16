@@ -29,7 +29,7 @@ data class Car(
     @Enumerated(EnumType.STRING)
     val color: Colors = Colors.UNKNOWN,
 
-    @Column(name = "car_year")
+    @Column(name = "year")
     val year: Int,
 
     var carLicenseExpireDate: LocalDateTime? = null,
