@@ -186,8 +186,7 @@ object TestObjectBuilder {
     ) = CarRelationsDTO(
         car = car,
         isBlocking = isBlocking,
-        isBlockedBy = isBlockedBy,
-        message = message
+        isBlockedBy = isBlockedBy
     )
 
     fun getCarsRelationRequestDTO(

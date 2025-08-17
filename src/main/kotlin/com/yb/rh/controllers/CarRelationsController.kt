@@ -27,7 +27,7 @@ class CarRelationsController(
     @PostMapping
     fun createCarsRelations(
         @Valid @RequestBody carsRelationRequestDTO: CarsRelationRequestDTO
-    ): CarRelationsDTO = mainService.createCarsRelations(carsRelationRequestDTO)
+    ): List<CarRelationsDTO> = mainService.createCarsRelations(carsRelationRequestDTO)
 
     /**
      * Get blocking relationships for a specific car

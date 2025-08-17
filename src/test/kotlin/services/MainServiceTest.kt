@@ -46,10 +46,20 @@ class MainServiceTest {
         )
         val blockingCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
         val blockedCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         val carUsersDTO = TestObjectBuilder.getCarUsersDTO()
         val user = mockk<com.yb.rh.entities.User>(relaxed = true)
+        val userCar1 = TestObjectBuilder.getUserCar(
+            id = 1L,
+            user = user,
+            car = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
+        )
+        val userCar2 = TestObjectBuilder.getUserCar(
+            id = 2L,
+            user = user,
+            car = TestObjectBuilder.getCar(id = 2L, plateNumber = "CAR2")
+        )
         
+        every { currentUserService.getCurrentUser() } returns user
         every { blockingCar.id } returns 1L
         every { blockedCar.id } returns 2L
         every { blockingCar.plateNumber } returns "BLOCKER"
@@ -62,6 +72,7 @@ class MainServiceTest {
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { userCarService.isCarHasOwners(any()) } returns false
+        every { userCarService.getUserCarsByUser(user) } returns listOf(userCar1, userCar2)
         every { notificationService.sendPushNotification(any(), any()) } just Runs
 
         // When
@@ -69,7 +80,7 @@ class MainServiceTest {
 
         // Then
         assertNotNull(result)
-        assertNotNull(result.car.id)
+        assertNotNull(result[0].car.id)
         verify { 
             carService.getCarById(1L)
             carService.getCarById(2L)
@@ -89,10 +100,20 @@ class MainServiceTest {
         )
         val blockingCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
         val blockedCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         val carUsersDTO = TestObjectBuilder.getCarUsersDTO()
         val user = mockk<com.yb.rh.entities.User>(relaxed = true)
-        
+        val userCar1 = TestObjectBuilder.getUserCar(
+            id = 1L,
+            user = user,
+            car = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
+        )
+        val userCar2 = TestObjectBuilder.getUserCar(
+            id = 2L,
+            user = user,
+            car = TestObjectBuilder.getCar(id = 2L, plateNumber = "CAR2")
+        )
+
+        every { currentUserService.getCurrentUser() } returns user
         every { blockingCar.id } returns 1L
         every { blockedCar.id } returns 2L
         every { blockingCar.plateNumber } returns "BLOCKER"
@@ -105,6 +126,7 @@ class MainServiceTest {
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { userCarService.isCarHasOwners(any()) } returns false
+        every { userCarService.getUserCarsByUser(user) } returns listOf(userCar1, userCar2)
         every { notificationService.sendPushNotification(any(), any()) } just Runs
 
         // When
@@ -112,7 +134,7 @@ class MainServiceTest {
 
         // Then
         assertNotNull(result)
-        assertNotNull(result.car.id)
+        assertNotNull(result[0].car.id)
         verify { 
             carService.getCarById(1L)
             carService.getCarById(2L)
@@ -155,12 +177,14 @@ class MainServiceTest {
         )
         val blockingCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
         val blockedCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        
+
+        every { currentUserService.getCurrentUser() } returns mockk()
         every { blockingCar.id } returns 1L
         every { blockedCar.id } returns 2L
         every { carService.getCarById(1L) } returns blockingCar
         every { carService.getCarById(2L) } returns blockedCar
         every { carsRelationsService.wouldCreateCircularBlocking(blockingCar, blockedCar) } returns true
+        every { carsRelationsService.findCarRelationsByCar(any()) } returns TestObjectBuilder.getCarRelations(blockingCar)
 
         // When & Then
         assertThrows<IllegalArgumentException> {
@@ -184,7 +208,6 @@ class MainServiceTest {
         )
         val blockingCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
         val blockedCar = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         val carUsersDTO = TestObjectBuilder.getCarUsersDTO()
         val user = mockk<com.yb.rh.entities.User>(relaxed = true)
         
@@ -230,7 +253,7 @@ class MainServiceTest {
         val user = TestObjectBuilder.getUser()
         
         every { carService.getCarById(carId) } returns car
-        every { carsRelationsService.findCarRelations(car) } returns carRelations
+        every { carsRelationsService.findCarRelationsByCar(car) } returns carRelations
         every { carsRelationsService.deleteAllCarsRelations(car) } just Runs
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
@@ -243,7 +266,7 @@ class MainServiceTest {
         // Then
         verify { 
             carService.getCarById(carId)
-            carsRelationsService.findCarRelations(car)
+            carsRelationsService.findCarRelationsByCar(car)
             carsRelationsService.deleteAllCarsRelations(car)
         }
     }
@@ -264,7 +287,7 @@ class MainServiceTest {
         every { blockedCar.id } returns blockedCarId
         every { blockingCar.id } returns 2L
         every { carService.getCarById(blockedCarId) } returns blockedCar
-        every { carsRelationsService.findCarRelations(any()) } returns carRelations
+        every { carsRelationsService.findCarRelationsByCar(any()) } returns carRelations
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { userCarService.isCarHasOwners(any()) } returns false
@@ -276,7 +299,7 @@ class MainServiceTest {
         // Then
         verify { 
             carService.getCarById(blockedCarId)
-            carsRelationsService.findCarRelations(any())
+            carsRelationsService.findCarRelationsByCar(any())
             userCarService.getCarUsersByCar(any())
             userService.getUserById(any())
             notificationService.sendPushNotification(any(), any())
@@ -294,7 +317,7 @@ class MainServiceTest {
         )
         
         every { carService.getCarById(blockedCarId) } returns blockedCar
-        every { carsRelationsService.findCarRelations(blockedCar) } returns carRelations
+        every { carsRelationsService.findCarRelationsByCar(blockedCar) } returns carRelations
 
         // When & Then
         assertThrows<com.yb.rh.error.RHException> {
@@ -303,7 +326,7 @@ class MainServiceTest {
         
         verify { 
             carService.getCarById(blockedCarId)
-            carsRelationsService.findCarRelations(blockedCar)
+            carsRelationsService.findCarRelationsByCar(blockedCar)
         }
         verify(exactly = 0) { 
             userCarService.getCarUsersByCar(any())
@@ -327,7 +350,7 @@ class MainServiceTest {
         every { blockedCar.id } returns blockedCarId
         every { blockingCar.id } returns 2L
         every { carService.getCarById(blockedCarId) } returns blockedCar
-        every { carsRelationsService.findCarRelations(any()) } returns carRelations
+        every { carsRelationsService.findCarRelationsByCar(any()) } returns carRelations
         every { userCarService.getCarUsersByCar(any()) } returns emptyCarUsersDTO
 
         // When
@@ -336,7 +359,7 @@ class MainServiceTest {
         // Then
         verify { 
             carService.getCarById(blockedCarId)
-            carsRelationsService.findCarRelations(any())
+            carsRelationsService.findCarRelationsByCar(any())
             userCarService.getCarUsersByCar(any())
         }
         verify(exactly = 0) { 
@@ -370,24 +393,21 @@ class MainServiceTest {
         // Given
         val currentUser = mockk<com.yb.rh.entities.User>(relaxed = true)
         every { currentUser.userId } returns 1L
-        val userCarsDTO = TestObjectBuilder.getUserCarsDTO(
-            user = TestObjectBuilder.getUserDTO(id = 1L),
-            cars = listOf(
-                TestObjectBuilder.getCarDTO(id = 1L, plateNumber = "CAR1"),
-                TestObjectBuilder.getCarDTO(id = 2L, plateNumber = "CAR2")
-            )
+        val car1 = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
+        val car2 = TestObjectBuilder.getCar(id = 2L, plateNumber = "CAR2")
+        val userCar1 = TestObjectBuilder.getUserCar(
+            id = 1L,
+            user = currentUser,
+            car = car1
         )
-        val car1 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val car2 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        every { car1.id } returns 1L
-        every { car2.id } returns 2L
-        every { car1.plateNumber } returns "CAR1"
-        every { car2.plateNumber } returns "CAR2"
+        val userCar2 = TestObjectBuilder.getUserCar(
+            id = 2L,
+            user = currentUser,
+            car = car2
+        )
 
         every { currentUserService.getCurrentUser() } returns currentUser
-        every { userCarService.getUserCarsByUser(currentUser) } returns userCarsDTO
-        every { carService.getCarById(1L) } returns car1
-        every { carService.getCarById(2L) } returns car2
+        every { userCarService.getUserCarsByUser(currentUser) } returns listOf(userCar1, userCar2)
         every { carsRelationsService.findCarRelationsByCar(car1) } returns TestObjectBuilder.getCarRelations(car1)
         every { carsRelationsService.findCarRelationsByCar(car2) } returns TestObjectBuilder.getCarRelations(car2)
         every { userCarService.isCarHasOwners(any()) } returns false
@@ -403,8 +423,6 @@ class MainServiceTest {
         verify { 
             currentUserService.getCurrentUser()
             userCarService.getUserCarsByUser(currentUser)
-            carService.getCarById(1L)
-            carService.getCarById(2L)
             carsRelationsService.findCarRelationsByCar(car1)
             carsRelationsService.findCarRelationsByCar(car2)
         }
@@ -415,17 +433,15 @@ class MainServiceTest {
         // Given
         val currentUser = mockk<com.yb.rh.entities.User>(relaxed = true)
         every { currentUser.userId } returns 1L
-        val userCarsDTO = TestObjectBuilder.getUserCarsDTO(
-            user = TestObjectBuilder.getUserDTO(id = 1L),
-            cars = listOf(TestObjectBuilder.getCarDTO(id = 1L, plateNumber = "CAR1"))
+        val car1 = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
+        val userCar1 = TestObjectBuilder.getUserCar(
+            id = 1L,
+            user = currentUser,
+            car = car1
         )
-        val car1 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        every { car1.id } returns 1L
-        every { car1.plateNumber } returns "CAR1"
 
         every { currentUserService.getCurrentUser() } returns currentUser
-        every { userCarService.getUserCarsByUser(currentUser) } returns userCarsDTO
-        every { carService.getCarById(1L) } returns car1
+        every { userCarService.getUserCarsByUser(currentUser) } returns listOf(userCar1)
         every { carsRelationsService.findCarRelationsByCar(car1) } returns TestObjectBuilder.getCarRelations(car1)
         every { userCarService.isCarHasOwners(any()) } returns false
 
@@ -440,7 +456,6 @@ class MainServiceTest {
         verify { 
             currentUserService.getCurrentUser()
             userCarService.getUserCarsByUser(currentUser)
-            carService.getCarById(1L)
             carsRelationsService.findCarRelationsByCar(car1)
         }
     }
@@ -449,10 +464,9 @@ class MainServiceTest {
     fun `test getUserCarRelations success with no cars`() {
         // Given
         val currentUser = TestObjectBuilder.getUser(userId = 1L)
-        val userCarsDTO = TestObjectBuilder.getEmptyUserCarsDTO()
 
         every { currentUserService.getCurrentUser() } returns currentUser
-        every { userCarService.getUserCarsByUser(currentUser) } returns userCarsDTO
+        every { userCarService.getUserCarsByUser(currentUser) } returns emptyList()
 
         // When
         val result = mainService.getUserCarRelations()
@@ -475,34 +489,21 @@ class MainServiceTest {
         // Given
         val currentUser = mockk<com.yb.rh.entities.User>(relaxed = true)
         every { currentUser.userId } returns 1L
-        val userCarsDTO = TestObjectBuilder.getUserCarsDTO(
-            user = TestObjectBuilder.getUserDTO(id = 1L),
-            cars = listOf(
-                TestObjectBuilder.getCarDTO(id = 1L, plateNumber = "CAR1"),
-                TestObjectBuilder.getCarDTO(id = 2L, plateNumber = "CAR2")
-            )
+        val car1 = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
+        val car2 = TestObjectBuilder.getCar(id = 2L, plateNumber = "CAR2")
+        val userCar1 = TestObjectBuilder.getUserCar(
+            id = 1L,
+            user = currentUser,
+            car = car1
         )
-        val car1 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val car2 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        every { car1.id } returns 1L
-        every { car2.id } returns 2L
-        every { car1.plateNumber } returns "CAR1"
-        every { car2.plateNumber } returns "CAR2"
-        val carRelationsDTO1 = TestObjectBuilder.getCarRelationsDTO(
-            car = TestObjectBuilder.getCarDTO(id = 1L, plateNumber = "CAR1"),
-            isBlocking = emptyList(),
-            isBlockedBy = emptyList()
-        )
-        val carRelationsDTO2 = TestObjectBuilder.getCarRelationsDTO(
-            car = TestObjectBuilder.getCarDTO(id = 2L, plateNumber = "CAR2"),
-            isBlocking = emptyList(),
-            isBlockedBy = emptyList()
+        val userCar2 = TestObjectBuilder.getUserCar(
+            id = 2L,
+            user = currentUser,
+            car = car2
         )
 
         every { currentUserService.getCurrentUser() } returns currentUser
-        every { userCarService.getUserCarsByUser(currentUser) } returns userCarsDTO
-        every { carService.getCarById(1L) } returns car1
-        every { carService.getCarById(2L) } returns car2
+        every { userCarService.getUserCarsByUser(currentUser) } returns listOf(userCar1, userCar2)
         every { carsRelationsService.findCarRelationsByCar(car1) } returns TestObjectBuilder.getCarRelations(car1)
         every { carsRelationsService.findCarRelationsByCar(car2) } returns TestObjectBuilder.getCarRelations(car2)
         every { userCarService.isCarHasOwners(any()) } returns false
@@ -518,8 +519,6 @@ class MainServiceTest {
         verify { 
             currentUserService.getCurrentUser()
             userCarService.getUserCarsByUser(currentUser)
-            carService.getCarById(1L)
-            carService.getCarById(2L)
             carsRelationsService.findCarRelationsByCar(car1)
             carsRelationsService.findCarRelationsByCar(car2)
         }

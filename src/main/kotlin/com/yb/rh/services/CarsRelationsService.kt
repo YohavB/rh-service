@@ -32,7 +32,7 @@ class CarsRelationsService(
         logger.info { "Successfully created Cars Relation for Car : ${blockingCar.plateNumber} and Car : ${blockedCar.plateNumber}" }
     }
 
-    fun findCarRelations(car: Car): CarRelations {
+    fun findCarRelationsByCar(car: Car): CarRelations {
         logger.info { "Finding Car Relations for Car : ${car.plateNumber}" }
 
         val isBlocking = carsRelationsRepository.findByBlockingCar(car)
@@ -46,12 +46,6 @@ class CarsRelationsService(
         logger.info { "Found Car Relations for Car : ${car.plateNumber} - $carRelations" }
 
         return carRelations
-    }
-
-    fun findCarRelationsByCar(car: Car): CarRelations {
-        logger.info { "Finding Car Relations for Car : ${car.plateNumber}" }
-
-        return findCarRelations(car)
     }
 
     @Transactional
@@ -80,31 +74,31 @@ class CarsRelationsService(
         logger.info { "Successfully deleted all Cars Relations for Car : ${car.plateNumber}" }
     }
 
-    /**
-     * Check if creating a blocking relationship would create a circular dependency
-     */
     fun wouldCreateCircularBlocking(blockingCar: Car, blockedCar: Car): Boolean {
-        logger.info { "Checking for circular blocking: ${blockingCar.plateNumber} -> ${blockedCar.plateNumber}" }
+        logger.debug { "Checking for circular blocking: ${blockingCar.plateNumber} -> ${blockedCar.plateNumber}" }
+
+        // Fetch all relations once (could be optimized further with custom query if dataset is large)
+        val allRelations = carsRelationsRepository.findAll()
+            .groupBy { it.blockingCar.id }
 
         val visited = mutableSetOf<Long>()
-        return hasPathToCar(blockedCar, blockingCar, visited)
-    }
+        val stack = ArrayDeque<Long>()
+        stack.add(blockedCar.id)
 
-    internal fun hasPathToCar(startCar: Car, targetCar: Car, visited: MutableSet<Long>): Boolean {
-        if (startCar.id == targetCar.id) {
-            return true
+        while (stack.isNotEmpty()) {
+            val currentId = stack.removeLast()
+
+            if (currentId == blockingCar.id) {
+                return true
+            }
+
+            if (!visited.add(currentId)) continue
+
+            val nextCars = allRelations[currentId].orEmpty().map { it.blockedCar.id }
+            stack.addAll(nextCars)
         }
 
-        if (visited.contains(startCar.id)) {
-            return false
-        }
-
-        visited.add(startCar.id)
-
-        val blockingRelations = carsRelationsRepository.findByBlockingCar(startCar)
-        return blockingRelations.any { relation ->
-            hasPathToCar(relation.blockedCar, targetCar, visited)
-        }
+        return false
     }
 }
 

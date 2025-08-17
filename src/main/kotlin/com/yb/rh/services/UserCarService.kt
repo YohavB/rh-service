@@ -31,15 +31,26 @@ class UserCarService(
 
         logger.info { "Successfully created UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
 
-        return getUserCarsByUser(user)
+        return getUserCarsDTOByUser(user)
     }
 
-    fun getUsersCarsByUser(user: User): List<UserCarDTO> {
-        logger.info { "Try to find UsersCars for User ID : ${user.userId}" }
+    fun getUserCarsByUser(user: User): List<UserCar> {
+        logger.info { "Fetching UserCars for User ID: ${user.userId}" }
+
+        return userCarRepository.findAllByUser(user).also { usersCars ->
+            logger.info { "Found ${usersCars.size} UserCars for User ID : ${user.userId}" }
+        }
+    }
+
+    fun getUserCarsDTOByUser(user: User): UserCarsDTO {
+        logger.info { "Try to find UserCars for User ID : ${user.userId}" }
 
         return userCarRepository.findAllByUser(user)
             .map { userCar -> userCar.toDto() }
-            .also { usersCars -> logger.info { "Found ${usersCars.size} UserCars for User ID : ${user.userId}" } }
+            .let { userCars ->
+                UserCarsDTO(user.toDto(), userCars.map { it.car })
+            }
+            .also { userCars -> logger.info { "Found ${userCars.cars.size} UserCars for User ID : ${user.userId}" } }
     }
 
     fun getUsersCarsByCar(car: Car): List<UserCarDTO> {
@@ -55,12 +66,6 @@ class UserCarService(
         return userCarRepository.findByUserAndCar(user, car)
             ?.toDto()
             ?: throw RHException("UserCar not found for User ID : ${user.userId} and Car ID : ${car.id}")
-    }
-
-    fun getUserCarsByUser(user: User): UserCarsDTO {
-        logger.info { "Fetching UserCars for User ID: ${user.userId}" }
-
-        return UserCarsDTO(user.toDto(), getUsersCarsByUser(user).map { it.car })
     }
 
     fun getCarUsersByCar(car: Car): CarUsersDTO {
@@ -79,7 +84,7 @@ class UserCarService(
 
         logger.info { "Successfully deleted UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
 
-        return getUserCarsByUser(user)
+        return getUserCarsDTOByUser(user)
     }
 
     fun isCarHasOwners(car: Car): Boolean {

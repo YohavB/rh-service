@@ -114,7 +114,7 @@ class NotificationIntegrationTest : IntegrationTestBase() {
             emptyList<CarDTO>()
         }
         val message = if (jsonNode.has("message")) jsonNode.get("message").asText() else null
-        carsRelation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy, message = message)
+        carsRelation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy)
     }
 
     @Test

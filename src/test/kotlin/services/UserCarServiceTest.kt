@@ -57,11 +57,12 @@ class UserCarServiceTest {
         userCars.forEachIndexed { index, userCar ->
             every { userCar.toDto() } returns userCarDTOs[index]
         }
+        every { user.toDto() } returns TestObjectBuilder.getUserDTO()
 
-        val result = userCarService.getUsersCarsByUser(user)
+        val result = userCarService.getUserCarsDTOByUser(user)
 
         assertNotNull(result)
-        assertEquals(3, result.size)
+        assertEquals(3, result.cars.size)
         verify { userCarRepository.findAllByUser(user) }
     }
 
@@ -71,11 +72,12 @@ class UserCarServiceTest {
         
         every { user.userId } returns 1L
         every { userCarRepository.findAllByUser(user) } returns emptyList()
+        every { user.toDto() } returns TestObjectBuilder.getUserDTO()
 
-        val result = userCarService.getUsersCarsByUser(user)
+        val result = userCarService.getUserCarsDTOByUser(user)
 
         assertNotNull(result)
-        assertEquals(0, result.size)
+        assertEquals(0, result.cars.size)
         verify { userCarRepository.findAllByUser(user) }
     }
 
@@ -160,7 +162,7 @@ class UserCarServiceTest {
             every { userCar.toDto() } returns userCarDTOs[index]
         }
 
-        val result = userCarService.getUserCarsByUser(user)
+        val result = userCarService.getUserCarsDTOByUser(user)
 
         assertNotNull(result)
         assertEquals(userDTO.id, result.user.id)

@@ -41,7 +41,7 @@ class MainService(
         val user = userService.getUserById(userCarRequestDTO.userId)
         val car = carService.getCarById(userCarRequestDTO.carId)
 
-        return userCarService.getUserCarsByUser(user)
+        return userCarService.getUserCarsDTOByUser(user)
             .also {
                 userCarService.getUserCarByUserAndCar(user, car)
                 userCarService.deleteUserCar(user, car)
@@ -53,14 +53,14 @@ class MainService(
         val currentUser = currentUserService.getCurrentUser()
         logger.info { "Fetching UserCars for User ID: ${currentUser.userId}" }
 
-        return userCarService.getUserCarsByUser(currentUser)
+        return userCarService.getUserCarsDTOByUser(currentUser)
             .also { logger.info { "Found ${it.cars.size} UserCars for User ID: ${currentUser.userId}" } }
     }
 
     /* Cars Relations Management */
 
     @Transactional
-    fun createCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): CarRelationsDTO {
+    fun createCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): List<CarRelationsDTO> {
         logger.info { "Creating Cars Relation between Blocking Car: ${carsRelationRequestDTO.blockingCarId} and Blocked Car: ${carsRelationRequestDTO.blockedCarId}" }
 
         val blockingCar = carService.getCarById(carsRelationRequestDTO.blockingCarId)
@@ -69,6 +69,14 @@ class MainService(
         // Validate that cars are different
         if (blockingCar.id == blockedCar.id) {
             throw IllegalArgumentException("A car cannot block itself")
+        }
+
+        // Validate that this relationship does not already exist
+        if (carsRelationsService.findCarRelationsByCar(blockingCar)
+                .isBlocking.any { it.id == blockedCar.id }
+        ) {
+            logger.warn { "Cars Relation already exists between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
+            return getUserCarRelations()
         }
 
         // Check for circular blocking
@@ -81,17 +89,14 @@ class MainService(
         logger.info { "Successfully created Cars Relation between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
 
         // Send appropriate notifications based on the user situation
-        var notificationMessage: String?
         when (carsRelationRequestDTO.userCarSituation) {
             UserCarSituation.IS_BLOCKING -> {
                 // User's car is blocking another car - notify blocked car's owners
                 val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
                 if (blockedCarUsers.users.isNotEmpty()) {
                     sendBlockedNotification(blockedCar)
-                    notificationMessage = "Blocking relationship created. Notifications sent to owner(s) of car ${blockedCar.plateNumber}."
                 } else {
                     logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
-                    notificationMessage = "Blocking relationship created. No notifications sent - car ${blockedCar.plateNumber} has no registered owners."
                 }
             }
             UserCarSituation.IS_BLOCKED -> {
@@ -99,19 +104,13 @@ class MainService(
                 val blockingCarUsers = userCarService.getCarUsersByCar(blockingCar)
                 if (blockingCarUsers.users.isNotEmpty()) {
                     sendBlockingNotification(blockingCar)
-                    notificationMessage = "Blocking relationship created. Notifications sent to owner(s) of car ${blockingCar.plateNumber}."
                 } else {
                     logger.warn { "Car ${blockingCar.id} (${blockingCar.plateNumber}) has no owner, skipping notification" }
-                    notificationMessage = "Blocking relationship created. No notifications sent - car ${blockingCar.plateNumber} has no registered owners."
                 }
             }
         }
 
-        val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
-
-        val carRelations = carsRelationsService.findCarRelationsByCar(userCar)
-
-        return createCarRelationsDTO(carRelations, notificationMessage)
+        return getUserCarRelations()
     }
 
     fun getCarRelationsByCarId(carId: Long): CarRelationsDTO {
@@ -127,12 +126,12 @@ class MainService(
 
     fun getUserCarRelations(): List<CarRelationsDTO> {
         val user = currentUserService.getCurrentUser()
-        logger.info { " Fetching User : ${user.userId} car relations" }
+        logger.info { "Fetching User Cars Relations for User ID: ${user.userId}" }
 
-        val carsRelationsList = userCarService.getUserCarsByUser(user).cars.map { carService.getCarById(it.id) }
-            .map { carsRelationsService.findCarRelationsByCar(it) }
-
-        return carsRelationsList.map { carRelations -> createCarRelationsDTO(carRelations) }
+        return userCarService.getUserCarsByUser(user)
+            .map { userCar ->
+                createCarRelationsDTO(carsRelationsService.findCarRelationsByCar(userCar.car))
+            }
     }
 
     @Transactional
@@ -148,18 +147,17 @@ class MainService(
 
         // Send "free to go" notification to blocked car's owners
         val blockedCarUsers = userCarService.getCarUsersByCar(blockedCar)
-        val notificationMessage = if (blockedCarUsers.users.isNotEmpty()) {
+
+        if (blockedCarUsers.users.isNotEmpty()) {
             sendFreeToGoNotification(blockedCar)
-            "Blocking relationship removed. Notifications sent to owner(s) of car ${blockedCar.plateNumber}."
         } else {
             logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
-            "Blocking relationship removed. No notifications sent - car ${blockedCar.plateNumber} has no registered owners."
         }
 
         val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
 
         carsRelationsService.findCarRelationsByCar(userCar).let { carRelations ->
-            return createCarRelationsDTO(carRelations, notificationMessage)
+            return createCarRelationsDTO(carRelations)
         }
     }
 
@@ -170,7 +168,7 @@ class MainService(
         val car = carService.getCarById(carId)
 
         // Get all cars that were being blocked by this car before deletion
-        val blockedCars = carsRelationsService.findCarRelations(car).isBlocking
+        val blockedCars = carsRelationsService.findCarRelationsByCar(car).isBlocking
 
         carsRelationsService.deleteAllCarsRelations(car)
 
@@ -194,12 +192,11 @@ class MainService(
         }
     }
 
-    private fun createCarRelationsDTO(carRelations: CarRelations, message: String? = null): CarRelationsDTO {
+    private fun createCarRelationsDTO(carRelations: CarRelations): CarRelationsDTO {
         return CarRelationsDTO(
             car = carRelations.car.let { it.toDto(userCarService.isCarHasOwners(it)) },
             isBlocking = carRelations.isBlocking.map { it.toDto(userCarService.isCarHasOwners(it)) },
-            isBlockedBy = carRelations.isBlockedBy.map { it.toDto(userCarService.isCarHasOwners(it)) },
-            message = message
+            isBlockedBy = carRelations.isBlockedBy.map { it.toDto(userCarService.isCarHasOwners(it)) }
         )
     }
 
@@ -207,7 +204,7 @@ class MainService(
 
     fun sendNeedToGoNotification(blockedCarId: Long) {
         val blockedCar = carService.getCarById(blockedCarId)
-        val carRelations = carsRelationsService.findCarRelations(blockedCar)
+        val carRelations = carsRelationsService.findCarRelationsByCar(blockedCar)
 
         if (carRelations.isBlockedBy.isEmpty()) {
             logger.info { "Car ${blockedCar.plateNumber} is not blocked by any other car, no notifications needed" }
@@ -227,7 +224,7 @@ class MainService(
         }
         visitedCars.add(blockedCar.id)
 
-        val carRelations = carsRelationsService.findCarRelations(blockedCar)
+        val carRelations = carsRelationsService.findCarRelationsByCar(blockedCar)
 
         if (carRelations.isBlockedBy.isEmpty()) {
             logger.info { "No blocking cars found for blocked car ID: ${blockedCar.id}" }

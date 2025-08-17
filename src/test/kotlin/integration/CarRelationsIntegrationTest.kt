@@ -44,7 +44,7 @@ class CarRelationsIntegrationTest : IntegrationTestBase() {
             emptyList<CarDTO>()
         }
         val message = if (jsonNode.has("message")) jsonNode.get("message").asText() else null
-        val relation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy, message = message)
+        val relation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy)
 
         assertEquals(car1.id, relation.car.id)
         // The API response only contains the car information, not the relationships

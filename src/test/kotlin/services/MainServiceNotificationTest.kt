@@ -49,7 +49,7 @@ class MainServiceNotificationTest {
         val car = createTestCar(carId, "ABC123")
         
         every { carService.getCarById(carId) } returns car
-        every { carsRelationsService.findCarRelations(car) } returns createTestCarRelations(car, emptyList(), emptyList())
+        every { carsRelationsService.findCarRelationsByCar(car) } returns createTestCarRelations(car, emptyList(), emptyList())
 
         // When & Then
         val exception = assertThrows<RHException> {
@@ -99,8 +99,8 @@ class MainServiceNotificationTest {
         val blockingCar = createTestCar(2L, "XYZ789")
         
         every { carService.getCarById(carId) } returns car
-        every { carsRelationsService.findCarRelations(car) } returns createTestCarRelations(car, emptyList(), listOf(blockingCar))
-        every { carsRelationsService.findCarRelations(blockingCar) } returns createTestCarRelations(blockingCar, emptyList(), emptyList())
+        every { carsRelationsService.findCarRelationsByCar(car) } returns createTestCarRelations(car, emptyList(), listOf(blockingCar))
+        every { carsRelationsService.findCarRelationsByCar(blockingCar) } returns createTestCarRelations(blockingCar, emptyList(), emptyList())
         every { userCarService.getCarUsersByCar(car) } returns carUsers
         every { userCarService.getCarUsersByCar(blockingCar) } returns CarUsersDTO(blockingCar.toDto(false), listOf(user.toDto()))
         every { userService.getUserById(1L) } returns user

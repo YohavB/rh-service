@@ -14,11 +14,9 @@ data class CarRelationsDTO(
     var isBlocking: List<CarDTO>,
     @JsonProperty("isBlockedBy")
     var isBlockedBy: List<CarDTO>,
-    @JsonProperty("message")
-    var message: String? = null
 ) {
     override fun toString(): String {
-        return "CarRelationsDTO(car=${car.plateNumber}, isBlocking=${isBlocking.map { it.plateNumber }}, isBlockedBy=${isBlockedBy.map { it.plateNumber }}, message=$message)"
+        return "CarRelationsDTO(car=${car.plateNumber}, isBlocking=${isBlocking.map { it.plateNumber }}, isBlockedBy=${isBlockedBy.map { it.plateNumber }}"
     }
 }
 

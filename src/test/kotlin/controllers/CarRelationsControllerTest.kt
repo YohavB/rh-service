@@ -28,17 +28,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO()
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.createCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.createCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.createCarsRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
-        assertEquals(carRelationsDTO.message, result.message)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.createCarsRelations(carsRelationRequest) }
     }
 
@@ -48,16 +47,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO(blockingCarId = 5L, blockedCarId = 10L)
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.createCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.createCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.createCarsRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.createCarsRelations(carsRelationRequest) }
     }
 
@@ -91,7 +90,6 @@ class CarRelationsControllerTest {
         assertEquals(carRelationsDTO.car, result.car)
         assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
         assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
-        assertEquals(carRelationsDTO.message, result.message)
         verify { mainService.getCarRelationsByCarId(carId) }
     }
 
@@ -163,7 +161,6 @@ class CarRelationsControllerTest {
         assertEquals(carRelationsDTO.car, result.car)
         assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
         assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
-        assertEquals(carRelationsDTO.message, result.message)
         verify { mainService.deleteCarsRelations(carsRelationRequest) }
     }
 
@@ -262,16 +259,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO(blockingCarId = -1L, blockedCarId = -2L)
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.createCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.createCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.createCarsRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.createCarsRelations(carsRelationRequest) }
     }
 

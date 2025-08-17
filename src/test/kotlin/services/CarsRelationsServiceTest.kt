@@ -81,7 +81,7 @@ class CarsRelationsServiceTest {
         every { carsRelationsRepository.findByBlockedCar(car) } returns isBlockedByRelations
 
         // When
-        val result = carsRelationsService.findCarRelations(car)
+        val result = carsRelationsService.findCarRelationsByCar(car)
 
         // Then
         assertNotNull(result)
@@ -107,7 +107,7 @@ class CarsRelationsServiceTest {
         every { carsRelationsRepository.findByBlockedCar(car) } returns emptyList()
 
         // When
-        val result = carsRelationsService.findCarRelations(car)
+        val result = carsRelationsService.findCarRelationsByCar(car)
 
         // Then
         assertNotNull(result)
@@ -123,11 +123,35 @@ class CarsRelationsServiceTest {
     @Test
     fun `test findCarRelationsDTO success`() {
         // Given
-        val car = mockk<com.yb.rh.entities.Car>()
-        val carDTO = TestObjectBuilder.getCarDTO()
+        val car = TestObjectBuilder.getCar(plateNumber = "MAIN")
+        val blockingCar1 = TestObjectBuilder.getCar(plateNumber = "BLOCKER1")
+        val blockingCar2 = TestObjectBuilder.getCar(plateNumber = "BLOCKER2")
+        val blockedCar1 = TestObjectBuilder.getCar(plateNumber = "BLOCKED1")
+        val blockedCar2 = TestObjectBuilder.getCar(plateNumber = "BLOCKED2")
 
-        every { carsRelationsRepository.findByBlockingCar(car) } returns emptyList()
-        every { carsRelationsRepository.findByBlockedCar(car) } returns emptyList()
+        val blockingRelations = listOf(
+            TestObjectBuilder.getCarsRelations(
+                blockingCar = car,
+                blockedCar = blockedCar1
+            ),
+            TestObjectBuilder.getCarsRelations(
+                blockingCar = car,
+                blockedCar = blockedCar2
+            )
+        )
+        val blockedByRelations = listOf(
+            TestObjectBuilder.getCarsRelations(
+                blockingCar = blockingCar1,
+                blockedCar = car
+            ),
+            TestObjectBuilder.getCarsRelations(
+                blockingCar = blockingCar2,
+                blockedCar = car
+            )
+        )
+
+        every { carsRelationsRepository.findByBlockingCar(car) } returns blockingRelations
+        every { carsRelationsRepository.findByBlockedCar(car) } returns blockedByRelations
 
         // When
         val result = carsRelationsService.findCarRelationsByCar(car)
@@ -135,6 +159,12 @@ class CarsRelationsServiceTest {
         // Then
         assertNotNull(result)
         assertEquals(car, result.car)
+        assertEquals(2, result.isBlocking.size)
+        assertEquals(2, result.isBlockedBy.size)
+        assertTrue(result.isBlocking.contains(blockedCar1))
+        assertTrue(result.isBlocking.contains(blockedCar2))
+        assertTrue(result.isBlockedBy.contains(blockingCar1))
+        assertTrue(result.isBlockedBy.contains(blockingCar2))
         verify {
             carsRelationsRepository.findByBlockingCar(car)
             carsRelationsRepository.findByBlockedCar(car)
@@ -233,13 +263,14 @@ class CarsRelationsServiceTest {
         every { car2.plateNumber } returns "CAR2"
         every { carsRelationsRepository.findByBlockingCar(car1) } returns emptyList()
         every { carsRelationsRepository.findByBlockingCar(car2) } returns listOf(existingRelation)
+        every { carsRelationsRepository.findAll() } returns listOf(existingRelation)
 
         // When
         val result = carsRelationsService.wouldCreateCircularBlocking(car1, car2)
 
         // Then
         assertTrue(result)
-        verify { carsRelationsRepository.findByBlockingCar(any()) }
+        verify { carsRelationsRepository.findAll() }
     }
 
     @Test
@@ -261,16 +292,14 @@ class CarsRelationsServiceTest {
         every { carsRelationsRepository.findByBlockingCar(car1) } returns emptyList()
         every { carsRelationsRepository.findByBlockingCar(car2) } returns listOf(relation2to3)
         every { carsRelationsRepository.findByBlockingCar(car3) } returns listOf(relation3to1)
+        every { carsRelationsRepository.findAll() } returns listOf(relation2to3, relation3to1)
 
         // When
         val result = carsRelationsService.wouldCreateCircularBlocking(car1, car2)
 
         // Then
         assertTrue(result)
-        verify {
-            carsRelationsRepository.findByBlockingCar(car2)
-            carsRelationsRepository.findByBlockingCar(car3)
-        }
+        verify { carsRelationsRepository.findAll() }
     }
 
     @Test
@@ -291,16 +320,14 @@ class CarsRelationsServiceTest {
         every { carsRelationsRepository.findByBlockingCar(car1) } returns emptyList()
         every { carsRelationsRepository.findByBlockingCar(car2) } returns listOf(relation2to3)
         every { carsRelationsRepository.findByBlockingCar(car3) } returns emptyList()
+        every { carsRelationsRepository.findAll() } returns listOf(relation2to3)
 
         // When
         val result = carsRelationsService.wouldCreateCircularBlocking(car1, car2)
 
         // Then
         assertFalse(result)
-        verify {
-            carsRelationsRepository.findByBlockingCar(car2)
-            carsRelationsRepository.findByBlockingCar(car3)
-        }
+        verify { carsRelationsRepository.findAll() }
     }
 
     @Test
@@ -309,6 +336,7 @@ class CarsRelationsServiceTest {
         val car = TestObjectBuilder.getCar(id = 1L, plateNumber = "CAR1")
 
         every { carsRelationsRepository.findByBlockingCar(car) } returns emptyList()
+        every { carsRelationsRepository.findAll() } returns emptyList()
 
         // When
         val result = carsRelationsService.wouldCreateCircularBlocking(car, car)
@@ -316,50 +344,6 @@ class CarsRelationsServiceTest {
         // Then
         assertTrue(result)
         verify(exactly = 0) { carsRelationsRepository.findByBlockingCar(any()) }
+        verify { carsRelationsRepository.findAll() }
     }
-
-    @Test
-    fun `test hasPathToCar direct path`() {
-        val car1 = TestObjectBuilder.getCar(id = 1L)
-        val car2 = TestObjectBuilder.getCar(id = 2L)
-        val visited = mutableSetOf<Long>()
-
-        val result = carsRelationsService.hasPathToCar(car1, car1, visited)
-
-        assertTrue(result)
-    }
-
-    @Test
-    fun `test hasPathToCar no path`() {
-        val car1 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val car2 = mockk<com.yb.rh.entities.Car>(relaxed = true)
-        val visited = mutableSetOf<Long>()
-
-        every { car1.id } returns 1L
-        every { car2.id } returns 2L
-        every { carsRelationsRepository.findByBlockingCar(car1) } returns emptyList()
-
-        val result = carsRelationsService.hasPathToCar(car1, car2, visited)
-
-        assertFalse(result)
-    }
-
-    @Test
-    fun `test hasPathToCar with circular reference`() {
-        val car1 = TestObjectBuilder.getCar(id = 1L)
-        val car2 = TestObjectBuilder.getCar(id = 2L)
-        val visited = mutableSetOf<Long>()
-
-        val relation1 = mockk<com.yb.rh.entities.CarsRelations>()
-        val relation2 = mockk<com.yb.rh.entities.CarsRelations>()
-
-        every { relation1.blockedCar } returns car2
-        every { relation2.blockedCar } returns car1
-        every { carsRelationsRepository.findByBlockingCar(car1) } returns listOf(relation1)
-        every { carsRelationsRepository.findByBlockingCar(car2) } returns listOf(relation2)
-
-        val result = carsRelationsService.hasPathToCar(car1, car2, visited)
-
-        assertTrue(result)
-    }
-} 
+}
