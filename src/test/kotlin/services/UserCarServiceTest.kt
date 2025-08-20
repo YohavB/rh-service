@@ -233,11 +233,18 @@ class UserCarServiceTest {
         every { user.userId } returns 1L
         every { car.id } returns 1L
         every { userCarRepository.findByUserAndCar(user, car) } returns null
+        every { userCarRepository.findAllByUser(user) } returns emptyList()
+        every { user.toDto() } returns TestObjectBuilder.getUserDTO()
 
-        assertThrows<com.yb.rh.error.RHException> {
-            userCarService.deleteUserCar(user, car)
-        }
+        val result = userCarService.deleteUserCar(user, car)
+
+        // Should return user's cars (empty list in this case) instead of throwing exception
+        assertNotNull(result)
+        assertEquals(0, result.cars.size)
+        
+        // Should not call delete since UserCar was not found
         verify { userCarRepository.findByUserAndCar(user, car) }
         verify(exactly = 0) { userCarRepository.delete(any()) }
+        verify { userCarRepository.findAllByUser(user) }
     }
 } 

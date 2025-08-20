@@ -26,7 +26,7 @@ class IlCarJsonHandler(override val country: Countries = Countries.IL) : ICarJso
             brand = carInfo.getBrand(),
             model = carInfo.getModel(),
             color = carInfo.getColor(),
-            year = carInfo.getYear(),
+            manufacturingYear = carInfo.getYear(),
             carLicenseExpireDate = carInfo.getLicenseDateExpiration(),
             hasOwner = false // Every retrieved car has no owner in a first place
         )

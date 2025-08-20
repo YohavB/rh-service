@@ -84,6 +84,7 @@ dependencies {
     // Flyway for database migrations (used in production profiles)
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.flywaydb:flyway-mysql:9.22.3")
+    testImplementation("org.flywaydb:flyway-core:9.22.3")
 
     // okhttp - used in CarApi service
     val okhttpVersion = "4.1.1"
@@ -98,14 +99,13 @@ dependencies {
     // GSON - used in IlCarJson and GoogleTokenVerifier
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // coroutines - used in NotificationService
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-
-    //expo-server-sdk - used in NotificationService
-    implementation ("io.github.jav:expo-server-sdk:1.1.0") {
+    // Firebase Admin SDK - used in NotificationService for FCM
+    implementation("com.google.firebase:firebase-admin:9.5.0"){
         exclude(module = "commons-logging")
     }
+
+    // Kotlin coroutines for async notification sending
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     // Comment out devtools to prevent duplicate logs during development
     // developmentOnly("org.springframework.boot:spring-boot-devtools")

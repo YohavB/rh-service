@@ -151,16 +151,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO()
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.deleteCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.deleteCarRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.deleteCarsRelations(carsRelationRequest) }
     }
 
@@ -170,16 +170,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO(blockingCarId = 15L, blockedCarId = 20L)
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.deleteCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.deleteCarRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.deleteCarsRelations(carsRelationRequest) }
     }
 
@@ -201,13 +201,15 @@ class CarRelationsControllerTest {
     fun `test deleteAllCarRelationsByCarId success`() {
         // Given
         val carId = 1L
+        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteAllCarRelationsByCarId(carId) } returns Unit
+        every { mainService.deleteAllCarRelationsByCarId(carId) } returns listOf(carRelationsDTO)
 
         // When
-        carRelationsController.deleteAllCarRelationsByCarId(carId)
+        val result = carRelationsController.deleteAllCarRelationsByCarId(carId)
 
         // Then
+        assertNotNull(result)
         verify { mainService.deleteAllCarRelationsByCarId(carId) }
     }
 
@@ -215,13 +217,15 @@ class CarRelationsControllerTest {
     fun `test deleteAllCarRelationsByCarId with different car id`() {
         // Given
         val carId = 500L
+        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteAllCarRelationsByCarId(carId) } returns Unit
+        every { mainService.deleteAllCarRelationsByCarId(carId) } returns listOf(carRelationsDTO)
 
         // When
-        carRelationsController.deleteAllCarRelationsByCarId(carId)
+        val result = carRelationsController.deleteAllCarRelationsByCarId(carId)
 
         // Then
+        assertNotNull(result)
         verify { mainService.deleteAllCarRelationsByCarId(carId) }
     }
 
@@ -229,13 +233,15 @@ class CarRelationsControllerTest {
     fun `test deleteAllCarRelationsByCarId with zero car id`() {
         // Given
         val carId = 0L
+        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteAllCarRelationsByCarId(carId) } returns Unit
+        every { mainService.deleteAllCarRelationsByCarId(carId) } returns listOf(carRelationsDTO)
 
         // When
-        carRelationsController.deleteAllCarRelationsByCarId(carId)
+        val result = carRelationsController.deleteAllCarRelationsByCarId(carId)
 
         // Then
+        assertNotNull(result)
         verify { mainService.deleteAllCarRelationsByCarId(carId) }
     }
 
@@ -297,16 +303,16 @@ class CarRelationsControllerTest {
         val carsRelationRequest = TestObjectBuilder.getCarsRelationRequestDTO(blockingCarId = -5L, blockedCarId = -10L)
         val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteCarsRelations(carsRelationRequest) } returns carRelationsDTO
+        every { mainService.deleteCarsRelations(carsRelationRequest) } returns listOf(carRelationsDTO)
 
         // When
         val result = carRelationsController.deleteCarRelations(carsRelationRequest)
 
         // Then
         assertNotNull(result)
-        assertEquals(carRelationsDTO.car, result.car)
-        assertEquals(carRelationsDTO.isBlocking, result.isBlocking)
-        assertEquals(carRelationsDTO.isBlockedBy, result.isBlockedBy)
+        assertEquals(carRelationsDTO.car, result[0].car)
+        assertEquals(carRelationsDTO.isBlocking, result[0].isBlocking)
+        assertEquals(carRelationsDTO.isBlockedBy, result[0].isBlockedBy)
         verify { mainService.deleteCarsRelations(carsRelationRequest) }
     }
 
@@ -314,13 +320,15 @@ class CarRelationsControllerTest {
     fun `test deleteAllCarRelationsByCarId with negative car id`() {
         // Given
         val carId = -1L
+        val carRelationsDTO = TestObjectBuilder.getCarRelationsDTO()
         
-        every { mainService.deleteAllCarRelationsByCarId(carId) } returns Unit
+        every { mainService.deleteAllCarRelationsByCarId(carId) } returns listOf(carRelationsDTO)
 
         // When
-        carRelationsController.deleteAllCarRelationsByCarId(carId)
+        val result = carRelationsController.deleteAllCarRelationsByCarId(carId)
 
         // Then
+        assertNotNull(result)
         verify { mainService.deleteAllCarRelationsByCarId(carId) }
     }
 } 

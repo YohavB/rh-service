@@ -100,21 +100,9 @@ class NotificationIntegrationTest : IntegrationTestBase() {
         )
 
         val carsRelationResponse = performPost("/api/v1/car-relations", carsRelationRequest)
-        // Parse the response manually to handle missing fields
-        val jsonNode = objectMapper.readTree(carsRelationResponse)
-        val car = objectMapper.treeToValue(jsonNode.get("car"), CarDTO::class.java)
-        val isBlocking = if (jsonNode.has("isBlocking")) {
-            objectMapper.treeToValue(jsonNode.get("isBlocking"), Array<CarDTO>::class.java).toList()
-        } else {
-            emptyList<CarDTO>()
-        }
-        val isBlockedBy = if (jsonNode.has("isBlockedBy")) {
-            objectMapper.treeToValue(jsonNode.get("isBlockedBy"), Array<CarDTO>::class.java).toList()
-        } else {
-            emptyList<CarDTO>()
-        }
-        val message = if (jsonNode.has("message")) jsonNode.get("message").asText() else null
-        carsRelation = CarRelationsDTO(car = car, isBlocking = isBlocking, isBlockedBy = isBlockedBy)
+        // Parse the response as a list of CarRelationsDTO
+        val relations = objectMapper.readValue(carsRelationResponse, Array<CarRelationsDTO>::class.java).toList()
+        carsRelation = relations.first()
     }
 
     @Test

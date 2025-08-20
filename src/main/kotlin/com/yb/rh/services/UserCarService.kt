@@ -75,14 +75,16 @@ class UserCarService(
     }
 
     fun deleteUserCar(user: User, car: Car): UserCarsDTO {
-        logger.info { "Deleting UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
+        logger.info { "Attempting to delete UserCar [userId=${user.userId}, carId=${car.id}]" }
 
-        val userCar = userCarRepository.findByUserAndCar(user, car)
-            ?: throw RHException("UserCar not found for User ID : ${user.userId} and Car ID : ${car.id}")
+        val userCar = userCarRepository.findByUserAndCar(user, car) ?: run {
+            logger.warn { "UserCar not found [userId=${user.userId}, carId=${car.id}]" }
+            return getUserCarsDTOByUser(user)
+        }
 
         userCarRepository.delete(userCar)
 
-        logger.info { "Successfully deleted UserCar for User ID : ${user.userId} and Car ID : ${car.id}" }
+        logger.info { "Successfully deleted UserCar [userId=${user.userId}, carId=${car.id}]" }
 
         return getUserCarsDTOByUser(user)
     }

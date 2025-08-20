@@ -98,6 +98,30 @@ RH-BE/
 
 ### Environment Variables (.env)
 ```bash
+
+### Firebase Setup
+
+This application requires Firebase credentials for authentication and notifications. Follow these steps to set up:
+
+1. **Download Firebase Admin SDK credentials:**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Select your project
+   - Go to Project Settings > Service Accounts
+   - Click "Generate new private key"
+   - Download the JSON file
+
+2. **Place credentials in the correct location:**
+   ```bash
+   # Copy the downloaded file to the resources directory
+   cp /path/to/downloaded/firebase-credentials.json src/main/resources/rushhour-firebase-adminsdk.json
+   
+   # Or place in root directory for development
+   cp /path/to/downloaded/firebase-credentials.json rushhour-firebase-adminsdk.json
+   ```
+
+3. **Important:** The credentials file is automatically ignored by git for security reasons. Never commit this file to version control.
+
+4. **For production deployment:** Ensure the credentials file is available in your deployment environment.
 # Database Configuration (Local MySQL Container)
 DATABASE_URL=jdbc:mysql://localhost:3306/rh?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 DB_USERNAME=admin

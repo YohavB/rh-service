@@ -222,6 +222,8 @@ class MainServiceTest {
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { userCarService.isCarHasOwners(any()) } returns false
+        every { currentUserService.getCurrentUser() } returns user
+        every { userCarService.getUserCarsByUser(user) } returns listOf(TestObjectBuilder.getUserCar(user = user, car = blockingCar))
         every { notificationService.sendPushNotification(any(), any()) } just Runs
 
         // When
@@ -229,7 +231,7 @@ class MainServiceTest {
 
         // Then
         assertNotNull(result)
-        assertNotNull(result.car.id)
+        assertNotNull(result[0].car.id)
         verify { 
             carService.getCarById(1L)
             carService.getCarById(2L)
@@ -258,6 +260,8 @@ class MainServiceTest {
         every { userCarService.getCarUsersByCar(any()) } returns carUsersDTO
         every { userService.getUserById(any()) } returns user
         every { userCarService.isCarHasOwners(any()) } returns false
+        every { currentUserService.getCurrentUser() } returns user
+        every { userCarService.getUserCarsByUser(user) } returns listOf(TestObjectBuilder.getUserCar(user = user, car = car))
         every { notificationService.sendPushNotification(any(), any()) } just Runs
 
         // When

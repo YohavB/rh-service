@@ -22,7 +22,7 @@ object TestObjectBuilder {
         firstName: String = "John",
         lastName: String = "Doe",
         email: String = "john.doe@example.com",
-        pushNotificationToken: String = "ExponentPushToken[test-token-123]",
+        pushNotificationToken: String = "fcm-test-token-123456789abcdef",
         urlPhoto: String? = null,
         isActive: Boolean = true
     ) = User(
@@ -31,7 +31,8 @@ object TestObjectBuilder {
         email = email,
         pushNotificationToken = pushNotificationToken,
         urlPhoto = urlPhoto,
-        isActive = isActive
+        isActive = isActive,
+        userId = userId
     )
 
     fun getUserDTO(
@@ -40,7 +41,7 @@ object TestObjectBuilder {
         lastName: String = "Doe",
         email: String = "john.doe@example.com",
         urlPhoto: String? = null,
-        pushNotificationToken: String? = "ExponentPushToken[test-token-123]"
+        pushNotificationToken: String? = "fcm-test-token-123456789abcdef"
     ) = UserDTO(
         id = id,
         firstName = firstName,
@@ -54,7 +55,7 @@ object TestObjectBuilder {
         firstName: String = "John",
         lastName: String = "Doe",
         email: String = "john.doe@example.com",
-        pushNotificationToken: String = "ExponentPushToken[test-token-123]",
+        pushNotificationToken: String = "fcm-test-token-123456789abcdef",
         urlPhoto: String? = null
     ) = UserCreationDTO(
         firstName = firstName,
@@ -72,7 +73,7 @@ object TestObjectBuilder {
         brand: Brands = Brands.TESLA,
         model: String = "Model 3",
         color: Colors = Colors.WHITE,
-        year: Int = 2023,
+        manufacturingYear: Int = 2023,
         carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1)
     ) = Car(
         plateNumber = plateNumber,
@@ -80,7 +81,7 @@ object TestObjectBuilder {
         brand = brand,
         model = model,
         color = color,
-        year = year,
+        manufacturingYear = manufacturingYear,
         carLicenseExpireDate = carLicenseExpireDate
     )
 
@@ -91,7 +92,7 @@ object TestObjectBuilder {
         brand: Brands = Brands.TESLA,
         model: String = "Model 3",
         color: Colors = Colors.WHITE,
-        year: Int = 2023,
+        manufacturingYear: Int = 2023,
         carLicenseExpireDate: LocalDateTime? = LocalDateTime.now().plusYears(1),
         hasOwner: Boolean = false
     ) = CarDTO(
@@ -101,7 +102,7 @@ object TestObjectBuilder {
         brand = brand,
         model = model,
         color = color,
-        year = year,
+        manufacturingYear = manufacturingYear,
         carLicenseExpireDate = carLicenseExpireDate,
         hasOwner = hasOwner
     )

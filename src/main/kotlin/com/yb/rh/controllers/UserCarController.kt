@@ -4,6 +4,7 @@ import com.yb.rh.dtos.UserCarRequestDTO
 import com.yb.rh.dtos.UserCarsDTO
 import com.yb.rh.services.MainService
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotNull
 import org.springframework.web.bind.annotation.*
 
 /**

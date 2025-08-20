@@ -60,7 +60,7 @@ class CarRelationsController(
     @DeleteMapping
     fun deleteCarRelations(
         @Valid @RequestBody carsRelationRequestDTO: CarsRelationRequestDTO
-    ): CarRelationsDTO = mainService.deleteCarsRelations(carsRelationRequestDTO)
+    ): List<CarRelationsDTO> = mainService.deleteCarsRelations(carsRelationRequestDTO)
 
     /**
      * Remove all blocking relationships for a specific car
@@ -73,5 +73,5 @@ class CarRelationsController(
     @DeleteMapping("/all-by-car-id")
     fun deleteAllCarRelationsByCarId(
         @RequestParam(name = "carId") carId: Long
-    )= mainService.deleteAllCarRelationsByCarId(carId)
+    ): List<CarRelationsDTO> = mainService.deleteAllCarRelationsByCarId(carId)
 }

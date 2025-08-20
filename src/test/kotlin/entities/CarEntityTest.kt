@@ -28,7 +28,7 @@ class CarEntityTest {
             brand = brand,
             model = model,
             color = color,
-            year = 2020,
+            manufacturingYear = 2020,
             carLicenseExpireDate = carLicenseExpireDate,
             creationTime = creationTime,
             updateTime = updateTime,
@@ -41,7 +41,7 @@ class CarEntityTest {
         assertEquals(brand, car.brand)
         assertEquals(model, car.model)
         assertEquals(color, car.color)
-        assertEquals(2020, car.year)
+        assertEquals(2020, car.manufacturingYear)
         assertEquals(carLicenseExpireDate, car.carLicenseExpireDate)
         assertEquals(creationTime, car.creationTime)
         assertEquals(updateTime, car.updateTime)
@@ -68,7 +68,7 @@ class CarEntityTest {
             brand = brand,
             model = model,
             color = color,
-            year = 2021,
+            manufacturingYear = 2021,
             carLicenseExpireDate = carLicenseExpireDate,
             creationTime = creationTime,
             updateTime = updateTime,
@@ -81,7 +81,7 @@ class CarEntityTest {
         assertEquals(brand, car.brand)
         assertEquals(model, car.model)
         assertEquals(color, car.color)
-        assertEquals(2021, car.year)
+        assertEquals(2021, car.manufacturingYear)
         assertEquals(carLicenseExpireDate, car.carLicenseExpireDate)
         assertEquals(creationTime, car.creationTime)
         assertEquals(updateTime, car.updateTime)
@@ -104,7 +104,7 @@ class CarEntityTest {
         assertEquals(car.brand, carDTO.brand)
         assertEquals(car.model, carDTO.model)
         assertEquals(car.color, carDTO.color)
-        assertEquals(car.year, carDTO.year)
+        assertEquals(car.manufacturingYear, carDTO.manufacturingYear)
         assertEquals(car.carLicenseExpireDate, carDTO.carLicenseExpireDate)
         assertEquals(false, carDTO.hasOwner)
     }
@@ -124,7 +124,7 @@ class CarEntityTest {
         assertEquals(carDTO.brand, car.brand)
         assertEquals(carDTO.model, car.model)
         assertEquals(carDTO.color, car.color)
-        assertEquals(carDTO.year, car.year)
+        assertEquals(carDTO.manufacturingYear, car.manufacturingYear)
         assertEquals(carDTO.carLicenseExpireDate, car.carLicenseExpireDate)
         assertNotNull(car.creationTime)
         assertNotNull(car.updateTime)

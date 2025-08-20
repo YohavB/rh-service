@@ -41,12 +41,12 @@ class MainService(
         val user = userService.getUserById(userCarRequestDTO.userId)
         val car = carService.getCarById(userCarRequestDTO.carId)
 
+        userCarService.getUserCarByUserAndCar(user, car)
+        userCarService.deleteUserCar(user, car)
+        logger.info { "Successfully deleted UserCar for User ID: ${user.userId} and Car ID: ${car.id}" }
+
         return userCarService.getUserCarsDTOByUser(user)
-            .also {
-                userCarService.getUserCarByUserAndCar(user, car)
-                userCarService.deleteUserCar(user, car)
-                logger.info { "Successfully deleted UserCar for User ID: ${user.userId} and Car ID: ${car.id}" }
-            }
+
     }
 
     fun getUserCarsByUser(): UserCarsDTO {
@@ -72,8 +72,7 @@ class MainService(
         }
 
         // Validate that this relationship does not already exist
-        if (carsRelationsService.findCarRelationsByCar(blockingCar)
-                .isBlocking.any { it.id == blockedCar.id }
+        if (carsRelationsService.findCarRelationsByCar(blockingCar).isBlocking.any { it.id == blockedCar.id }
         ) {
             logger.warn { "Cars Relation already exists between Blocking Car: ${blockingCar.plateNumber} and Blocked Car: ${blockedCar.plateNumber}" }
             return getUserCarRelations()
@@ -135,7 +134,7 @@ class MainService(
     }
 
     @Transactional
-    fun deleteCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): CarRelationsDTO {
+    fun deleteCarsRelations(carsRelationRequestDTO: CarsRelationRequestDTO): List<CarRelationsDTO> {
         logger.info { "Deleting Cars Relation between Blocking Car: ${carsRelationRequestDTO.blockingCarId} and Blocked Car: ${carsRelationRequestDTO.blockedCarId}" }
 
         val blockingCar = carService.getCarById(carsRelationRequestDTO.blockingCarId)
@@ -154,15 +153,11 @@ class MainService(
             logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
         }
 
-        val userCar = getActualUserCar(carsRelationRequestDTO.userCarSituation, blockingCar, blockedCar)
-
-        carsRelationsService.findCarRelationsByCar(userCar).let { carRelations ->
-            return createCarRelationsDTO(carRelations)
-        }
+        return getUserCarRelations()
     }
 
     @Transactional
-    fun deleteAllCarRelationsByCarId(carId: Long) {
+    fun deleteAllCarRelationsByCarId(carId: Long): List<CarRelationsDTO> {
         logger.info { "Deleting all Cars Relations for Car ID: $carId" }
 
         val car = carService.getCarById(carId)
@@ -183,6 +178,8 @@ class MainService(
                 logger.warn { "Car ${blockedCar.id} (${blockedCar.plateNumber}) has no owner, skipping notification" }
             }
         }
+
+        return getUserCarRelations()
     }
 
     internal fun getActualUserCar(userCarSituation: UserCarSituation, blockingCar: Car, blockedCar: Car): Car {

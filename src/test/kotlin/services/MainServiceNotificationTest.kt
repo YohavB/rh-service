@@ -157,7 +157,7 @@ class MainServiceNotificationTest {
             brand = Brands.TOYOTA,
             model = "Corolla",
             color = Colors.WHITE,
-            year = 2020,
+            manufacturingYear = 2020,
             carLicenseExpireDate = LocalDateTime.now().plusYears(1),
             creationTime = LocalDateTime.now(),
             updateTime = LocalDateTime.now(),
