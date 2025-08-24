@@ -3,10 +3,7 @@ package com.yb.rh.services
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.Message
-import com.google.firebase.messaging.Notification
-import com.google.firebase.messaging.TopicManagementResponse
+import com.google.firebase.messaging.*
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
@@ -65,19 +62,11 @@ class FirebaseService {
         token: String,
         title: String,
         body: String,
+        sound: String,
         data: Map<String, String> = emptyMap()
     ): String? {
         return try {
-            val message = Message.builder()
-                .setToken(token)
-                .setNotification(
-                    Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build()
-                )
-                .putAllData(data)
-                .build()
+            val message = createMessage(token = token, title = title, body = body, sound = sound, data = data)
 
             val response = firebaseMessaging.send(message)
             logger.info { "Successfully sent message to token ${token.subSequence(0,9)} - response = $response" }
@@ -95,19 +84,11 @@ class FirebaseService {
         topic: String,
         title: String,
         body: String,
+        sound: String?,
         data: Map<String, String> = emptyMap()
     ): String? {
         return try {
-            val message = Message.builder()
-                .setTopic(topic)
-                .setNotification(
-                    Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build()
-                )
-                .putAllData(data)
-                .build()
+            val message = createMessage(title = title, body = body, sound = sound, data = data)
 
             val response = firebaseMessaging.send(message)
             logger.info { "Successfully sent message to topic $topic: $response" }
@@ -173,6 +154,48 @@ class FirebaseService {
             logger.debug { "Token validation failed for ${token.subSequence(0,9)}: ${e.message}" }
             false
         }
+    }
+
+    private fun createMessage(
+        title: String,
+        body: String,
+        token: String? = null,
+        sound: String? = null,
+        data: Map<String, String> = emptyMap()
+    ): Message? {
+        val message = Message.builder()
+            .setNotification(
+                Notification.builder()
+                    .setTitle(title)
+                    .setBody(body)
+                    .build()
+            )
+            .putAllData(data)
+
+        if (token != null) message.setToken(token)
+
+        if (sound != null) {
+            message.setAndroidConfig(
+                AndroidConfig.builder()
+                    .setNotification(
+                        AndroidNotification.builder()
+                            .setSound(sound.removeSuffix(".wav"))
+                            .build()
+                    )
+                    .build()
+            )
+
+            message.setApnsConfig(
+                ApnsConfig.builder()
+                    .setAps(
+                        Aps.builder()
+                            .setSound(sound)
+                            .build()
+                    )
+                    .build()
+            )
+        }
+        return message.build()
     }
 
     /**

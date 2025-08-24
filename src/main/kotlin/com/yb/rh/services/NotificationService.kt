@@ -30,6 +30,7 @@ class NotificationService(
                     token = user.pushNotificationToken,
                     title = notificationsKind.notificationTitle,
                     body = notificationsKind.notificationMessage,
+                    sound = notificationsKind.sound,
                     data = mapOf(
                         "notificationType" to notificationsKind.name,
                         "userId" to user.userId.toString(),
@@ -65,6 +66,7 @@ class NotificationService(
                     topic = topic,
                     title = notificationsKind.notificationTitle,
                     body = notificationsKind.notificationMessage,
+                    sound = notificationsKind.sound,
                     data = mapOf(
                         "notificationType" to notificationsKind.name,
                         "topic" to topic,

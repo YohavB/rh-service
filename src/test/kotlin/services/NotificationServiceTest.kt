@@ -2,13 +2,16 @@ package com.yb.rh.services
 
 import com.yb.rh.TestObjectBuilder
 import com.yb.rh.enum.NotificationsKind
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.*
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class NotificationServiceTest {
     private lateinit var notificationService: NotificationService
@@ -38,6 +41,7 @@ class NotificationServiceTest {
                 "valid-fcm-token-123",
                 "Please move your car",
                 "The car you are blocking needs to leave",
+                "double_car_horn.wav",
                 match { data ->
                     data["notificationType"] == "NEED_TO_GO" &&
                     data["userId"] == "1" &&
@@ -91,16 +95,16 @@ class NotificationServiceTest {
     fun `test sendPushNotification with different notification kinds`() {
         // Given
         val user = TestObjectBuilder.getUser(pushNotificationToken = "valid-fcm-token-123")
-        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) } returns "message-id"
+        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any()) } returns "message-id"
 
         // When
-        NotificationsKind.values().forEach { notificationKind ->
+        NotificationsKind.entries.forEach { notificationKind ->
             notificationService.sendPushNotification(user, notificationKind)
         }
 
         // Then
-        verify(exactly = NotificationsKind.values().size) { 
-            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) 
+        verify(exactly = NotificationsKind.entries.size) {
+            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any())
         }
     }
 
@@ -113,14 +117,14 @@ class NotificationServiceTest {
             TestObjectBuilder.getUser(userId = 3L, pushNotificationToken = "token3")
         )
         val notificationKind = NotificationsKind.NEED_TO_GO
-        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) } returns "message-id"
+        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any()) } returns "message-id"
 
         // When
         notificationService.sendPushNotificationToUsers(users, notificationKind)
 
         // Then
-        verify(exactly = 3) { 
-            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) 
+        verify(exactly = 3) {
+            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any())
         }
     }
 
@@ -140,6 +144,7 @@ class NotificationServiceTest {
                 "general",
                 "You are free to go",
                 "No car is blocking you anymore",
+                "car_horn.wav",
                 match { data ->
                     data["notificationType"] == "FREE_TO_GO" &&
                     data["topic"] == "general" &&
@@ -226,14 +231,14 @@ class NotificationServiceTest {
         // Given
         val user = TestObjectBuilder.getUser(pushNotificationToken = "valid-fcm-token-123")
         val notificationKind = NotificationsKind.BEEN_BLOCKED
-        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) } returns null
+        every { mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any()) } returns null
 
         // When
         notificationService.sendPushNotification(user, notificationKind)
 
         // Then
-        verify { 
-            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any()) 
+        verify {
+            mockFirebaseService.sendNotificationToToken(any(), any(), any(), any(), any())
         }
     }
 
