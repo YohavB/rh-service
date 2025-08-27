@@ -16,8 +16,7 @@ RUN gradle dependencies --no-daemon
 # Copy source code
 COPY src/ src/
 
-# Copy environment-specific configuration
-COPY env.${BUILD_ENV} .env
+# The application will now read environment variables directly
 
 # Build the application with environment-specific profile
 RUN gradle build --no-daemon -x test -Dspring.profiles.active=${BUILD_ENV}
@@ -39,9 +38,6 @@ WORKDIR /app
 
 # Copy the built JAR from build stage
 COPY --from=build /app/build/libs/*.jar app.jar
-
-# Copy environment configuration
-COPY env.${BUILD_ENV} .env
 
 # Create directory for Firebase service account file
 RUN mkdir -p /app/config
