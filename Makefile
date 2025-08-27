@@ -93,17 +93,17 @@ health:
 backup:
 	@echo "Creating database backup..."
 	@echo "Note: Using Coolify database. Backups should be managed through Coolify dashboard."
-	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/rush_hour"
+	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/default"
 
 restore:
 	@echo "Database restore:"
 	@echo "Note: Using Coolify database. Restores should be managed through Coolify dashboard."
-	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/rush_hour"
+	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/default"
 
 restore-file:
 	@echo "Database restore:"
 	@echo "Note: Using Coolify database. Restores should be managed through Coolify dashboard."
-	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/rush_hour"
+	@echo "Database connection: u08w4kcg4sows0s0ksokcg4s:3306/default"
 
 # Flyway migration tasks
 migrate-local:
@@ -126,13 +126,13 @@ migrate-info-prod:
 dev-setup: build-local run-local
 	@echo "Local development environment setup complete!"
 	@echo "Application is running at http://localhost:8008"
-	@echo "Database: Using Coolify database (u08w4kcg4sows0s0ksokcg4s:3306/rush_hour)"
+	@echo "Database: Using Coolify database (u08w4kcg4sows0s0ksokcg4s:3306/default)"
 	@echo "Use 'make logs' to view logs"
 
 prod-setup: build-prod run-prod
 	@echo "Production environment setup complete!"
 	@echo "Application is running at http://localhost:8008"
-	@echo "Database: Using Coolify database (u08w4kcg4sows0s0ksokcg4s:3306/rush_hour)"
+	@echo "Database: Using Coolify database (u08w4kcg4sows0s0ksokcg4s:3306/default)"
 	@echo "Use 'make logs' to view logs"
 
 # Utility commands

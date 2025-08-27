@@ -201,7 +201,7 @@ Create `.vscode/launch.json`:
 
 ```bash
 # Database connection
-DATABASE_URL=jdbc:mysql://u08w4kcg4sows0s0ksokcg4s:3306/rush_hour?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_URL=jdbc:mysql://u08w4kcg4sows0s0ksokcg4s:3306/default?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 DB_USERNAME=user
 DB_PASSWORD=your-secure-password
 ```
@@ -210,7 +210,7 @@ DB_PASSWORD=your-secure-password
 
 ```bash
 # Local database fallback
-DATABASE_URL=jdbc:mysql://localhost:3306/rush_hour?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_URL=jdbc:mysql://localhost:3306/default?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 DB_USERNAME=admin
 DB_PASSWORD=root
 ```
@@ -223,7 +223,7 @@ The Flyway configuration automatically uses the appropriate database settings ba
 
 ```kotlin
 flyway {
-    url = System.getenv("DATABASE_URL") ?: "jdbc:mysql://localhost:3306/rush_hour?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    url = System.getenv("DB_URL") ?: "jdbc:mysql://localhost:3306/default?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
     user = System.getenv("DB_USERNAME") ?: "admin"
     password = System.getenv("DB_PASSWORD") ?: "root"
     locations = arrayOf("classpath:db/migration")
@@ -417,7 +417,7 @@ RH-BE/
 
 ```bash
 # Database Configuration
-DATABASE_URL=jdbc:mysql://host:port/database?params
+DB_URL=jdbc:mysql://host:port/database?params
 DB_USERNAME=username
 DB_PASSWORD=password
 

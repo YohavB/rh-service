@@ -249,7 +249,7 @@ tasks.jacocoTestReport {
 // Flyway configuration - Environment-aware
 flyway {
             // Use environment variables or fall back to local development defaults
-        url = System.getenv("DATABASE_URL") ?: "jdbc:mysql://localhost:3306/rush_hour?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+        url = System.getenv("DB_URL") ?: "jdbc:mysql://localhost:3306/default?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
     user = System.getenv("DB_USERNAME") ?: "admin"
     password = System.getenv("DB_PASSWORD") ?: "root"
     locations = arrayOf("classpath:db/migration")
@@ -263,7 +263,7 @@ tasks.register("flywayMigrateLocal") {
     dependsOn("flywayMigrate")
             doFirst {
             println("Running Flyway migrations for LOCAL environment...")
-            println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+            println("Database: ${System.getenv("DB_URL") ?: "localhost:3306/default"}")
         }
 }
 
@@ -273,7 +273,7 @@ tasks.register("flywayMigrateProd") {
     dependsOn("flywayMigrate")
             doFirst {
             println("Running Flyway migrations for PRODUCTION environment...")
-            println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+            println("Database: ${System.getenv("DB_URL") ?: "localhost:3306/default"}")
         }
 }
 
@@ -283,7 +283,7 @@ tasks.register("flywayInfoLocal") {
     dependsOn("flywayInfo")
     doFirst {
         println("Flyway migration info for LOCAL environment...")
-        println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+        println("Database: ${System.getenv("DB_URL") ?: "localhost:3306/default"}")
     }
 }
 
@@ -293,6 +293,6 @@ tasks.register("flywayInfoProd") {
     dependsOn("flywayInfo")
     doFirst {
         println("Flyway migration info for PRODUCTION environment...")
-        println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+        println("Database: ${System.getenv("DB_URL") ?: "localhost:3306/default"}")
     }
 }
