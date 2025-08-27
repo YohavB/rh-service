@@ -246,11 +246,53 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test)
 }
 
-// Flyway configuration for MySQL (Local Docker Container)
+// Flyway configuration - Environment-aware
 flyway {
-    url = "jdbc:mysql://localhost:3306/rh?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-    user = "admin"
-    password = "root"
+            // Use environment variables or fall back to local development defaults
+        url = System.getenv("DATABASE_URL") ?: "jdbc:mysql://localhost:3306/rush_hour?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    user = System.getenv("DB_USERNAME") ?: "admin"
+    password = System.getenv("DB_PASSWORD") ?: "root"
     locations = arrayOf("classpath:db/migration")
     baselineOnMigrate = true
+}
+
+// Environment-specific Flyway tasks
+tasks.register("flywayMigrateLocal") {
+    group = "flyway"
+    description = "Run Flyway migrations for local environment"
+    dependsOn("flywayMigrate")
+            doFirst {
+            println("Running Flyway migrations for LOCAL environment...")
+            println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+        }
+}
+
+tasks.register("flywayMigrateProd") {
+    group = "flyway"
+    description = "Run Flyway migrations for production environment"
+    dependsOn("flywayMigrate")
+            doFirst {
+            println("Running Flyway migrations for PRODUCTION environment...")
+            println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+        }
+}
+
+tasks.register("flywayInfoLocal") {
+    group = "flyway"
+    description = "Show Flyway migration info for local environment"
+    dependsOn("flywayInfo")
+    doFirst {
+        println("Flyway migration info for LOCAL environment...")
+        println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+    }
+}
+
+tasks.register("flywayInfoProd") {
+    group = "flyway"
+    description = "Show Flyway migration info for production environment"
+    dependsOn("flywayInfo")
+    doFirst {
+        println("Flyway migration info for PRODUCTION environment...")
+        println("Database: ${System.getenv("DATABASE_URL") ?: "localhost:3306/rush_hour"}")
+    }
 }

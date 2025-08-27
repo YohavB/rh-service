@@ -23,7 +23,7 @@ APP_URL="http://localhost:${APP_PORT}"
 
 # Database configuration
 DB_CONTAINER_NAME="rh-mysql-local"
-DB_NAME="rh"
+DB_NAME="rush_hour"
 DB_USER="admin"
 DB_PASSWORD="root"
 DB_PORT=3306

@@ -1,0 +1,34 @@
+version: '3.8'
+
+# Environment-specific configuration
+# Set BUILD_ENV environment variable to build for specific environment
+# Example: BUILD_ENV=prod docker-compose up --build
+
+services:
+  # Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: ${BUILD_ENV}
+    container_name: rh-backend
+    restart: unless-stopped
+    ports:
+      - "8008:8008"
+    env_file:
+      - env.${BUILD_ENV}
+    environment:
+      - SPRING_PROFILES_ACTIVE=${BUILD_ENV}
+    volumes:
+      - ./rushhour-firebase-adminsdk.json:/app/config/rushhour-firebase-adminsdk.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  default:
+    name: rh-network
