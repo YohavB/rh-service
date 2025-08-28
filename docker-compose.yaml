@@ -1,9 +1,5 @@
 version: '3.8'
 
-# Environment-specific configuration
-# Set BUILD_ENV environment variable to build for specific environment
-# Example: BUILD_ENV=prod docker-compose up --build
-
 services:
   # Backend Application
   backend:
@@ -28,3 +24,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
