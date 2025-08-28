@@ -82,13 +82,18 @@ class FirebaseService {
             )
         }
 
+        // Format the private key properly - handle both literal \n and actual newlines
+        val formattedPrivateKey = privateKey
+            .replace("\\n", "\n")  // Replace literal \n with actual newlines
+            .trim()                // Remove any leading/trailing whitespace
+
         // Create the service account JSON structure from environment variables
         val serviceAccountJson = """
         {
             "type": "service_account",
             "project_id": "$projectId",
             "private_key_id": "$privateKeyId",
-            "private_key": "$privateKey",
+            "private_key": "$formattedPrivateKey",
             "client_email": "$clientEmail",
             "client_id": "$clientId",
             "auth_uri": "$authUri",
