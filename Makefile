@@ -32,50 +32,50 @@ help:
 # Build commands
 build-local:
 	@echo "Building Docker image for local environment..."
-	BUILD_ENV=local docker-compose build
+	./build-docker.sh local
 
 build-prod:
 	@echo "Building Docker image for production environment..."
-	BUILD_ENV=prod docker-compose build
+	./build-docker.sh prod
 
 # Run commands
 run-local:
 	@echo "Starting application with local environment..."
-	BUILD_ENV=local docker-compose up -d
+	@echo "Use: docker run -p 8008:8008 --env-file env.local rh-backend:local"
 
 run-prod:
 	@echo "Starting application with production environment..."
-	BUILD_ENV=prod docker-compose up -d
+	@echo "Use: docker run -p 8008:8008 --env-file env.prod rh-backend:prod"
 
 # Management commands
 stop:
-	@echo "Stopping all services..."
-	docker-compose down
+	@echo "Stopping all containers..."
+	@echo "Use: docker stop \$(docker ps -q --filter ancestor=rh-backend)"
 
 clean:
-	@echo "Cleaning up all containers, networks, and volumes..."
-	docker-compose down -v --rmi all
+	@echo "Cleaning up all containers and images..."
+	docker system prune -f
 
 logs:
-	@echo "Viewing logs for all services..."
-	docker-compose logs -f
+	@echo "Viewing logs for containers..."
+	@echo "Use: docker logs \$(docker ps -q --filter ancestor=rh-backend)"
 
 logs-backend:
-	@echo "Viewing logs for backend service..."
-	docker-compose logs -f backend
+	@echo "Viewing logs for backend container..."
+	@echo "Use: docker logs \$(docker ps -q --filter ancestor=rh-backend)"
 
 # Development commands
 test:
-	@echo "Running tests in container..."
-	docker-compose exec backend ./gradlew test
+	@echo "Running tests locally..."
+	./gradlew test
 
 test-integration:
-	@echo "Running integration tests in container..."
-	docker-compose exec backend ./gradlew integrationTest
+	@echo "Running integration tests locally..."
+	./gradlew integrationTest
 
 shell:
-	@echo "Opening shell in backend container..."
-	docker-compose exec backend /bin/bash
+	@echo "Opening shell in running container..."
+	@echo "Use: docker exec -it \$(docker ps -q --filter ancestor=rh-backend) /bin/bash"
 
 db-shell:
 	@echo "Opening MySQL shell..."
@@ -83,8 +83,8 @@ db-shell:
 
 # Health and monitoring
 health:
-	@echo "Checking health of all services..."
-	docker-compose ps
+	@echo "Checking health of containers..."
+	@echo "Use: docker ps --filter ancestor=rh-backend"
 	@echo ""
 	@echo "Health check endpoints:"
 	@echo "  Backend: http://localhost:8008/health"
@@ -108,19 +108,19 @@ restore-file:
 # Flyway migration tasks
 migrate-local:
 	@echo "Running Flyway migrations for local environment..."
-	BUILD_ENV=local docker-compose exec backend ./gradlew flywayMigrateLocal
+	./gradlew flywayMigrateLocal
 
 migrate-prod:
 	@echo "Running Flyway migrations for production environment..."
-	BUILD_ENV=prod docker-compose exec backend ./gradlew flywayMigrateProd
+	./gradlew flywayMigrateProd
 
 migrate-info-local:
 	@echo "Showing Flyway migration info for local environment..."
-	BUILD_ENV=local docker-compose exec backend ./gradlew flywayInfoLocal
+	./gradlew flywayInfoLocal
 
 migrate-info-prod:
 	@echo "Showing Flyway migration info for production environment..."
-	BUILD_ENV=prod docker-compose exec backend ./gradlew flywayInfoProd
+	./gradlew flywayInfoProd
 
 # Quick development setup
 dev-setup: build-local run-local
@@ -138,21 +138,21 @@ prod-setup: build-prod run-prod
 # Utility commands
 status:
 	@echo "Service status:"
-	docker-compose ps
+	@echo "Use: docker ps --filter ancestor=rh-backend"
 
 restart:
-	@echo "Restarting all services..."
-	docker-compose restart
+	@echo "Restarting containers..."
+	@echo "Use: docker restart \$(docker ps -q --filter ancestor=rh-backend)"
 
 restart-backend:
-	@echo "Restarting backend service..."
-	docker-compose restart backend
+	@echo "Restarting backend container..."
+	@echo "Use: docker restart \$(docker ps -q --filter ancestor=rh-backend)"
 
 # Environment info
 env-info:
 	@echo "Current environment configuration:"
 	@echo "  BUILD_ENV: $(BUILD_ENV)"
-	@echo "  SPRING_PROFILES_ACTIVE: $(shell docker-compose exec backend printenv SPRING_PROFILES_ACTIVE 2>/dev/null || echo "Not set")"
+	@echo "  SPRING_PROFILES_ACTIVE: $(shell printenv SPRING_PROFILES_ACTIVE 2>/dev/null || echo "Not set")"
 	@echo ""
 	@echo "Environment files:"
 	@ls -la env.* 2>/dev/null || echo "No environment files found"

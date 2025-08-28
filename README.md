@@ -39,17 +39,31 @@ RushHour Backend is a RESTful API service that manages users, cars, and their re
 git clone <your-repo-url>
 cd RH-BE
 
+# Set up environment files first
+cp env.local.template env.local
+cp env.prod.template env.prod
+# Edit env.local and env.prod with your actual values
+# 
+# IMPORTANT: For Firebase to work, you need to set these environment variables:
+# - FIREBASE_PROJECT_ID: Your Firebase project ID
+# - FIREBASE_PRIVATE_KEY: Your Firebase service account private key (with quotes and newlines)
+# - FIREBASE_CLIENT_EMAIL: Your Firebase service account email
+# - FIREBASE_CLIENT_ID: Your Firebase service account client ID
+# - FIREBASE_PRIVATE_KEY_ID: Your Firebase service account private key ID
+
 # Build and run local environment
-BUILD_ENV=local docker-compose up --build -d
+BUILD_ENV=local ./build-docker.sh local
+docker run -p 8008:8008 --env-file env.local rh-backend:local
 
 # Or build and run production environment
-BUILD_ENV=prod docker-compose up --build -d
+BUILD_ENV=prod ./build-docker.sh prod
+docker run -p 8008:8008 --env-file env.prod rh-backend:prod
 
 # Check service status
-docker-compose ps
+docker ps --filter ancestor=rh-backend
 
 # View logs
-docker-compose logs -f backend
+docker logs $(docker ps -q --filter ancestor=rh-backend)
 ```
 
 #### **2. Using Makefile (Easier)**
@@ -104,6 +118,36 @@ export SPRING_PROFILES_ACTIVE=local
 
 # Run application
 ./gradlew bootRun
+```
+
+## 🔥 **Firebase Configuration**
+
+The application now uses environment variables for Firebase configuration instead of JSON files. This is more secure and suitable for containerized deployments.
+
+### **Required Firebase Environment Variables:**
+
+1. **FIREBASE_PROJECT_ID**: Your Firebase project ID
+2. **FIREBASE_PRIVATE_KEY**: Your Firebase service account private key (include the full key with quotes and newlines)
+3. **FIREBASE_CLIENT_EMAIL**: Your Firebase service account email (format: `service-account@project-id.iam.gserviceaccount.com`)
+4. **FIREBASE_CLIENT_ID**: Your Firebase service account client ID
+5. **FIREBASE_PRIVATE_KEY_ID**: Your Firebase service account private key ID
+
+### **How to Get Firebase Service Account Credentials:**
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project
+3. Go to **Project Settings** → **Service Accounts**
+4. Click **Generate New Private Key**
+5. Download the JSON file
+6. **Use our helper script** to extract the values:
+   ```bash
+   ./extract-firebase-env.sh ~/Downloads/rushhour-firebase-adminsdk.json
+   ```
+7. Copy the output to your `env.prod` or `env.local` file
+
+### **Example Private Key Format:**
+```
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n"
 ```
 
 ## 🎯 **Environment Profiles**
@@ -403,7 +447,7 @@ RH-BE/
 │   └── test/               # Test suites
 ├── build.gradle.kts        # Build configuration
 ├── Dockerfile              # Multi-stage Docker build
-├── docker-compose.yml      # Service orchestration
+├── Dockerfile              # Container image definition
 ├── Makefile                # Development commands
 ├── build-docker.sh         # Docker build script
 ├── env.local               # Local environment config
@@ -504,7 +548,7 @@ nano .env  # Update with production values
 ### **2. Docker Deployment**
 ```bash
 # Build and run production
-BUILD_ENV=prod docker-compose up --build -d
+BUILD_ENV=prod ./build-docker.sh prod && docker run -p 8008:8008 --env-file env.prod rh-backend:prod
 
 # Or use Makefile
 make prod-setup
@@ -600,7 +644,7 @@ docker stats
 make migrate-info-local
 
 # Verify environment variables
-docker-compose exec backend env | grep -E "(DATABASE|FLYWAY)"
+docker exec $(docker ps -q --filter ancestor=rh-backend) env | grep -E "(DATABASE|FLYWAY)"
 ```
 
 #### **4. Docker Build Issues**
@@ -609,7 +653,7 @@ docker-compose exec backend env | grep -E "(DATABASE|FLYWAY)"
 docker system prune -a
 
 # Rebuild without cache
-docker-compose build --no-cache
+./build-docker.sh prod --no-cache
 ```
 
 ### **Debug Commands**
@@ -619,7 +663,7 @@ make status
 make health
 
 # View environment variables
-docker-compose exec backend env
+docker exec $(docker ps -q --filter ancestor=rh-backend) env
 
 # Check application logs
 make logs-backend

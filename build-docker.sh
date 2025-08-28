@@ -135,8 +135,8 @@ show_summary() {
     echo "To run the container:"
     echo "  docker run -p 8008:8008 $IMAGE_NAME:$TAG"
     echo ""
-    echo "To run with docker-compose:"
-    echo "  docker-compose up --build"
+    echo "To run the container:"
+echo "  docker run -p 8008:8008 --env-file env.${BUILD_ENV} rh-backend:${BUILD_ENV}"
 }
 
 # Parse command line arguments

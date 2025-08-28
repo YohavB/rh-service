@@ -6,8 +6,8 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.*
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import javax.annotation.PostConstruct
 
@@ -16,11 +16,32 @@ class FirebaseService {
 
     private val logger = KotlinLogging.logger {}
 
-    @Value("\${firebase.service-account.path:rushhour-firebase-adminsdk.json}")
-    private lateinit var serviceAccountPath: String
-
     @Value("\${firebase.project-id:rushhour-yohavb}")
     private lateinit var projectId: String
+
+    @Value("\${firebase.private-key-id:}")
+    private lateinit var privateKeyId: String
+
+    @Value("\${firebase.private-key:}")
+    private lateinit var privateKey: String
+
+    @Value("\${firebase.client-email:}")
+    private lateinit var clientEmail: String
+
+    @Value("\${firebase.client-id:}")
+    private lateinit var clientId: String
+
+    @Value("\${firebase.auth-uri:https://accounts.google.com/o/oauth2/auth}")
+    private lateinit var authUri: String
+
+    @Value("\${firebase.token-uri:https://oauth2.googleapis.com/token}")
+    private lateinit var tokenUri: String
+
+    @Value("\${firebase.auth-provider-x509-cert-url:https://www.googleapis.com/oauth2/v1/certs}")
+    private lateinit var authProviderX509CertUrl: String
+
+    @Value("\${firebase.client-x509-cert-url:}")
+    private lateinit var clientX509CertUrl: String
 
     private lateinit var firebaseApp: FirebaseApp
     private lateinit var firebaseMessaging: FirebaseMessaging
@@ -30,10 +51,10 @@ class FirebaseService {
         try {
             // Check if Firebase is already initialized
             if (FirebaseApp.getApps().isEmpty()) {
-                val serviceAccount = ClassPathResource(serviceAccountPath).inputStream
+                val credentials = createCredentialsFromEnvironment()
                 
                 val options = FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(credentials)
                     .setProjectId(projectId)
                     .build()
 
@@ -46,12 +67,42 @@ class FirebaseService {
                 firebaseMessaging = FirebaseMessaging.getInstance(firebaseApp)
                 logger.info { "Firebase Admin SDK already initialized, using existing instance" }
             }
-        } catch (e: IOException) {
-            logger.error(e) { "Failed to read Firebase service account file: $serviceAccountPath" }
-            throw RuntimeException("Firebase initialization failed", e)
         } catch (e: Exception) {
             logger.error(e) { "Failed to initialize Firebase Admin SDK" }
             throw RuntimeException("Firebase initialization failed", e)
+        }
+    }
+
+    private fun createCredentialsFromEnvironment(): GoogleCredentials {
+        // Check if we have the minimum required environment variables
+        if (privateKey.isBlank() || clientEmail.isBlank() || projectId.isBlank()) {
+            throw IllegalStateException(
+                "Missing required Firebase environment variables. " +
+                "Required: FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, FIREBASE_PROJECT_ID"
+            )
+        }
+
+        // Create the service account JSON structure from environment variables
+        val serviceAccountJson = """
+        {
+            "type": "service_account",
+            "project_id": "$projectId",
+            "private_key_id": "$privateKeyId",
+            "private_key": "$privateKey",
+            "client_email": "$clientEmail",
+            "client_id": "$clientId",
+            "auth_uri": "$authUri",
+            "token_uri": "$tokenUri",
+            "auth_provider_x509_cert_url": "$authProviderX509CertUrl",
+            "client_x509_cert_url": "$clientX509CertUrl"
+        }
+        """.trimIndent()
+
+        return try {
+            GoogleCredentials.fromStream(ByteArrayInputStream(serviceAccountJson.toByteArray()))
+        } catch (e: IOException) {
+            logger.error(e) { "Failed to create Google credentials from environment variables" }
+            throw RuntimeException("Failed to create Firebase credentials", e)
         }
     }
 
