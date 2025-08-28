@@ -39,7 +39,7 @@ class ProfileValidationConfig(private val environment: Environment) {
                    -Dspring.profiles.active=local
                 
                 4. Docker:
-                   BUILD_ENV=local docker-compose up --build
+                   BUILD_ENV=local ./build-docker.sh local && docker run -p 8008:8008 --env-file env.local rh-backend:local
                 
                 ❌ Application startup aborted for safety.
             """.trimIndent())

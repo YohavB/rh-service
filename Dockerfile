@@ -39,9 +39,6 @@ WORKDIR /app
 # Copy the built JAR from build stage
 COPY --from=build /app/build/libs/*.jar app.jar
 
-# Create directory for Firebase service account file
-RUN mkdir -p /app/config
-
 # Change ownership to app user
 RUN chown -R appuser:appuser /app
 
